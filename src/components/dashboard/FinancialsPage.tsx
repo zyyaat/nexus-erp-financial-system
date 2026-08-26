@@ -278,9 +278,9 @@ function TransactionTypeBadge({ type }: { type: Transaction['type'] }) {
 
 function TransactionStatusBadge({ status }: { status: Transaction['status'] }) {
   const config = {
-    completed: { icon: CheckCircle2, className: 'text-emerald-600 bg-emerald-100' },
-    pending: { icon: Clock, className: 'text-amber-600 bg-amber-100' },
-    failed: { icon: AlertCircle, className: 'text-red-600 bg-red-100' }
+    completed: { icon: CheckCircle2, className: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30' },
+    pending: { icon: Clock, className: 'text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30' },
+    failed: { icon: AlertCircle, className: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30' }
   }
 
   const { icon: Icon, className } = config[status]
@@ -295,10 +295,10 @@ function TransactionStatusBadge({ status }: { status: Transaction['status'] }) {
 
 function InvoiceStatusBadge({ status }: { status: Invoice['status'] }) {
   const config = {
-    paid: { className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-    pending: { className: 'bg-blue-100 text-blue-700 border-blue-200' },
-    overdue: { className: 'bg-red-100 text-red-700 border-red-200' },
-    draft: { className: 'bg-slate-100 text-slate-600 border-slate-200' }
+    paid: { className: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' },
+    pending: { className: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800' },
+    overdue: { className: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' },
+    draft: { className: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' }
   }
 
   return (
@@ -403,20 +403,20 @@ function OverviewSection() {
       {/* Secondary KPIs Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Liquidity Metrics */}
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
-          <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
-            <Activity size={18} className="text-blue-500" />
+        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-5 shadow-lg dark:shadow-slate-900/30">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+            <Activity size={18} className="text-blue-500 dark:text-blue-400" />
             Liquidity Metrics / مؤشرات السيولة
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {liquidityKPIs.map((kpi) => (
-              <div key={kpi.label} className="p-3 bg-slate-50 rounded-lg">
-                <p className="text-xs text-slate-500 mb-1">{kpi.labelAr}</p>
+              <div key={kpi.label} className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{kpi.labelAr}</p>
                 <div className="flex items-center justify-between">
                   <span className={`text-sm font-bold ${
-                    kpi.status === 'good' ? 'text-emerald-600' : 'text-amber-600'
+                    kpi.status === 'good' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
                   }`}>{kpi.value}</span>
-                  <span className="text-xs text-slate-400">{kpi.target}</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">{kpi.target}</span>
                 </div>
               </div>
             ))}
@@ -424,18 +424,18 @@ function OverviewSection() {
         </div>
 
         {/* Profitability Metrics */}
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
-          <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
-            <TrendingUpIcon size={18} className="text-emerald-500" />
+        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-5 shadow-lg dark:shadow-slate-900/30">
+          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+            <TrendingUpIcon size={18} className="text-emerald-500 dark:text-emerald-400" />
             Profitability Metrics / مؤشرات الربحية
           </h3>
           <div className="space-y-3">
             {profitabilityKPIs.map((kpi) => (
-              <div key={kpi.label} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg">
-                <span className="text-sm text-slate-700">{kpi.labelAr}</span>
+              <div key={kpi.label} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                <span className="text-sm text-slate-700 dark:text-slate-300">{kpi.labelAr}</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900">{kpi.value}</span>
-                  <span className="text-xs font-medium text-emerald-600">{kpi.change}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{kpi.value}</span>
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{kpi.change}</span>
                 </div>
               </div>
             ))}
@@ -447,47 +447,47 @@ function OverviewSection() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Transactions */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+          <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-5 shadow-lg dark:shadow-slate-900/30">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                <Receipt size={18} className="text-indigo-500" />
+              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Receipt size={18} className="text-indigo-500 dark:text-indigo-400" />
                 Recent Transactions / آخر المعاملات
               </h3>
               <div className="flex items-center gap-2">
-                <button className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                  <Filter size={16} className="text-slate-500" />
+                <button className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                  <Filter size={16} className="text-slate-500 dark:text-slate-400" />
                 </button>
-                <button className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                  <Download size={16} className="text-slate-500" />
+                <button className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                  <Download size={16} className="text-slate-500 dark:text-slate-400" />
                 </button>
               </div>
             </div>
 
             {/* Summary */}
-            <div className="flex items-center gap-6 pb-4 mb-4 border-b border-slate-200">
+            <div className="flex items-center gap-6 pb-4 mb-4 border-b border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                <span className="text-sm text-slate-600">Income: <strong className="text-emerald-700">${totalIncome.toLocaleString()}</strong></span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">Income: <strong className="text-emerald-700 dark:text-emerald-400">${totalIncome.toLocaleString()}</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <span className="text-sm text-slate-600">Expense: <strong className="text-red-700">${totalExpenses.toLocaleString()}</strong></span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">Expense: <strong className="text-red-700 dark:text-red-400">${totalExpenses.toLocaleString()}</strong></span>
               </div>
             </div>
 
             {/* Transaction List - Mobile Responsive */}
             <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
               {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="p-4 bg-slate-50/80 rounded-xl hover:bg-slate-100/80 transition-all group border border-slate-100 hover:border-slate-200 hover:shadow-md">
+                <div key={transaction.id} className="p-4 bg-slate-50/80 dark:bg-slate-700/30 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-700/50 transition-all group border border-slate-100 dark:border-slate-700/50 hover:border-slate-200 dark:hover:border-slate-600 hover:shadow-md dark:hover:shadow-slate-900/20">
                   {/* Main Row: Icon + Description + Amount */}
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg ${transaction.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'} flex-shrink-0 mt-0.5`}>
-                      {transaction.type === 'income' ? <ArrowUpLeft size={16} className="text-emerald-600" /> : <ArrowDownRight size={16} className="text-red-600" />}
+                    <div className={`p-2 rounded-lg ${transaction.type === 'income' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'} flex-shrink-0 mt-0.5`}>
+                      {transaction.type === 'income' ? <ArrowUpLeft size={16} className="text-emerald-600 dark:text-emerald-400" /> : <ArrowDownRight size={16} className="text-red-600 dark:text-red-400" />}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       {/* Description - Full text, no truncate */}
-                      <p className="font-medium text-sm text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">
+                      <p className="font-medium text-sm text-slate-900 dark:text-slate-100 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
                         {transaction.description}
                       </p>
                       
@@ -532,7 +532,7 @@ function OverviewSection() {
                     <span className="text-sm font-medium text-slate-700">{item.nameAr}</span>
                     <span className="text-xs text-slate-500">${(item.amount / 1000).toFixed(1)}k ({item.percentage}%)</span>
                   </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                     <div 
                       className={`${item.color} h-full rounded-full transition-all duration-500`}
                       style={{ width: `${item.percentage}%` }}
@@ -632,10 +632,10 @@ function GLSection() {
             General Ledger
             <span className="text-lg font-normal text-slate-500">/ دفتر الأستاذ العام</span>
           </h3>
-          <p className="text-slate-500 mt-1">Chart of accounts with balances and activity</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Chart of accounts with balances and activity</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2">
             <Plus size={16} />
             New Entry
           </button>
@@ -804,10 +804,10 @@ function APSection() {
             Accounts Payable
             <span className="text-lg font-normal text-slate-500">/ حسابات الدائنة</span>
           </h3>
-          <p className="text-slate-500 mt-1">Manage vendor invoices and payments</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage vendor invoices and payments</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2">
             <Upload size={16} />
             Import Invoice
           </button>
@@ -979,10 +979,10 @@ function ARSection() {
             Accounts Receivable
             <span className="text-lg font-normal text-slate-500">/ حسابات القبض</span>
           </h3>
-          <p className="text-slate-500 mt-1">Manage customer invoices and collections</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage customer invoices and collections</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2">
             <RefreshCw size={16} />
             Send Reminders
           </button>
@@ -1154,10 +1154,10 @@ function TreasurySection() {
             Treasury Management
             <span className="text-lg font-normal text-slate-500">/ إدارة الخزينة</span>
           </h3>
-          <p className="text-slate-500 mt-1">Monitor cash positions and bank accounts</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Monitor cash positions and bank accounts</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2">
             <RefreshCw size={16} />
             Reconcile
           </button>
@@ -1304,7 +1304,7 @@ function ReportsSection() {
             Financial Reports
             <span className="text-lg font-normal text-slate-500">/ التقارير المالية</span>
           </h3>
-          <p className="text-slate-500 mt-1">Generate and export financial statements</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Generate and export financial statements</p>
         </div>
         <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 text-white font-medium text-sm shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all flex items-center gap-2">
           <Printer size={16} />
@@ -1346,10 +1346,10 @@ function BudgetSection() {
             Budget & Forecasting
             <span className="text-lg font-normal text-slate-500">/ الميزانية والتنبؤ</span>
           </h3>
-          <p className="text-slate-500 mt-1">Plan, monitor, and analyze budget performance</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Plan, monitor, and analyze budget performance</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2">
             <Upload size={16} />
             Import
           </button>
@@ -1423,7 +1423,7 @@ function BudgetSection() {
                 <span className="text-sm font-medium text-slate-700">{item.deptAr}</span>
                 <span className="text-xs text-slate-500">{item.pct}% used</span>
               </div>
-              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
                 <div className="h-full flex">
                   <div 
                     className="bg-emerald-500 transition-all duration-500"
