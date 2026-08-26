@@ -1,27 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1"/>
-      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    <linearGradient id="m" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
     </linearGradient>
   </defs>
   
-  <!-- Background -->
-  <rect x="1" y="1" width="30" height="30" rx="7" ry="7" fill="url(#g)"/>
+  <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#m)"/>
   
-  <!-- Chart bars -->
-  <rect x="7" y="18" width="4" height="9" rx="1.5" fill="#fff" opacity="0.95"/>
-  <rect x="14" y="13" width="4" height="14" rx="1.5" fill="#fff"/>
-  <rect x="21" y="8" width="4" height="19" rx="1.5" fill="#34d399"/>
+  <rect x="7" y="15" width="4" height="10" rx="1.5" fill="white" opacity="0.95"/>
+  <rect x="12.5" y="9" width="4" height="16" rx="1.5" fill="white"/>
+  <rect x="18" y="12" width="4" height="13" rx="1.5" fill="white" opacity="0.9"/>
   
-  <!-- Trend line -->
-  <path d="M 8 20 L 15.5 14 L 23 7" 
-        stroke="#34d399" 
-        stroke-width="2" 
-        stroke-linecap="round"
-        fill="none"/>
+  <path d="M 8.5 17 L 19.5 11" stroke="url(#g)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <polygon points="22,9 23,13 18,12" fill="url(#g)"/>
   
-  <!-- Arrow -->
-  <polygon points="23,4 26,8 20,8" fill="#34d399"/>
+  <circle cx="8.5" cy="17" r="1.5" fill="white" opacity="0.9"/>
+  <circle cx="19.5" cy="11" r="1.5" fill="#34d399"/>
   
 </svg>
