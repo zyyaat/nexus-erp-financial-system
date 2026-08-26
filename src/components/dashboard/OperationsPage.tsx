@@ -205,7 +205,7 @@ function OpsKPICard({ kpi }: { kpi: typeof operationsKPIs[0] }) {
   const isPositive = kpi.change >= 0
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-indigo-500/4">
       {/* Background Glow */}
       <div className={`absolute top-0 right-0 w-32 h-32 ${kpi.bgColor} rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
 
@@ -240,7 +240,7 @@ function WorkflowCard({ workflow }: { workflow: Workflow }) {
   const { t } = useI18n()
   
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 hover:-translate-y-0.5 transition-all duration-300 shadow-lg shadow-indigo-500/4 group">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 hover:-translate-y-0.5 transition-all duration-300 shadow-lg shadow-indigo-500/4 group">
       {/* Header Row */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
@@ -393,7 +393,7 @@ export default function OperationsPage() {
             {t('ops.activityFeed')}
           </h3>
 
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
             <div className="space-y-4">
               {[
                 { id: 'ACT-001', type: 'success' as const, messageKey: 'activity.shipmentCompleted', timeKey: 'time.justNow' },

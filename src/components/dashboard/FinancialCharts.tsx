@@ -252,7 +252,7 @@ export default function FinancialCharts() {
         </div>
         
         {/* Chart Controls */}
-        <div className="flex items-center gap-2 bg-white dark:bg-[#1A1D26] rounded-xl p-1 border border-white/10">
+        <div className="flex items-center gap-2 bg-white dark:bg-[#0A0A0A] rounded-xl p-1 border border-white/10">
           <button
             onClick={() => setChartType('bar')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -318,7 +318,7 @@ export default function FinancialCharts() {
       {/* Main Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Primary Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+        <div className="lg:col-span-2 bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-semibold text-slate-900 dark:text-white">
               Monthly Performance / الأداء الشهري
@@ -368,7 +368,7 @@ export default function FinancialCharts() {
         </div>
 
         {/* Donut Chart - Category Breakdown */}
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-center">
             Expense Breakdown / توزيع المصروفات
           </h3>
@@ -394,7 +394,7 @@ export default function FinancialCharts() {
       </div>
 
       {/* Cash Flow Section */}
-      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+      <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
         <h3 className="font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
           <ArrowUpRight size={20} className="text-emerald-500" />
           Weekly Cash Flow / التدفق النقدي الأسبوعي

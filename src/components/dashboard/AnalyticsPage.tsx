@@ -121,7 +121,7 @@ function AnalyticsKPICard({ kpi }: { kpi: MetricCard }) {
   const isPositive = kpi.change >= 0
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-indigo-500/4">
       <div className={`absolute top-0 right-0 w-32 h-32 ${kpi.bgColor} rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
 
       <div className="flex justify-between items-start mb-4 relative z-10">
@@ -235,7 +235,7 @@ export default function AnalyticsPage() {
         {/* Traffic Chart Section - Takes 2 columns on XL */}
         <div className="xl:col-span-2 space-y-6">
           {/* Main Traffic Chart */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
@@ -287,7 +287,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Top Pages Table */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <BarChart3 size={18} className="text-violet-500" />
               {t('analytics.topPages')}
@@ -327,7 +327,7 @@ export default function AnalyticsPage() {
         {/* Sidebar - Takes 1 column on XL */}
         <div className="space-y-4">
           {/* Traffic Sources */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <TrendingUp size={18} className="text-emerald-500" />
               {t('analytics.trafficSources')}
@@ -377,7 +377,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Real-time Activity */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <RefreshCw size={18} className="text-cyan-500 animate-spin" style={{ animationDuration: '3s' }} />
               {t('analytics.liveActivity')}

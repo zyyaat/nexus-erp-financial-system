@@ -339,7 +339,7 @@ function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
   }
 
   return (
-    <div className={`bg-white dark:bg-[#1A1D26] border ${borderColors[kpi.color as keyof typeof borderColors]} border-white/10 rounded-lg p-5 flex flex-col justify-between group hover:shadow-lg hover:border-white/20 transition-all duration-200`}>
+    <div className={`bg-white dark:bg-[#0A0A0A] border ${borderColors[kpi.color as keyof typeof borderColors]} border-white/10 rounded-lg p-5 flex flex-col justify-between group hover:shadow-lg hover:border-white/20 transition-all duration-200`}>
       <div className="flex justify-between items-start mb-3">
         <div className={`p-3 rounded-lg ${iconBgColors[kpi.color as keyof typeof iconBgColors]}`}>
           <Icon size={22} />
@@ -380,7 +380,7 @@ function TabNavigation({ activeTab, setActiveTab }: { activeTab: FinanceTab; set
   ]
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-1 shadow-md flex gap-1 overflow-x-auto">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-1 shadow-md flex gap-1 overflow-x-auto">
       {tabs.map((tab) => (
         <button 
           key={tab.id}
@@ -417,7 +417,7 @@ function OverviewSection() {
       {/* Secondary KPIs Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Liquidity Metrics */}
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Activity size={18} className="text-blue-500" />
             Liquidity Metrics / مؤشرات السيولة
@@ -438,7 +438,7 @@ function OverviewSection() {
         </div>
 
         {/* Profitability Metrics */}
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <TrendingUpIcon size={18} className="text-emerald-500" />
             Profitability Metrics / مؤشرات الربحية
@@ -461,7 +461,7 @@ function OverviewSection() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Transactions */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
                 <Receipt size={18} className="text-indigo-500" />
@@ -533,7 +533,7 @@ function OverviewSection() {
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Expense Breakdown */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <PieChart size={18} className="text-violet-500" />
               Expense Breakdown / توزيع المصروفات
@@ -593,7 +593,7 @@ function OverviewSection() {
           </div>
 
           {/* Currencies */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <Globe size={18} className="text-cyan-500" />
               Multi-Currency / تعدد العملات
@@ -661,7 +661,7 @@ function GLSection() {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-4 shadow-md">
+      <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-4 shadow-md">
         <div className="relative flex-1">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -712,7 +712,7 @@ function GLSection() {
       </div>
 
       {/* Accounts Table - Mobile Responsive */}
-      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg shadow-md overflow-hidden">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[600px]">
@@ -834,7 +834,7 @@ function APSection() {
 
       {/* AP Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-orange-100 rounded-lg text-orange-600">
               <FileText size={20} />
@@ -845,7 +845,7 @@ function APSection() {
           <p className="text-xs text-emerald-600 mt-1">↓ 8% from last month</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-red-100 rounded-lg text-red-600">
               <AlertTriangle size={20} />
@@ -856,7 +856,7 @@ function APSection() {
           <p className="text-xs text-slate-500 mt-1">Requires attention</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <Wallet size={20} />
@@ -867,7 +867,7 @@ function APSection() {
           <p className="text-xs text-slate-500 mt-1">Across {vendors.length} vendors</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <CheckCircle2 size={20} />
@@ -880,7 +880,7 @@ function APSection() {
       </div>
 
       {/* Vendors Table - Mobile Responsive */}
-      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg shadow-md overflow-hidden">
         <div className="p-4 md:p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Building2 size={18} className="text-orange-500" />
@@ -1009,7 +1009,7 @@ function ARSection() {
 
       {/* AR Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <FileText size={20} />
@@ -1020,7 +1020,7 @@ function ARSection() {
           <p className="text-xs text-slate-500 mt-1">Active invoices</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-red-100 rounded-lg text-red-600">
               <AlertTriangle size={20} />
@@ -1031,7 +1031,7 @@ function ARSection() {
           <p className="text-xs text-slate-500 mt-1">1 invoice overdue</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
               <Coins size={20} />
@@ -1042,7 +1042,7 @@ function ARSection() {
           <p className="text-xs text-slate-500 mt-1">Across {customers.length} customers</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <PiggyBank size={20} />
@@ -1055,7 +1055,7 @@ function ARSection() {
       </div>
 
       {/* Customers Table - Mobile Responsive */}
-      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg shadow-md overflow-hidden">
         <div className="p-4 md:p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Users size={18} className="text-blue-500" />
@@ -1223,7 +1223,7 @@ function TreasurySection() {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
             <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
               <TrendingUp size={18} className="text-emerald-500" />
               Cash Flow (MTD)
@@ -1255,7 +1255,7 @@ function TreasurySection() {
       </div>
 
       {/* Bank Accounts */}
-      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg shadow-md overflow-hidden">
         <div className="p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Banknote size={18} className="text-emerald-500" />
@@ -1335,7 +1335,7 @@ function ReportsSection() {
           { title: 'Aging Report', titleAr: 'تقرير الاستحقاق', desc: 'AR/AP aging by period', icon: Clock, color: 'orange' },
           { title: 'Tax Summary', titleAr: 'ملخص ضريبي', desc: 'Tax liabilities and obligations', icon: Shield, color: 'red' }
         ].map((report) => (
-          <div key={report.title} className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all hover:shadow-md transition-all cursor-pointer group">
+          <div key={report.title} className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all hover:shadow-md transition-all cursor-pointer group">
             <div className={`p-3 rounded-xl bg-${report.color}-100 text-${report.color}-600 w-fit mb-3 group-hover:scale-110 transition-transform`}>
               <report.icon size={24} />
             </div>
@@ -1376,7 +1376,7 @@ function BudgetSection() {
 
       {/* Budget Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-teal-100 rounded-lg text-teal-600">
               <Calculator size={20} />
@@ -1387,7 +1387,7 @@ function BudgetSection() {
           <p className="text-xs text-slate-500 mt-1">FY 2026</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <Activity size={20} />
@@ -1398,7 +1398,7 @@ function BudgetSection() {
           <p className="text-xs text-emerald-600 mt-1">78% of budget</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <TrendingUp size={20} />
@@ -1409,7 +1409,7 @@ function BudgetSection() {
           <p className="text-xs text-slate-500 mt-1">Under budget ✓</p>
         </div>
         
-        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
+        <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-lg p-5 shadow-md hover:border-white/20 transition-all">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
               <Percent size={20} />

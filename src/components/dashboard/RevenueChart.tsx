@@ -22,7 +22,7 @@ export default function RevenueChart() {
   }
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-slate-900">{t('chart.revenueVsTarget')}</h3>

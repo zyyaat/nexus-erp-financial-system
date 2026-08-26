@@ -267,7 +267,7 @@ function InventoryKPICard({ kpi }: { kpi: typeof inventoryKPIs[0] }) {
   const isPositive = kpi.change >= 0
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-indigo-500/4">
       <div className={`absolute top-0 right-0 w-32 h-32 ${kpi.bgColor} rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
 
       <div className="flex justify-between items-start mb-4 relative z-10">
@@ -374,7 +374,7 @@ function MultiLocationTracker() {
   }
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
           <MapPin size={18} className="text-emerald-500" />
@@ -489,7 +489,7 @@ function BarcodeScanner() {
   }
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
       <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
         <ScanLine size={18} className="text-violet-500" />
         {t('inv.barcodeScan')} / {t('inv.rfidScan')}
@@ -570,7 +570,7 @@ function AIForecastDashboard() {
   const { t } = useI18n()
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
           <Brain size={18} className="text-purple-500" />
@@ -644,7 +644,7 @@ function BatchSerialTracker() {
   const trackedProducts = products.filter(p => p.batchNumber || p.serialNumber)
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
       <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
         <Hash size={18} className="text-amber-500" />
         {t('inv.traceability')}
@@ -716,7 +716,7 @@ function QuickActionsToolbar() {
   ]
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {actions.map((action) => (
           <button
@@ -808,7 +808,7 @@ export default function InventoryPage() {
         {/* Products Table - Takes 2 columns on XL */}
         <div className="xl:col-span-2 space-y-4">
           {/* Table Header with Controls */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <Package size={20} className="text-indigo-500" />
@@ -873,7 +873,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Products Table */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl shadow-lg shadow-indigo-500/4 overflow-hidden">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl shadow-lg shadow-indigo-500/4 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-50/80 border-b border-slate-200">
@@ -924,7 +924,7 @@ export default function InventoryPage() {
         {/* Sidebar - Takes 1 column on XL */}
         <div className="space-y-4">
           {/* Low Stock Alerts */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <AlertTriangle size={18} className="text-amber-500" />
               {t('inventory.lowStockAlerts')} ({lowStockAlerts.length})
@@ -952,7 +952,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Category Breakdown */}
-          <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+          <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <BarChart3 size={18} className="text-violet-500" />
               {t('inventory.categories')}

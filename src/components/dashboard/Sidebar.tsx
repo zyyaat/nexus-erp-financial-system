@@ -70,14 +70,14 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
       {/* Sidebar */}
       <aside className={`
         fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen w-64 
-        bg-white/95 dark:bg-[#0F1117] 
+        bg-white/95 dark:bg-[#000000] 
          
         ${isRTL ? 'border-l' : 'border-r'} border-white/40 
         shadow-xl shadow-indigo-500/10 
         z-50 flex-col h-full p-6 space-y-4
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}
-        md:translate-x-0 md:z-40 md:bg-white/70 md:dark:bg-[#0F1117]
+        md:translate-x-0 md:z-40 md:bg-white/70 md:dark:bg-[#000000]
       `}>
         {/* Close Button (Mobile Only) */}
         <div className={`md:hidden flex ${isRTL ? 'justify-start' : 'justify-end'} mb-4`}>

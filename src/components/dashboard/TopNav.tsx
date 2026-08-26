@@ -28,7 +28,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
     <header
       className={`
         fixed top-0 left-0 right-0 
-        bg-white/95 dark:bg-[#0F1117]
+        bg-white/95 dark:bg-[#000000]
         transition-all duration-300 z-30
         ${isScrolled ? 'border-b border-slate-200 dark:border-white/10 shadow-sm' : ''}
       `}
@@ -59,7 +59,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               relative w-full group 
               focus-within:ring-2 focus-within:ring-blue-500/30 
               rounded-xl transition-all duration-200
-              ${searchFocused ? 'bg-white dark:bg-[#1A1D26] shadow-sm border border-blue-500/20' : ''}
+              ${searchFocused ? 'bg-white dark:bg-[#0A0A0A] shadow-sm border border-blue-500/20' : ''}
             `}>
               <span className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
                 <Search 

@@ -146,7 +146,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Navigation - Takes 1 column */}
         <div className="lg:col-span-1">
-          <nav className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-4 shadow-md sticky top-24">
+          <nav className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-4 shadow-md sticky top-24">
             <ul className="space-y-1">
               {settingsSections.map((section) => {
                 const Icon = section.icon
@@ -179,7 +179,7 @@ export default function SettingsPage() {
           {activeSection === 'language' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
               {/* Language Selector Card */}
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Languages size={20} className="text-blue-500" />
                   {t('settings.language')}
@@ -295,7 +295,7 @@ export default function SettingsPage() {
           {/* Profile Section */}
           {activeSection === 'profile' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
                   <User size={20} className="text-indigo-500" />
                   {t('settings.general')}
@@ -414,7 +414,7 @@ export default function SettingsPage() {
           {/* Notifications Section */}
           {activeSection === 'notifications' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Bell size={20} className="text-amber-500" />
                   {t('settings.notifications')}
@@ -474,7 +474,7 @@ export default function SettingsPage() {
           {/* Appearance Section */}
           {activeSection === 'appearance' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Palette size={20} className="text-purple-500" />
                   {t('settings.appearance')}
@@ -542,7 +542,7 @@ export default function SettingsPage() {
           {/* Security Section */}
           {activeSection === 'security' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Shield size={20} className="text-red-500" />
                   {t('settings.security')}
@@ -590,7 +590,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Two-Factor Auth */}
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-slate-900">{t('settings.twoFactor')}</h4>
                   <ToggleSwitch enabled={true} onToggle={() => {}} />
@@ -610,7 +610,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Active Sessions */}
-              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
+              <div className="bg-white dark:bg-[#0A0A0A] border border-white/10 rounded-xl p-6 shadow-md">
                 <h4 className="font-semibold text-slate-900 mb-4">{t('settings.activeSessions')}</h4>
                 
                 <div className="space-y-3">

@@ -27,7 +27,7 @@ export default function SystemHealth() {
   }))
 
   return (
-    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#0A0A0A] border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
       <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
         <Activity size={20} className="text-indigo-500" />
         {t('system.systemHealth')}
