@@ -28,8 +28,8 @@ export default function Home() {
       {/* Top Navigation */}
       <TopNav onMenuClick={() => setIsSidebarOpen(true)} />
 
-      {/* Main Content */}
-      <main className="pt-24 pb-12 px-5 md:px-12 md:ml-64 relative z-10">
+      {/* Main Content - Extra padding on mobile for search bar */}
+      <main className="pt-36 md:pt-24 pb-12 px-5 md:px-12 md:ml-64 relative z-10">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
