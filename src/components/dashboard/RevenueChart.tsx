@@ -1,15 +1,35 @@
 'use client'
 
+import { useI18n } from '@/lib/i18n'
+
 export default function RevenueChart() {
+  const { t, language } = useI18n()
+  
+  // Month labels based on language
+  const monthLabels = {
+    ar: ['يناير', 'مارس', 'مايو', 'يوليو', 'سبتمبر', 'نوفمبر'],
+    en: ['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov'],
+    fr: ['Jan', 'Mai', 'Jui', 'Sep', 'Nov'],
+    es: ['Ene', 'Mar', 'May', 'Jul', 'Sep', 'Nov']
+  }
+
+  // Time period options based on language
+  const timeOptions = {
+    ar: ['هذا العام', 'آخر 6 أشهر', 'آخر 30 يوم'],
+    en: ['This Year', 'Last 6 Months', 'Last 30 Days'],
+    fr: ['Cette année', '6 derniers mois', '30 derniers jours'],
+    es: ['Este año', 'Últimos 6 meses', 'Últimos 30 días']
+  }
+
   return (
     <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-slate-900">Revenue vs Target</h3>
+        <h3 className="text-lg font-semibold text-slate-900">{t('chart.revenueVsTarget')}</h3>
         <select className="bg-slate-100/30 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 backdrop-blur-sm">
-          <option>This Year</option>
-          <option>Last 6 Months</option>
-          <option>Last 30 Days</option>
+          {timeOptions[language]?.map((option, i) => (
+            <option key={i}>{option}</option>
+          ))}
         </select>
       </div>
 
@@ -19,11 +39,11 @@ export default function RevenueChart() {
         <div className="flex items-center space-x-4 mb-4">
           <div className="flex items-center space-x-2">
             <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
-            <span className="text-xs text-slate-500">Revenue</span>
+            <span className="text-xs text-slate-500">{t('chart.revenue')}</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="w-3 h-0.5 border-t-2 border-dashed border-slate-400"></span>
-            <span className="text-xs text-slate-500">Target</span>
+            <span className="text-xs text-slate-500">{t('chart.target')}</span>
           </div>
         </div>
 
@@ -66,8 +86,8 @@ export default function RevenueChart() {
 
         {/* X-Axis Labels */}
         <div className="flex justify-between mt-4 px-2">
-          {['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov'].map((month) => (
-            <span key={month} className="text-xs text-slate-400">{month}</span>
+          {monthLabels[language]?.map((month, i) => (
+            <span key={i} className="text-xs text-slate-400">{month}</span>
           ))}
         </div>
       </div>

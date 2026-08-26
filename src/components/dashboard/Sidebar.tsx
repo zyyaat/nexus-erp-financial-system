@@ -12,22 +12,23 @@ import {
   LogOut,
   X
 } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 // Page type
 type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings'
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' as PageType },
-  { icon: Cog, label: 'Operations', page: 'operations' as PageType },
-  { icon: Package, label: 'Inventory', page: 'inventory' as PageType },
-  { icon: CreditCard, label: 'Financials', page: 'financials' as PageType },
-  { icon: BarChart3, label: 'Analytics', page: 'analytics' as PageType },
-  { icon: Settings, label: 'Settings', page: 'settings' as PageType },
+  { icon: LayoutDashboard, labelKey: 'nav.dashboard', page: 'dashboard' as PageType },
+  { icon: Cog, labelKey: 'nav.operations', page: 'operations' as PageType },
+  { icon: Package, labelKey: 'nav.inventory', page: 'inventory' as PageType },
+  { icon: CreditCard, labelKey: 'nav.financials', page: 'financials' as PageType },
+  { icon: BarChart3, labelKey: 'nav.analytics', page: 'analytics' as PageType },
+  { icon: Settings, labelKey: 'nav.settings', page: 'settings' as PageType },
 ]
 
 const bottomNavItems = [
-  { icon: HelpCircle, label: 'Support' },
-  { icon: LogOut, label: 'Logout' },
+  { icon: HelpCircle, labelKey: 'nav.support' },
+  { icon: LogOut, labelKey: 'nav.logout' },
 ]
 
 interface SidebarProps {
@@ -38,6 +39,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: SidebarProps) {
+  const { t } = useI18n()
+
   // Close sidebar on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -103,7 +106,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
             const isActive = currentPage === item.page
             return (
               <a
-                key={item.label}
+                key={item.labelKey}
                 href="#"
                 onClick={(e) => { 
                   e.preventDefault() 
@@ -119,7 +122,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
                   size={18} 
                   className={`${isActive ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} 
                 />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </a>
             )
           })}
@@ -131,7 +134,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
           <button className="w-full flex justify-between items-center px-4 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm hover:bg-slate-100/50 transition-all duration-200 rounded-xl group">
             <span className="flex items-center space-x-3">
               <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></span>
-              <span>System Status</span>
+              <span>{t('nav.systemStatus')}</span>
             </span>
           </button>
 
@@ -141,7 +144,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
               const Icon = item.icon
               return (
                 <a
-                  key={item.label}
+                  key={item.labelKey}
                   href="#"
                   onClick={(e) => { 
                     e.preventDefault()
@@ -150,7 +153,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
                   className="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm hover:bg-slate-100/50 transition-all duration-200 rounded-xl scale-[0.98] hover:scale-95 group"
                 >
                   <Icon size={18} className="group-hover:scale-110 transition-transform" />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </a>
               )
             })}

@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { Search, Bell, Menu, X } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 interface TopNavProps {
   onMenuClick: () => void
 }
 
 export default function TopNav({ onMenuClick }: TopNavProps) {
+  const { t } = useI18n()
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
 
@@ -65,7 +67,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               </span>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder={t('search.placeholder')}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
                 className="
@@ -95,7 +97,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               transition-colors 
               focus:outline-none focus:ring-2 focus:ring-indigo-500/30
             "
-            aria-label="Notifications"
+            aria-label={t('notifications.title')}
           >
             <Bell size={20} strokeWidth={2} />
             {/* Notification Badge */}
@@ -142,7 +144,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
           </span>
           <input
             type="text"
-            placeholder="Search operations, analytics, settings..."
+            placeholder={`${t('search.placeholder')} ${t('nav.operations').toLowerCase()}, ${t('nav.analytics').toLowerCase()}, ${t('nav.settings').toLowerCase()}...`}
             className="
               block w-full pl-10 pr-4 py-2.5 
               border border-slate-200/50 rounded-xl 

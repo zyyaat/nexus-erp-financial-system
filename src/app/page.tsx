@@ -12,33 +12,36 @@ import KPICard from '@/components/dashboard/KPICard'
 import RevenueChart from '@/components/dashboard/RevenueChart'
 import SystemHealth from '@/components/dashboard/SystemHealth'
 import { Download, Plus } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 // Page types
 type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings'
 
 // Dashboard Component (Original Content)
 function DashboardPage() {
+  const { t } = useI18n()
+  
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
-            Executive{' '}
+            {t('common.welcome')}{' '}
             <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-              Overview
+              {t('nav.dashboard').toLowerCase()}
             </span>
           </h2>
-          <p className="text-base md:text-lg text-slate-500">Real-time performance metrics and system health.</p>
+          <p className="text-base md:text-lg text-slate-500">{t('analytics.subtitle')}</p>
         </div>
         <div className="mt-4 md:mt-0 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
           <button className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center justify-center space-x-2 backdrop-blur-md shadow-sm">
             <Download size={18} />
-            <span>Export PDF</span>
+            <span>{t('common.export')} PDF</span>
           </button>
           <button className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center justify-center space-x-2">
             <Plus size={18} />
-            <span>New Widget</span>
+            <span>{t('common.add')} Widget</span>
           </button>
         </div>
       </div>
@@ -46,24 +49,24 @@ function DashboardPage() {
       {/* KPI Cards Row - Full Width Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
         <KPICard
-          title="Total Revenue"
+          titleKey="kpi.totalRevenue"
           value="$1.2M"
           change={14.2}
-          changeLabel="vs. last month ($1.05M)"
+          changeLabelKey="kpi.vsLastMonth"
           icon="revenue"
         />
         <KPICard
-          title="Net Profit"
+          titleKey="kpi.netProfit"
           value="$320k"
           change={8.4}
-          changeLabel="vs. last month ($295k)"
+          changeLabelKey="kpi.vsLastMonth"
           icon="profit"
         />
         <KPICard
-          title="Active Users"
+          titleKey="kpi.activeUsers"
           value="14,289"
           change={-2.1}
-          changeLabel="vs. last month (14,590)"
+          changeLabelKey="kpi.vsLastMonth"
           icon="users"
         />
       </div>
@@ -83,22 +86,6 @@ function DashboardPage() {
 
       {/* Mobile Bottom Spacing */}
       <div className="md:hidden h-20"></div>
-    </div>
-  )
-}
-
-// Placeholder pages for other tabs
-function PlaceholderPage({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in duration-300">
-      <div className="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mb-6">
-        <Plus size={40} className="text-indigo-500" />
-      </div>
-      <h2 className="text-3xl font-bold text-slate-900 mb-3">{title}</h2>
-      <p className="text-lg text-slate-500 max-w-md text-center">{description}</p>
-      <button className="mt-8 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all">
-        Coming Soon
-      </button>
     </div>
   )
 }

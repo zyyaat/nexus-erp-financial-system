@@ -1,12 +1,13 @@
 'use client'
 
 import { DollarSign, Wallet, Users, TrendingUp, TrendingDown } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 interface KPIProps {
-  title: string
+  titleKey: string
   value: string
   change: number
-  changeLabel: string
+  changeLabelKey?: string
   icon: 'revenue' | 'profit' | 'users'
 }
 
@@ -41,7 +42,8 @@ const sparklines = {
   users: "M0,5 L10,8 L20,10 L30,7 L40,12 L50,15 L60,18 L70,22 L80,20 L90,25 L100,28",
 }
 
-export default function KPICard({ title, value, change, changeLabel, icon }: KPIProps) {
+export default function KPICard({ titleKey, value, change, changeLabelKey = 'kpi.vsLastMonth', icon }: KPIProps) {
+  const { t } = useI18n()
   const Icon = iconMap[icon]
   const colors = colorMap[icon]
   const isPositive = change >= 0
@@ -75,9 +77,9 @@ export default function KPICard({ title, value, change, changeLabel, icon }: KPI
 
       {/* Content */}
       <div className="relative z-10">
-        <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
+        <p className="text-sm font-medium text-slate-500 mb-1">{t(titleKey)}</p>
         <h3 className="text-2xl font-semibold text-slate-900">{value}</h3>
-        <p className="text-sm text-slate-400 mt-2">{changeLabel}</p>
+        <p className="text-sm text-slate-400 mt-2">{t(changeLabelKey)}</p>
       </div>
 
       {/* Sparkline Chart */}
