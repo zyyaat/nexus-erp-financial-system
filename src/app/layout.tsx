@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { I18nProvider } from "@/lib/i18n";
+import { ThemeProvider } from "@/lib/ThemeProvider";
+import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,24 +17,43 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Nexus ERP - Enterprise Financial Management System",
+  description: "A comprehensive, world-class financial management system built with Next.js 16, TypeScript, and Tailwind CSS. Features include General Ledger, AP/AR, Treasury Management, Multi-Currency support, and advanced financial reporting with IFRS/GAAP compliance.",
+  keywords: [
+    "ERP", 
+    "Financial Management System", 
+    "Next.js", 
+    "TypeScript", 
+    "Tailwind CSS", 
+    "React",
+    "Enterprise Software",
+    "Accounting",
+    "General Ledger",
+    "Multi-Currency",
+    "IFRS",
+    "GAAP"
+  ],
+  authors: [{ name: "Full Stack Developer" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.svg",
+    apple: "/logo.svg",
   },
+  manifest: "/manifest.json",
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "Nexus ERP - Financial Management System",
+    description: "Enterprise-grade financial management system with GL, AP/AR, Treasury, and Multi-Currency support",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Nexus ERP - Financial Management System",
+    description: "Built with Next.js 16, TypeScript, and Tailwind CSS",
+  },
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': 'Nexus ERP',
   },
 };
 
@@ -46,10 +67,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <I18nProvider>
-          {children}
-        </I18nProvider>
+        <ThemeProvider>
+          <I18nProvider>
+            {children}
+          </I18nProvider>
+        </ThemeProvider>
         <Toaster />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

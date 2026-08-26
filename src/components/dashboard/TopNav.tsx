@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Bell, Menu, X } from 'lucide-react'
+import { Search, Bell, Menu, X, Sun, Moon } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import { useTheme } from '@/lib/ThemeProvider'
 
 interface TopNavProps {
   onMenuClick: () => void
@@ -10,6 +11,7 @@ interface TopNavProps {
 
 export default function TopNav({ onMenuClick }: TopNavProps) {
   const { t, dir } = useI18n()
+  const { isDark, toggleTheme } = useTheme()
   const isRTL = dir === 'rtl'
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
@@ -103,6 +105,26 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             <Bell size={20} strokeWidth={2} />
             {/* Notification Badge */}
             <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white`}></span>
+          </button>
+
+          {/* Dark Mode Toggle */}
+          <button 
+            onClick={toggleTheme}
+            className="
+              p-2.5 rounded-xl 
+              text-slate-500 hover:text-slate-700 
+              hover:bg-slate-100 
+              active:bg-slate-200
+              transition-all duration-300 
+              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+            "
+            aria-label="Toggle theme"
+          >
+            {isDark ? (
+              <Sun size={20} strokeWidth={2} className="text-yellow-500" />
+            ) : (
+              <Moon size={20} strokeWidth={2} />
+            )}
           </button>
 
           {/* User Profile Button - Better Aligned */}

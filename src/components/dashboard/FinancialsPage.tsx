@@ -57,6 +57,7 @@ import {
   TrendingUpIcon
 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
+import FinancialCharts from './FinancialCharts'
 
 // ============ TYPES ============
 interface Transaction {
@@ -349,7 +350,7 @@ function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
 }
 
 // Tab Navigation Component
-type FinanceTab = 'overview' | 'gl' | 'ap' | 'ar' | 'treasury' | 'reports' | 'budget'
+type FinanceTab = 'overview' | 'gl' | 'ap' | 'ar' | 'treasury' | 'reports' | 'budget' | 'charts'
 
 function TabNavigation({ activeTab, setActiveTab }: { activeTab: FinanceTab; setActiveTab: (tab: FinanceTab) => void }) {
   const tabs = [
@@ -358,6 +359,7 @@ function TabNavigation({ activeTab, setActiveTab }: { activeTab: FinanceTab; set
     { id: 'ap' as FinanceTab, icon: CreditCard, label: 'Accounts Payable', labelAr: 'حسابات الدائنة' },
     { id: 'ar' as FinanceTab, icon: Users, label: 'Accounts Receivable', labelAr: 'حسابات القبض' },
     { id: 'treasury' as FinanceTab, icon: Landmark, label: 'Treasury', labelAr: 'الخزينة' },
+    { id: 'charts' as FinanceTab, icon: Activity, label: 'Analytics', labelAr: 'التحليلات' },
     { id: 'reports' as FinanceTab, icon: FileText, label: 'Reports', labelAr: 'التقارير' },
     { id: 'budget' as FinanceTab, icon: Target, label: 'Budget', labelAr: 'الميزانية' }
   ]
@@ -1461,6 +1463,8 @@ export default function FinancialsPage() {
         return <ARSection />
       case 'treasury':
         return <TreasurySection />
+      case 'charts':
+        return <FinancialCharts />
       case 'reports':
         return <ReportsSection />
       case 'budget':
