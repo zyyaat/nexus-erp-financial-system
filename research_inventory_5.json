@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://acr-journal.com/article/ai-driven-forecasting-and-optimization-for-inventory-control-in-manufacturing-supply-chain-1619",
+    "name": "AI-Driven Forecasting and Optimization for Inventory",
+    "snippet": "by V Kumar · 2025 · Cited by 8 — The AI section uses LSTM and GBM for accurate demand forecasting , with incorporation of external factors such as campaign and promotional data. Read more",
+    "host_name": "acr-journal.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://cogentinfo.com/resources/ai-powered-demand-forecasting-transforming-inventory-management-and-supply-chain-efficiency",
+    "name": "AI-Powered Demand Forecasting: Transforming Inventory",
+    "snippet": "Dec 11, 2024 — Amazon Forecast stands out as a robust tool that employs advanced machine learning techniques to deliver highly accurate demand forecasts. Read more",
+    "host_name": "cogentinfo.com",
+    "rank": 1,
+    "date": "Dec 11, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.qad.com/blog/2025/07/ai-in-demand-planning",
+    "name": "AI in Demand Planning: Transforming Strategies for Supply",
+    "snippet": "Jul 9, 2025 — AI-driven demand forecasting addresses these challenges by using machine learning algorithms to process vast datasets, identify patterns, and ...",
+    "host_name": "www.qad.com",
+    "rank": 2,
+    "date": "Jul 9, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.toolsgroup.com/blog/how-ai-powered-demand-forecasting-transforms-new-product-introductions",
+    "name": "How AI-Powered Demand Forecasting Transforms New",
+    "snippet": "Mar 5, 2025 — AI-powered demand forecasting enhances new product introductions, optimizes inventory levels, and drives revenue growth.",
+    "host_name": "www.toolsgroup.com",
+    "rank": 3,
+    "date": "Mar 5, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net/publication/386381884_AI-enhanced_inventory_and_demand_forecasting_Using_AI_to_optimize_inventory_management_and_predict_customer_demand",
+    "name": "(PDF) AI-enhanced inventory and demand forecasting",
+    "snippet": "Mar 16, 2026 — The AI algorithms can predict demand with better accuracy , detect SC patterns and suggest actionable solutions based on predictive insights in ... Read more",
+    "host_name": "www.researchgate.net",
+    "rank": 4,
+    "date": "Mar 16, 2026",
+    "favicon": ""
+  },
+  {
+    "url": "https://gainsystems.com/blog/ai-demand-forecasting-benefits-best-practices-use-cases",
+    "name": "AI Demand Forecasting: Benefits, Best Practices, & Use",
+    "snippet": "Dec 11, 2024 — Explore the benefits, best practices, and use cases of AI demand forecasting to enhance demand planning and inventory management.",
+    "host_name": "gainsystems.com",
+    "rank": 5,
+    "date": "Dec 11, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.fishbowlinventory.com/blog/forecasting-inventory-needs-with-machine-learning-and-ai",
+    "name": "Forecasting Inventory Needs with Machine Learning and AI",
+    "snippet": "Nov 21, 2023 — Demand forecasting means accounting for all the factors that change a business's predicted supply needs – including market changes, seasonality, ... Read more",
+    "host_name": "www.fishbowlinventory.com",
+    "rank": 6,
+    "date": "Nov 21, 2023",
+    "favicon": ""
+  },
+  {
+    "url": "https://sloanreview.mit.edu/article/pair-people-and-ai-for-better-product-demand-forecasting",
+    "name": "Pair People and AI for Better Product Demand Forecasting",
+    "snippet": "Jan 29, 2024 — A new framework can help companies fine-tune their product demand forecasting by using human and AI agents in concert.",
+    "host_name": "sloanreview.mit.edu",
+    "rank": 7,
+    "date": "Jan 29, 2024",
+    "favicon": ""
+  }
+]
