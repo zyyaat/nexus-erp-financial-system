@@ -79,58 +79,63 @@
 }
 
 .dark {
-  /* PURE BLACK background - maximum contrast */
-  --background: #000000;
-  --foreground: #ffffff;
+  /* ============================================
+     TRADINGVIEW-INSPIRED DARK MODE
+     Proven Financial Dashboard Colors
+     ============================================ */
   
-  /* Cards - DARK GRAY with clear separation from black */
-  --card: #1a1a2e;
-  --card-foreground: #ffffff;
+  /* Background - Deep Blue-Black (like Bloomberg/TradingView) */
+  --background: #0F1117;
+  --foreground: #F1F5F9;
   
-  /* Popover */
-  --popover: #1a1a2e;
-  --popover-foreground: #ffffff;
+  /* Cards - Slightly lighter with warm undertone */
+  --card: #1A1D26;
+  --card-foreground: #F1F5F9;
   
-  /* Primary - bright indigo */
-  --primary: #818cf8;
-  --primary-foreground: #000000;
+  /* Popover/Modals */
+  --popover: #1E222D;
+  --popover-foreground: #F1F5F9;
   
-  /* Secondary */
-  --secondary: #252542;
-  --secondary-foreground: #ffffff;
+  /* Primary Accent - Electric Blue (like Vercel) */
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
   
-  /* Muted */
-  --muted: #2a2a45;
-  --muted-foreground: #a0a0b8;
+  /* Secondary surfaces */
+  --secondary: #232732;
+  --secondary-foreground: #F1F5F9;
   
-  /* Accent */
-  --accent: #333355;
-  --accent-foreground: #ffffff;
+  /* Muted elements */
+  --muted: #2A2F3A;
+  --muted-foreground: #94A3B8;
   
-  /* Destructive */
-  --destructive: #ef4444;
+  /* Accent highlights */
+  --accent: #2D3342;
+  --accent-foreground: #FFFFFF;
   
-  /* Borders - WHITE/LIGHT for MAXIMUM visibility! */
-  --border: #404060;
-  --input: #353550;
-  --ring: #818cf8;
+  /* Destructive/Error */
+  --destructive: #EF4444;
   
-  /* Chart colors */
-  --chart-1: #818cf8;
-  --chart-2: #34d399;
-  --chart-3: #fbbf24;
-  --chart-4: #f472b6;
-  --chart-5: #60a5fa;
+  /* BORDERS - Subtle white opacity (elegant, visible) */
+  --border: rgba(255, 255, 255, 0.10);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #3B82F6;
+  
+  /* CHART COLORS - Vibrant on dark */
+  --chart-1: #3B82F6;   /* Blue */
+  --chart-2: #10B981;   /* Emerald */
+  --chart-3: #F59E0B;   /* Amber */
+  --chart-4: #8B5CF6;   /* Violet */
+  --chart-5: #EC4899;   /* Pink */
   
   /* Sidebar */
-  --sidebar: #0d0d1a;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #818cf8;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #252542;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #404060;
-  --sidebar-ring: #818cf8;
+  --sidebar: #0A0C10;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #232732;
+  --sidebar-accent-foreground: #F1F5F9;
+  --sidebar-border: rgba(255, 255, 255, 0.10);
+  --sidebar-ring: #3B82F6;
 }
 
 @layer base {
@@ -746,116 +751,125 @@ svg,
 }
 
 /* ============================================
-   CRITICAL DARK MODE FIXES - MAXIMUM CONTRAST
+   TRADINGVIEW-STYLE DARK MODE OVERRIDES
+   Professional Financial Dashboard Look
    ============================================ */
 
-/* Background: PURE BLACK */
+/* Background: Deep Blue-Black */
 .dark body,
 .dark .bg-background {
-  background-color: #000000 !important;
+  background-color: #0F1117 !important;
 }
 
-/* Cards: DARK GRAY (not black, not transparent) */
+/* Cards: Elevated surface (like TradingView) */
 .dark .bg-white {
-  background-color: #1a1a2e !important;
+  background-color: #1A1D26 !important;
 }
 
 .dark [class*="bg-slate-800"] {
-  background-color: #1a1a2e !important;
+  background-color: #1A1D26 !important;
 }
 
-/* Text: PURE WHITE for headings */
+/* Text hierarchy - SOFT WHITE (reduces eye strain) */
 .dark .text-slate-900,
 .dark .text-slate-800,
 .dark .text-slate-700 {
-  color: #ffffff !important;
+  color: #F1F5F9 !important;
 }
 
 .dark .text-slate-600,
 .dark .text-slate-500 {
-  color: #c0c0d0 !important;
+  color: #94A3B8 !important;
 }
 
-/* BORDERS - BRIGHT and VISIBLE */
+/* BORDERS - Elegant white opacity (like Stripe) */
 .dark .border-slate-200,
 .dark .border-slate-300,
 .dark .border-slate-400,
 .dark .border-slate-500,
 .dark .border-slate-600,
 .dark .border-slate-700 {
-  border-color: #505080 !important;
-  border-width: 1px !important;
-  border-style: solid !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-/* Card shadows for DEPTH */
+/* Card shadows - DEPTH without blur */
 .dark .shadow-sm {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05) !important;
 }
 
 .dark .shadow-md {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) !important;
 }
 
-/* Left border accents - NEON bright */
+/* Left border accents - VIBRANT (TradingView style) */
 .dark .border-l-emerald-500 {
-  border-left-color: #10b981 !important;
-  border-left-width: 4px !important;
+  border-left-color: #10B981 !important;
+  border-left-width: 3px !important;
 }
 
 .dark .border-l-red-500 {
-  border-left-color: #ef4444 !important;
-  border-left-width: 4px !important;
+  border-left-color: #EF4444 !important;
+  border-left-width: 3px !important;
 }
 
 .dark .border-l-blue-500 {
-  border-left-color: #3b82f6 !important;
-  border-left-width: 4px !important;
+  border-left-color: #3B82F6 !important;
+  border-left-width: 3px !important;
 }
 
 .dark .border-l-violet-500 {
-  border-left-color: #8b5cf6 !important;
-  border-left-width: 4px !important;
+  border-left-color: #8B5CF6 !important;
+  border-left-width: 3px !important;
 }
 
-/* Icon backgrounds - dark with colored icons */
+/* Icon backgrounds - Dark with subtle tint */
 .dark .bg-emerald-100,
 .dark .bg-emerald-50 {
-  background-color: #064e3b !important;
+  background-color: rgba(16, 185, 129, 0.15) !important;
 }
 
 .dark .bg-red-100,
 .dark .bg-red-50 {
-  background-color: #7f1d1d !important;
+  background-color: rgba(239, 68, 68, 0.15) !important;
 }
 
 .dark .bg-blue-100,
 .dark .bg-blue-50 {
-  background-color: #1e3a8a !important;
+  background-color: rgba(59, 130, 246, 0.15) !important;
 }
 
 .dark .bg-violet-100,
 .dark .bg-violet-50 {
-  background-color: #4c1d95 !important;
+  background-color: rgba(139, 92, 246, 0.15) !important;
 }
 
-/* Status badges */
+/* Status badges - Subtle backgrounds */
 .dark .bg-emerald-900\/40,
 .dark .bg-emerald-950\/30 {
-  background-color: #065f46 !important;
+  background-color: rgba(16, 185, 129, 0.20) !important;
 }
 
 .dark .bg-red-900\/40,
 .dark .bg-red-950\/30 {
-  background-color: #991b1b !important;
+  background-color: rgba(239, 68, 68, 0.20) !important;
 }
 
-/* Buttons */
+/* Buttons - Elevated surface style */
 .dark button.bg-white,
 .dark button[class*="bg-white"] {
-  background-color: #252542 !important;
-  color: #ffffff !important;
-  border-color: #505080 !important;
+  background-color: #232732 !important;
+  color: #F1F5F9 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Secondary surfaces */
+.dark .bg-slate-50,
+.dark [class*="dark:bg-slate"] {
+  background-color: #232732 !important;
 }
 
 /* Remove ALL blur effects in dark mode */
