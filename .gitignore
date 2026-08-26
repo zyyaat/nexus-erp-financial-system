@@ -1,6 +1,9 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ============================================
+# Nexus ERP - Comprehensive Git Ignore
+# Prevents ALL unwanted files from deployment
+# ============================================
 
-# dependencies
+# Dependencies
 node_modules
 /.pnp
 .pnp.*
@@ -10,53 +13,79 @@ node_modules
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing
 /coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
 
-# production
+# Production
 /build
 
-# misc
+# Misc
 .DS_Store
 *.pem
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-local-*
-.claude
-.z-ai-config
 *.log
 dev.log
 dev.out.log
+server.log
+
+# Env files (can opt-in for committing if needed)
+.env*
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+local-*
+
+# AI/Config files
+.claude
+.z-ai-config
 test
 prompt
 
-server.log
-# Skills directory
-/skills/tool-results/
+# ============================================
+# CRITICAL: Block unwanted directories/files
+# These were causing deployment failures!
+# ============================================
 
-# Skills files (not needed for deployment)
+# Skills directory (auto-generated, not needed)
 skills/
+skills/**/*
 
-# Image uploads (not for deployment)
+# Tool results (temporary debug files)
+tool-results/
+tool-results/**/*
+
+# Uploads (user images - not for repo)
 upload/
+upload/**/*
+
+# Research files (large JSON)
+research_inventory_*.json
+research/
+
+# Images (unless in public/)
 *.jpg
 *.png
+*.gif
+*.jpeg
+!public/*.jpg
+!public/*.png
+!public/**/*.jpg
+!public/**/*.png
+
+# Backup files
+*.bak
+*.swp
+*~
