@@ -79,58 +79,58 @@
 }
 
 .dark {
-  /* Deep dark background with slight blue tint for modern look */
-  --background: oklch(0.13 0.01 260);
-  --foreground: oklch(0.98 0 0);
+  /* PURE BLACK background - maximum contrast */
+  --background: #000000;
+  --foreground: #ffffff;
   
-  /* Cards - slightly lighter than background for depth */
-  --card: oklch(0.19 0.015 260);
-  --card-foreground: oklch(0.98 0 0);
+  /* Cards - DARK GRAY with clear separation from black */
+  --card: #1a1a2e;
+  --card-foreground: #ffffff;
   
-  /* Popover - same as card */
-  --popover: oklch(0.19 0.015 260);
-  --popover-foreground: oklch(0.98 0 0);
+  /* Popover */
+  --popover: #1a1a2e;
+  --popover-foreground: #ffffff;
   
-  /* Primary - bright indigo for actions */
-  --primary: oklch(0.65 0.25 270);
-  --primary-foreground: oklch(0.99 0 0);
+  /* Primary - bright indigo */
+  --primary: #818cf8;
+  --primary-foreground: #000000;
   
-  /* Secondary - subtle dark gray */
-  --secondary: oklch(0.23 0.01 260);
-  --secondary-foreground: oklch(0.98 0 0);
+  /* Secondary */
+  --secondary: #252542;
+  --secondary-foreground: #ffffff;
   
-  /* Muted - for less important text */
-  --muted: oklch(0.25 0.01 260);
-  --muted-foreground: oklch(0.65 0.02 260);
+  /* Muted */
+  --muted: #2a2a45;
+  --muted-foreground: #a0a0b8;
   
-  /* Accent - highlighted elements */
-  --accent: oklch(0.25 0.03 270);
-  --accent-foreground: oklch(0.98 0 0);
+  /* Accent */
+  --accent: #333355;
+  --accent-foreground: #ffffff;
   
-  /* Destructive - red for errors */
-  --destructive: oklch(0.65 0.2 25);
+  /* Destructive */
+  --destructive: #ef4444;
   
-  /* Borders - HIGH CONTRAST for visibility */
-  --border: oklch(0.38 0.03 260);
-  --input: oklch(0.35 0.03 260);
-  --ring: oklch(0.65 0.25 270);
+  /* Borders - WHITE/LIGHT for MAXIMUM visibility! */
+  --border: #404060;
+  --input: #353550;
+  --ring: #818cf8;
   
-  /* Chart colors - vibrant for dark mode */
-  --chart-1: oklch(0.7 0.2 270);
-  --chart-2: oklch(0.65 0.22 150);
-  --chart-3: oklch(0.75 0.18 50);
-  --chart-4: oklch(0.68 0.24 330);
-  --chart-5: oklch(0.72 0.2 200);
+  /* Chart colors */
+  --chart-1: #818cf8;
+  --chart-2: #34d399;
+  --chart-3: #fbbf24;
+  --chart-4: #f472b6;
+  --chart-5: #60a5fa;
   
-  /* Sidebar - slightly different shade */
-  --sidebar: oklch(0.16 0.015 260);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.65 0.25 270);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.25 0.03 270);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.28 0.02 260);
-  --sidebar-ring: oklch(0.65 0.25 270);
+  /* Sidebar */
+  --sidebar: #0d0d1a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #818cf8;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #252542;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #404060;
+  --sidebar-ring: #818cf8;
 }
 
 @layer base {
@@ -746,95 +746,123 @@ svg,
 }
 
 /* ============================================
-   CRITICAL DARK MODE FIXES
-   Safe overrides for common issues
+   CRITICAL DARK MODE FIXES - MAXIMUM CONTRAST
    ============================================ */
 
-/* Fix light-colored cards in dark mode */
-.dark .bg-white\/70 {
-  background-color: rgba(30, 41, 59, 0.7) !important;
+/* Background: PURE BLACK */
+.dark body,
+.dark .bg-background {
+  background-color: #000000 !important;
 }
 
+/* Cards: DARK GRAY (not black, not transparent) */
 .dark .bg-white {
-  background-color: #1e293b !important;
+  background-color: #1a1a2e !important;
 }
 
-/* Fix text contrast */
-.dark .text-slate-900 {
-  color: #f1f5f9 !important;
+.dark [class*="bg-slate-800"] {
+  background-color: #1a1a2e !important;
 }
 
-.dark .text-slate-800 {
-  color: #e2e8f0 !important;
-}
-
+/* Text: PURE WHITE for headings */
+.dark .text-slate-900,
+.dark .text-slate-800,
 .dark .text-slate-700 {
-  color: #cbd5e1 !important;
+  color: #ffffff !important;
 }
 
-.dark .text-slate-600 {
-  color: #94a3b8 !important;
+.dark .text-slate-600,
+.dark .text-slate-500 {
+  color: #c0c0d0 !important;
 }
 
-.dark .text-gray-700 {
-  color: #cbd5e1 !important;
-}
-
-.dark .text-gray-600 {
-  color: #94a3b8 !important;
-}
-
-/* Fix borders visibility - HIGH CONTRAST */
-.dark .border-white\/40 {
-  border-color: rgba(71, 85, 105, 0.7) !important;
-}
-
-.dark .border-slate-200 {
-  border-color: #475569 !important;
-}
-
-.dark .border-slate-300 {
-  border-color: #64748b !important;
-}
-
-/* Make borders POP in dark mode */
+/* BORDERS - BRIGHT and VISIBLE */
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-slate-400,
+.dark .border-slate-500,
+.dark .border-slate-600,
 .dark .border-slate-700 {
-  border-color: #64748b !important;
+  border-color: #505080 !important;
+  border-width: 1px !important;
+  border-style: solid !important;
 }
 
-.dark .border-slate-600 {
-  border-color: #94a3b8 !important;
-}
-
-/* Card shadows for depth in dark mode */
+/* Card shadows for DEPTH */
 .dark .shadow-sm {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05) !important;
 }
 
 .dark .shadow-md {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.05) !important;
 }
 
-/* Left border accent - make it visible */
+/* Left border accents - NEON bright */
 .dark .border-l-emerald-500 {
-  border-left-color: #34d399 !important;
+  border-left-color: #10b981 !important;
+  border-left-width: 4px !important;
 }
 
 .dark .border-l-red-500 {
-  border-left-color: #f87171 !important;
+  border-left-color: #ef4444 !important;
+  border-left-width: 4px !important;
 }
 
 .dark .border-l-blue-500 {
-  border-left-color: #60a5fa !important;
+  border-left-color: #3b82f6 !important;
+  border-left-width: 4px !important;
 }
 
 .dark .border-l-violet-500 {
-  border-left-color: #a78bfa !important;
+  border-left-color: #8b5cf6 !important;
+  border-left-width: 4px !important;
 }
 
-/* Fix buttons */
-.dark button.bg-white\/70 {
-  background-color: rgba(30, 41, 59, 0.7) !important;
+/* Icon backgrounds - dark with colored icons */
+.dark .bg-emerald-100,
+.dark .bg-emerald-50 {
+  background-color: #064e3b !important;
+}
+
+.dark .bg-red-100,
+.dark .bg-red-50 {
+  background-color: #7f1d1d !important;
+}
+
+.dark .bg-blue-100,
+.dark .bg-blue-50 {
+  background-color: #1e3a8a !important;
+}
+
+.dark .bg-violet-100,
+.dark .bg-violet-50 {
+  background-color: #4c1d95 !important;
+}
+
+/* Status badges */
+.dark .bg-emerald-900\/40,
+.dark .bg-emerald-950\/30 {
+  background-color: #065f46 !important;
+}
+
+.dark .bg-red-900\/40,
+.dark .bg-red-950\/30 {
+  background-color: #991b1b !important;
+}
+
+/* Buttons */
+.dark button.bg-white,
+.dark button[class*="bg-white"] {
+  background-color: #252542 !important;
+  color: #ffffff !important;
+  border-color: #505080 !important;
+}
+
+/* Remove ALL blur effects in dark mode */
+.dark [class*="backdrop-blur"],
+.dark [class*="blur-"] {
+  backdrop-filter: none !important;
+  filter: none !important;
 }
 
 /* Fix badges for better visibility */
