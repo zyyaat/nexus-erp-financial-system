@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://prostrive.io/blog/fintech-software-architecture",
+    "name": "FinTech Software Architecture - Prostrive",
+    "snippet": "Feb 13, 2026 · Explore FinTech software architecture, from system design and APIs to security, scalability and compliance in modern financial platforms.",
+    "host_name": "prostrive.io",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.academia.edu/171962661/API_FIRST_ARCHITECTURE_FOR_MODERN_FINTECH_PLATFORMS_BEST_PRACTICES_AND_DESIGN_PATTERNS",
+    "name": "api-first architecture for modern fintech platforms - Academia.edu",
+    "snippet": "In this article, we take a look at API-first architecture as a design model for developing scalable, secure and regulatory compliant FinTech systems.",
+    "host_name": "www.academia.edu",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.researchgate.net/publication/410777348_Microservices-Driven_API_Architecture_for_Scalable_and_Resilient_FinTech_Platforms",
+    "name": "(PDF) Microservices-Driven API Architecture for Scalable and",
+    "snippet": "Jul 24, 2026 · This paper proposes a microservices-driven API architecture for scalable and resilient FinTech platforms by examining architectural components, ...",
+    "host_name": "www.researchgate.net",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.zymr.com/blog/microservices-architecture-for-fintech",
+    "name": "Microservices Architecture for FinTech Applications - Zymr Inc",
+    "snippet": "Nov 25, 2025 · Microservices architecture for FinTech apps enables scalable, flexible, and fast-deploying solutions for digital banking",
+    "host_name": "www.zymr.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://sdk.finance/blog/the-fundamentals-of-fintech-architecture-trends-challenges-and-solutions",
+    "name": "The Fundamentals of FinTech Architecture: Demystifying Secrets",
+    "snippet": "Rating 4.9 (35) Apr 10, 2025 · Explore the core components of FinTech architecture, its challenges and solutions to speed up the development process.",
+    "host_name": "sdk.finance",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/softwarearchitecture/comments/12i40zo/best_approach_to_fintech_app",
+    "name": "Best approach to fintech app : r/softwarearchitecture - Reddit",
+    "snippet": "Apr 11, 2023 · You can create a microservices architecture with many stacks. Most common are Java with Spring, Python with Flask or Django, or Go. Good resources for Fintech architecture, patterns and best ... Built the architecture for a fintech app now serving 300k+ users - Reddit More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://chudovoit.wixsite.com/software-dev/post/how-to-design-a-scalable-fintech-software-architecture",
+    "name": "How to Design a Scalable Fintech Software Architecture - Wix.com",
+    "snippet": "Mar 24, 2026 · Designing scalable fintech software architecture requires careful planning, strong security foundations, and modern infrastructure strategies.",
+    "host_name": "chudovoit.wixsite.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/pulse/microservices-financial-services-architecture-patterns-sofola-lr1jc",
+    "name": "Microservices in Financial Services: Architecture Patterns for Modern",
+    "snippet": "Jun 6, 2025 · Effective microservices architecture in banking starts with understanding the business domain. Domain-driven design provides a systematic ...",
+    "host_name": "www.linkedin.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://swagger.io/blog/5-key-trends-fintech-api-development",
+    "name": "5 Key Trends in Fintech API Development - Swagger",
+    "snippet": "5 Key Trends in Fintech API Development · #1. Developer Experience · #2. API Design Standards · #3. Multi-Protocol APIs · #4. Contract Testing · #5. Virtualization.",
+    "host_name": "swagger.io",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://evincedev.com/blog/how-fintech-software-is-built-key-architecture-explained",
+    "name": "How Fintech Software Is Built: Key Architecture Explained - EvinceDev",
+    "snippet": "Apr 6, 2026 · A complete guide to how fintech software is built, including architecture layers, security, scalability, compliance, and key system design ...",
+    "host_name": "evincedev.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]
