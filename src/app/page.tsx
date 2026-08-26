@@ -93,6 +93,8 @@ function DashboardPage() {
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState<PageType>('dashboard')
+  const { dir } = useI18n()
+  const isRTL = dir === 'rtl'
 
   // Handle page navigation
   const handleNavigate = (page: PageType) => {
@@ -140,7 +142,7 @@ export default function Home() {
       <TopNav onMenuClick={() => setIsSidebarOpen(true)} />
 
       {/* Main Content - Extra padding on mobile for search bar */}
-      <main className="pt-36 md:pt-24 pb-12 px-5 md:px-12 md:ml-64 relative z-10">
+      <main className={`pt-36 md:pt-24 pb-12 px-5 md:px-12 ${isRTL ? 'md:mr-64' : 'md:ml-64'} relative z-10`}>
         {renderPage()}
       </main>
     </div>

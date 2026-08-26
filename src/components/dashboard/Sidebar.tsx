@@ -39,7 +39,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: SidebarProps) {
-  const { t } = useI18n()
+  const { t, dir } = useI18n()
+  const isRTL = dir === 'rtl'
 
   // Close sidebar on escape key
   useEffect(() => {
@@ -68,18 +69,18 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
 
       {/* Sidebar */}
       <aside className={`
-        fixed left-0 top-0 h-screen w-64 
+        fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen w-64 
         bg-white/95 dark:bg-slate-900/95 
         backdrop-blur-xl 
-        border-r border-white/40 
+        ${isRTL ? 'border-l' : 'border-r'} border-white/40 
         shadow-xl shadow-indigo-500/10 
         z-50 flex-col h-full p-6 space-y-4
         transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}
         md:translate-x-0 md:z-40 md:bg-white/70 md:dark:bg-slate-900/80
       `}>
         {/* Close Button (Mobile Only) */}
-        <div className="md:hidden flex justify-end mb-4">
+        <div className={`md:hidden flex ${isRTL ? 'justify-start' : 'justify-end'} mb-4`}>
           <button
             onClick={onClose}
             className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
@@ -112,7 +113,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
                   e.preventDefault() 
                   onNavigate(item.page)
                 }}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 group ${
+                className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 group ${
                   isActive
                     ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-500/20 scale-[0.98]'
                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100/50 scale-[0.98] hover:scale-95'
@@ -132,7 +133,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
         <div className="mt-auto pt-8 border-t border-white/40">
           {/* System Status */}
           <button className="w-full flex justify-between items-center px-4 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm hover:bg-slate-100/50 transition-all duration-200 rounded-xl group">
-            <span className="flex items-center space-x-3">
+            <span className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
               <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></span>
               <span>{t('nav.systemStatus')}</span>
             </span>
@@ -150,7 +151,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
                     e.preventDefault()
                     if (window.innerWidth < 768) onClose()
                   }}
-                  className="flex items-center space-x-3 px-4 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm hover:bg-slate-100/50 transition-all duration-200 rounded-xl scale-[0.98] hover:scale-95 group"
+                  className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} px-4 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm hover:bg-slate-100/50 transition-all duration-200 rounded-xl scale-[0.98] hover:scale-95 group`}
                 >
                   <Icon size={18} className="group-hover:scale-110 transition-transform" />
                   <span>{t(item.labelKey)}</span>

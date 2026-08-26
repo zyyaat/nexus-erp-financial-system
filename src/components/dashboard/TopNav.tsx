@@ -9,7 +9,8 @@ interface TopNavProps {
 }
 
 export default function TopNav({ onMenuClick }: TopNavProps) {
-  const { t } = useI18n()
+  const { t, dir } = useI18n()
+  const isRTL = dir === 'rtl'
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
 
@@ -34,12 +35,12 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
     >
       <div className="flex items-center justify-between h-16 px-4 md:px-6">
         {/* Left Section: Hamburger + Search */}
-        <div className="flex items-center flex-1 min-w-0 gap-3">
+        <div className={`flex items-center flex-1 min-w-0 gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {/* Hamburger Menu (Mobile Only) */}
           <button
             onClick={onMenuClick}
             className="
-              flex-shrink-0 p-2 -ml-2 
+              flex-shrink-0 p-2 
               rounded-xl text-slate-600 
               hover:bg-slate-100 
               active:bg-slate-200
@@ -59,7 +60,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               rounded-xl transition-all duration-200
               ${searchFocused ? 'bg-white shadow-sm' : ''}
             `}>
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
                 <Search 
                   className={`transition-colors ${searchFocused ? 'text-indigo-500' : 'text-slate-400'}`} 
                   size={18} 
@@ -70,8 +71,8 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
                 placeholder={t('search.placeholder')}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-                className="
-                  block w-full pl-10 pr-4 py-2.5 
+                className={`
+                  block w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 
                   border border-transparent rounded-xl 
                   leading-5 
                   bg-slate-100/80 
@@ -79,14 +80,14 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
                   placeholder-slate-400 
                   focus:outline-none focus:bg-white focus:border-indigo-500/30 
                   transition-all duration-200
-                "
+                `}
               />
             </div>
           </div>
         </div>
 
         {/* Right Section: Actions + Profile */}
-        <div className="flex items-center flex-shrink-0 gap-1 sm:gap-2 ml-3">
+        <div className={`flex items-center flex-shrink-0 gap-1 sm:gap-2 ${isRTL ? 'mr-3' : 'ml-3'}`}>
           {/* Notifications Button */}
           <button 
             className="
@@ -101,7 +102,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
           >
             <Bell size={20} strokeWidth={2} />
             {/* Notification Badge */}
-            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+            <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white`}></span>
           </button>
 
           {/* User Profile Button - Better Aligned */}
@@ -139,14 +140,14 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
       {/* Mobile Search Bar (Full Width Below Header) */}
       <div className="sm:hidden px-4 pb-3">
         <div className="relative group">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
             <Search className="text-slate-400" size={18} />
           </span>
           <input
             type="text"
             placeholder={`${t('search.placeholder')} ${t('nav.operations').toLowerCase()}, ${t('nav.analytics').toLowerCase()}, ${t('nav.settings').toLowerCase()}...`}
-            className="
-              block w-full pl-10 pr-4 py-2.5 
+            className={`
+              block w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 
               border border-slate-200/50 rounded-xl 
               leading-5 
               bg-slate-50/80 
@@ -154,7 +155,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               placeholder-slate-400 
               focus:outline-none focus:bg-white focus:border-indigo-500/30 focus:ring-2 focus:ring-indigo-500/20
               transition-all duration-200
-            "
+            `}
           />
         </div>
       </div>
