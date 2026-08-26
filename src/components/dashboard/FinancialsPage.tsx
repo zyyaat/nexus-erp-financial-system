@@ -323,18 +323,18 @@ function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
   const isPositive = kpi.change >= 0
 
   return (
-    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-slate-200/50">
-      <div className={`absolute top-0 right-0 w-28 h-28 ${kpi.bgColor} rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
+    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-slate-900/30">
+      <div className={`absolute top-0 right-0 w-28 h-28 ${kpi.bgColor} dark:opacity-30 rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
 
       <div className="flex justify-between items-start mb-3 relative z-10">
-        <div className={`p-2.5 ${kpi.bgColor} rounded-xl ${kpi.textColor}`}>
+        <div className={`p-2.5 ${kpi.bgColor} dark:bg-opacity-20 rounded-xl ${kpi.textColor} dark:text-opacity-80`}>
           <Icon size={20} />
         </div>
         {kpi.change !== 0 && (
           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
             isPositive 
-              ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
-              : 'bg-red-100 text-red-700 border border-red-200'
+              ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
+              : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
           }`}>
             {isPositive ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
             {Math.abs(kpi.change)}%
@@ -343,8 +343,8 @@ function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
       </div>
 
       <div className="relative z-10">
-        <p className="text-xs font-medium text-slate-500 mb-1">{kpi.titleAr || kpi.titleKey}</p>
-        <h3 className="text-xl font-bold text-slate-900">{kpi.value}</h3>
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{kpi.titleAr || kpi.titleKey}</p>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{kpi.value}</h3>
       </div>
     </div>
   )
@@ -366,15 +366,15 @@ function TabNavigation({ activeTab, setActiveTab }: { activeTab: FinanceTab; set
   ]
 
   return (
-    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-1.5 shadow-lg flex gap-1 overflow-x-auto">
+    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-1.5 shadow-lg flex gap-1 overflow-x-auto">
       {tabs.map((tab) => (
         <button 
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
             activeTab === tab.id 
-              ? 'bg-white text-indigo-600 shadow-sm' 
-              : 'text-slate-600 hover:bg-slate-100'
+              ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' 
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/70'
           }`}
         >
           <tab.icon size={16} />
@@ -1480,19 +1480,19 @@ export default function FinancialsPage() {
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-slate-100 mb-2 tracking-tight">
             Financial Management
             <span className="block text-xl md:text-2xl bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent mt-1">
               نظام إدارة المالية المتكامل
             </span>
           </h2>
-          <p className="text-base md:text-lg text-slate-500 mt-2">
+          <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 mt-2">
             Enterprise-grade financial management with multi-currency support
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2 backdrop-blur-md shadow-sm">
+          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2 backdrop-blur-md shadow-sm">
             <Download size={16} />
             Export
           </button>

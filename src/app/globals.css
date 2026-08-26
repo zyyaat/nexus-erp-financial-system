@@ -79,37 +79,58 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Deep dark background with slight blue tint for modern look */
+  --background: oklch(0.13 0.01 260);
+  --foreground: oklch(0.98 0 0);
+  
+  /* Cards - slightly lighter than background for depth */
+  --card: oklch(0.19 0.015 260);
+  --card-foreground: oklch(0.98 0 0);
+  
+  /* Popover - same as card */
+  --popover: oklch(0.19 0.015 260);
+  --popover-foreground: oklch(0.98 0 0);
+  
+  /* Primary - bright indigo for actions */
+  --primary: oklch(0.65 0.25 270);
+  --primary-foreground: oklch(0.99 0 0);
+  
+  /* Secondary - subtle dark gray */
+  --secondary: oklch(0.23 0.01 260);
+  --secondary-foreground: oklch(0.98 0 0);
+  
+  /* Muted - for less important text */
+  --muted: oklch(0.25 0.01 260);
+  --muted-foreground: oklch(0.65 0.02 260);
+  
+  /* Accent - highlighted elements */
+  --accent: oklch(0.25 0.03 270);
+  --accent-foreground: oklch(0.98 0 0);
+  
+  /* Destructive - red for errors */
+  --destructive: oklch(0.65 0.2 25);
+  
+  /* Borders - visible but subtle */
+  --border: oklch(0.28 0.02 260);
+  --input: oklch(0.25 0.02 260);
+  --ring: oklch(0.65 0.25 270);
+  
+  /* Chart colors - vibrant for dark mode */
+  --chart-1: oklch(0.7 0.2 270);
+  --chart-2: oklch(0.65 0.22 150);
+  --chart-3: oklch(0.75 0.18 50);
+  --chart-4: oklch(0.68 0.24 330);
+  --chart-5: oklch(0.72 0.2 200);
+  
+  /* Sidebar - slightly different shade */
+  --sidebar: oklch(0.16 0.015 260);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.65 0.25 270);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.25 0.03 270);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.28 0.02 260);
+  --sidebar-ring: oklch(0.65 0.25 270);
 }
 
 @layer base {
@@ -237,6 +258,19 @@
   }
 }
 
+.dark .pulse-glow {
+  animation: pulse-glow-dark 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-glow-dark {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(129, 140, 248, 0.5), 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(129, 140, 248, 0.7), 0 0 50px rgba(99, 102, 241, 0.4);
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -332,8 +366,14 @@
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 4px 6px -2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.5),
+    0 8px 16px -4px rgba(99, 102, 241, 0.15);
 }
 
 /* Button press effect */
@@ -360,9 +400,9 @@
 .dark .skeleton {
   background: linear-gradient(
     90deg,
-    #374151 25%,
-    #4b5563 50%,
-    #374151 75%
+    #1e293b 25%,
+    #334155 50%,
+    #1e293b 75%
   );
   background-size: 200% 100%;
 }
@@ -456,12 +496,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #94a3b8;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #64748b;
 }
 
 .dark ::-webkit-scrollbar-thumb {
@@ -488,4 +528,219 @@
     background: white !important;
     color: black !important;
   }
+}
+
+/* ============================================
+   DARK MODE ENHANCEMENTS
+   Professional Dark Theme with Premium Feel
+   ============================================ */
+
+/* Glass morphism effect for dark mode */
+.dark .glass-effect {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+/* Enhanced card styling for dark mode */
+.dark .bg-white {
+  background-color: oklch(0.19 0.015 260) !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: oklch(0.2 0.015 260) !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: oklch(0.22 0.015 260) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: oklch(0.2 0.015 260) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: oklch(0.22 0.015 260) !important;
+}
+
+/* Text colors for dark mode */
+.dark .text-slate-900 {
+  color: oklch(0.98 0 0) !important;
+}
+
+.dark .text-slate-800 {
+  color: oklch(0.92 0 0) !important;
+}
+
+.dark .text-slate-700 {
+  color: oklch(0.8 0.02 260) !important;
+}
+
+.dark .text-slate-600 {
+  color: oklch(0.7 0.02 260) !important;
+}
+
+.dark .text-gray-900 {
+  color: oklch(0.98 0 0) !important;
+}
+
+.dark .text-gray-800 {
+  color: oklch(0.92 0 0) !important;
+}
+
+.dark .text-gray-700 {
+  color: oklch(0.8 0.02 260) !important;
+}
+
+.dark .text-gray-600 {
+  color: oklch(0.7 0.02 260) !important;
+}
+
+/* Border colors for dark mode */
+.dark .border-slate-200 {
+  border-color: oklch(0.28 0.02 260) !important;
+}
+
+.dark .border-slate-300 {
+  border-color: oklch(0.32 0.02 260) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: oklch(0.28 0.02 260) !important;
+}
+
+.dark .border-gray-300 {
+  border-color: oklch(0.32 0.02 260) !important;
+}
+
+/* Input/Select styling for dark mode */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: oklch(0.23 0.015 260) !important;
+  border-color: oklch(0.32 0.02 260) !important;
+  color: oklch(0.98 0 0) !important;
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: oklch(0.55 0.02 260) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: oklch(0.65 0.25 270) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Button enhancements for dark mode */
+.dark .hover\:bg-slate-100:hover {
+  background-color: oklch(0.28 0.02 260) !important;
+}
+
+.dark .hover\:bg-slate-200:hover {
+  background-color: oklch(0.32 0.02 260) !important;
+}
+
+.dark .active\:bg-slate-200:active {
+  background-color: oklch(0.32 0.02 260) !important;
+}
+
+/* Table styling for dark mode */
+.dark table {
+  color: oklch(0.95 0 0);
+}
+
+.dark thead {
+  background-color: oklch(0.22 0.02 260);
+}
+
+.dark tbody tr {
+  border-bottom-color: oklch(0.28 0.02 260);
+}
+
+.dark tbody tr:hover {
+  background-color: oklch(0.23 0.02 260);
+}
+
+/* Badge/Tag styling for dark mode */
+.dark .bg-green-100 {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+
+.dark .text-green-800 {
+  color: rgb(74, 222, 128) !important;
+}
+
+.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.dark .text-red-800 {
+  color: rgb(248, 113, 113) !important;
+}
+
+.dark .bg-yellow-100 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+.dark .text-yellow-800 {
+  color: rgb(253, 224, 71) !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+.dark .text-blue-800 {
+  color: rgb(147, 197, 253) !important;
+}
+
+.dark .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+}
+
+.dark .text-purple-800 {
+  color: rgb(216, 180, 254) !important;
+}
+
+/* Ring shadow for dark mode */
+.dark .focus\:ring-indigo-500\/30:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+/* Gradient text for dark mode */
+.dark .gradient-text {
+  background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth theme transition */
+*,
+*::before,
+*::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+/* Exclude SVG and animations from transition */
+svg,
+[role="img"] {
+  transition: none !important;
+}
+
+.animate-fade-in-up,
+.animate-fade-in-down,
+.animate-fade-in-left,
+.animate-fade-in-right,
+.animate-scale-in,
+.animate-slide-in-bottom,
+.animate-float,
+.animate-bounce-soft,
+.pulse-glow,
+.shimmer {
+  transition: none !important;
 }

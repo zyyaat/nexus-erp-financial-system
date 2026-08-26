@@ -1,958 +1,1134 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { 
-  FileText, 
-  Download, 
+import { useState, useRef } from 'react'
+import {
+  FileText,
+  Download,
   Printer,
   Calendar,
-  Filter,
   ChevronDown,
-  Eye,
+  Building2,
+  DollarSign,
   TrendingUp,
   TrendingDown,
-  DollarSign,
-  BarChart3,
-  PieChart,
-  Activity,
-  CreditCard,
-  Users,
+  ArrowRightLeft,
   Wallet,
-  Target,
-  ArrowUpRight,
-  ArrowDownLeft,
-  FileSpreadsheet,
-  FileDown,
-  CheckCircle2,
-  Clock,
-  Scale
+  Scale,
+  BarChart3,
+  Filter,
+  Eye,
+  Loader2
 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
 // ============ TYPES ============
-interface ReportData {
-  id: string
+type ReportType = 'balance-sheet' | 'income-statement' | 'cash-flow' | 'trial-balance'
+
+interface ReportConfig {
+  id: ReportType
   title: string
   titleAr: string
-  type: 'balance-sheet' | 'income-statement' | 'cash-flow' | 'trial-balance' | 'ar-aging' | 'ap-aging'
-  dateRange: { from: string; to: string }
-  generatedAt: string
-  status: 'ready' | 'generating'
+  icon: React.ReactNode
+  description: string
+}
+
+interface FinancialData {
+  balanceSheet: BalanceSheetData
+  incomeStatement: IncomeStatementData
+  cashFlow: CashFlowData
+  trialBalance: TrialBalanceItem[]
+}
+
+interface BalanceSheetData {
+  assets: AssetCategory[]
+  liabilities: LiabilityCategory[]
+  equity: EquityItem[]
+  totalAssets: number
+  totalLiabilities: number
+  totalEquity: number
+}
+
+interface AssetCategory {
+  category: string
+  items: { name: string; amount: number }[]
+  total: number
+}
+
+interface LiabilityCategory {
+  category: string
+  items: { name: string; amount: number }[]
+  total: number
+}
+
+interface EquityItem {
+  name: string
+  amount: number
+}
+
+interface IncomeStatementData {
+  revenue: RevenueItem[]
+  expenses: ExpenseItem[]
+  totalRevenue: number
+  totalExpenses: number
+  netIncome: number
+  grossProfit: number
+  operatingIncome: number
+}
+
+interface RevenueItem {
+  category: string
+  amount: number
+}
+
+interface ExpenseItem {
+  category: string
+  amount: number
+}
+
+interface CashFlowData {
+  operatingActivities: CashFlowItem[]
+  investingActivities: CashFlowItem[]
+  financingActivities: CashFlowItem[]
+  netCashFlow: number
+  beginningCash: number
+  endingCash: number
+}
+
+interface CashFlowItem {
+  description: string
+  amount: number
+}
+
+interface TrialBalanceItem {
+  accountCode: string
+  accountName: string
+  debit: number
+  credit: number
 }
 
 // ============ MOCK DATA ============
-const reportsList: ReportData[] = [
+const generateFinancialData = (): FinancialData => ({
+  balanceSheet: {
+    assets: [
+      {
+        category: 'Current Assets',
+        items: [
+          { name: 'Cash and Cash Equivalents', amount: 1250000 },
+          { name: 'Accounts Receivable', amount: 890000 },
+          { name: 'Inventory', amount: 1450000 },
+          { name: 'Prepaid Expenses', amount: 120000 }
+        ],
+        total: 3710000
+      },
+      {
+        category: 'Non-Current Assets',
+        items: [
+          { name: 'Property, Plant & Equipment', amount: 4500000 },
+          { name: 'Accumulated Depreciation', amount: -1200000 },
+          { name: 'Long-term Investments', amount: 750000 },
+          { name: 'Intangible Assets', amount: 500000 }
+        ],
+        total: 4550000
+      }
+    ],
+    liabilities: [
+      {
+        category: 'Current Liabilities',
+        items: [
+          { name: 'Accounts Payable', amount: 680000 },
+          { name: 'Short-term Debt', amount: 400000 },
+          { name: 'Accrued Expenses', amount: 220000 },
+          { name: 'Current Portion of Long-term Debt', amount: 150000 }
+        ],
+        total: 1450000
+      },
+      {
+        category: 'Long-term Liabilities',
+        items: [
+          { name: 'Long-term Debt', amount: 2000000 },
+          { name: 'Deferred Tax Liability', amount: 180000 },
+          { name: 'Other Long-term Liabilities', amount: 95000 }
+        ],
+        total: 2275000
+      }
+    ],
+    equity: [
+      { name: 'Common Stock', amount: 1500000 },
+      { name: 'Retained Earnings', amount: 2835000 },
+      { name: 'Additional Paid-in Capital', amount: 200000 }
+    ],
+    totalAssets: 8260000,
+    totalLiabilities: 3725000,
+    totalEquity: 4535000
+  },
+  incomeStatement: {
+    revenue: [
+      { category: 'Sales Revenue', amount: 8500000 },
+      { category: 'Service Revenue', amount: 1200000 },
+      { category: 'Other Operating Income', amount: 150000 }
+    ],
+    expenses: [
+      { category: 'Cost of Goods Sold', amount: 4200000 },
+      { category: 'Sales & Marketing', amount: 850000 },
+      { category: 'General & Administrative', amount: 620000 },
+      { category: 'Research & Development', amount: 480000 },
+      { category: 'Depreciation & Amortization', amount: 180000 },
+      { category: 'Interest Expense', amount: 95000 },
+      { category: 'Income Tax Expense', amount: 520000 }
+    ],
+    totalRevenue: 9850000,
+    totalExpenses: 6945000,
+    netIncome: 2905000,
+    grossProfit: 5650000,
+    operatingIncome: 3520000
+  },
+  cashFlow: {
+    operatingActivities: [
+      { description: 'Net Income', amount: 2905000 },
+      { description: 'Depreciation & Amortization', amount: 180000 },
+      { description: 'Accounts Receivable Change', amount: -95000 },
+      { description: 'Inventory Change', amount: -180000 },
+      { description: 'Accounts Payable Change', amount: 65000 },
+      { description: 'Accrued Expenses Change', amount: 35000 }
+    ],
+    investingActivities: [
+      { description: 'Capital Expenditures', amount: -420000 },
+      { description: 'Purchase of Investments', amount: -250000 },
+      { description: 'Proceeds from Sale of Equipment', amount: 85000 }
+    ],
+    financingActivities: [
+      { description: 'Proceeds from Long-term Debt', amount: 500000 },
+      { description: 'Repayment of Short-term Debt', amount: -300000 },
+      { description: 'Dividends Paid', amount: -350000 },
+      { description: 'Stock Repurchases', amount: -200000 }
+    ],
+    netCashFlow: 2365000,
+    beginningCash: 985000,
+    endingCash: 3350000
+  },
+  trialBalance: [
+    { accountCode: '1000', accountName: 'Cash', debit: 1250000, credit: 0 },
+    { accountCode: '1100', accountName: 'Accounts Receivable', debit: 890000, credit: 0 },
+    { accountCode: '1200', accountName: 'Inventory', debit: 1450000, credit: 0 },
+    { accountCode: '1300', accountName: 'Prepaid Expenses', debit: 120000, credit: 0 },
+    { accountCode: '1500', accountName: 'Property, Plant & Equipment', debit: 4500000, credit: 0 },
+    { accountCode: '1510', accountName: 'Accumulated Depreciation', debit: 0, credit: 1200000 },
+    { accountCode: '1600', accountName: 'Long-term Investments', debit: 750000, credit: 0 },
+    { accountCode: '1700', accountName: 'Intangible Assets', debit: 500000, credit: 0 },
+    { accountCode: '2000', accountName: 'Accounts Payable', debit: 0, credit: 680000 },
+    { accountCode: '2100', accountName: 'Short-term Debt', debit: 0, credit: 400000 },
+    { accountCode: '2200', accountName: 'Accrued Expenses', debit: 0, credit: 220000 },
+    { accountCode: '2300', accountName: 'Current Portion of LTD', debit: 0, credit: 150000 },
+    { accountCode: '2500', accountName: 'Long-term Debt', debit: 0, credit: 2000000 },
+    { accountCode: '2600', accountName: 'Deferred Tax Liability', debit: 0, credit: 180000 },
+    { accountCode: '3000', accountName: 'Common Stock', debit: 0, credit: 1500000 },
+    { accountCode: '3100', accountName: 'Retained Earnings', debit: 0, credit: 2835000 },
+    { accountCode: '3200', accountName: 'Additional Paid-in Capital', debit: 0, credit: 200000 },
+    { accountCode: '4000', accountName: 'Sales Revenue', debit: 0, credit: 8500000 },
+    { accountCode: '4100', accountName: 'Service Revenue', debit: 0, credit: 1200000 },
+    { accountCode: '5000', accountName: 'Cost of Goods Sold', debit: 4200000, credit: 0 },
+    { accountCode: '5100', accountName: 'Sales & Marketing Expense', debit: 850000, credit: 0 },
+    { accountCode: '5200', accountName: 'G&A Expense', debit: 620000, credit: 0 },
+    { accountCode: '5300', accountName: 'R&D Expense', debit: 480000, credit: 0 },
+    { accountCode: '5400', accountName: 'Depreciation Expense', debit: 180000, credit: 0 },
+    { accountCode: '5500', accountName: 'Interest Expense', debit: 95000, credit: 0 },
+    { accountCode: '5600', accountName: 'Income Tax Expense', debit: 520000, credit: 0 }
+  ]
+})
+
+// ============ REPORT CONFIGURATIONS ============
+const reportConfigs: ReportConfig[] = [
   {
-    id: 'RPT-001',
+    id: 'balance-sheet',
     title: 'Balance Sheet',
     titleAr: 'الميزانية العمومية',
-    type: 'balance-sheet',
-    dateRange: { from: '2026-01-01', to: '2026-08-26' },
-    generatedAt: '2026-08-26T10:30:00Z',
-    status: 'ready'
+    icon: <Scale size={20} />,
+    description: 'Assets, liabilities, and equity position'
   },
   {
-    id: 'RPT-002',
+    id: 'income-statement',
     title: 'Income Statement',
     titleAr: 'قائمة الدخل',
-    type: 'income-statement',
-    dateRange: { from: '2026-01-01', to: '2026-08-26' },
-    generatedAt: '2026-08-26T10:25:00Z',
-    status: 'ready'
+    icon: <TrendingUp size={20} />,
+    description: 'Revenue, expenses, and profitability'
   },
   {
-    id: 'RPT-003',
+    id: 'cash-flow',
     title: 'Cash Flow Statement',
-    titleAr: 'قائمة التدفق النقدي',
-    type: 'cash-flow',
-    dateRange: { from: '2026-01-01', to: '2026-08-26' },
-    generatedAt: '2026-08-26T10:20:00Z',
-    status: 'ready'
+    titleAr: 'قائمة التدفقات النقدية',
+    icon: <Wallet size={20} />,
+    description: 'Cash inflows and outflows analysis'
   },
   {
-    id: 'RPT-004',
+    id: 'trial-balance',
     title: 'Trial Balance',
     titleAr: 'ميزان المراجعة',
-    type: 'trial-balance',
-    dateRange: { from: '2026-08-01', to: '2026-08-26' },
-    generatedAt: '2026-08-26T10:15:00Z',
-    status: 'ready'
-  },
-  {
-    id: 'RPT-005',
-    title: 'Accounts Receivable Aging',
-    titleAr: 'تقارير أعمار الذمم المدينة',
-    type: 'ar-aging',
-    dateRange: { from: '2026-06-26', to: '2026-08-26' },
-    generatedAt: '2026-08-26T10:10:00Z',
-    status: 'ready'
-  },
-  {
-    id: 'RPT-006',
-    title: 'Accounts Payable Aging',
-    titleAr: 'تقارير أعمار الذمم الدائنة',
-    type: 'ap-aging',
-    dateRange: { from: '2026-06-26', to: '2026-08-26' },
-    generatedAt: '2026-08-26T10:05:00Z',
-    status: 'ready'
+    icon: <BarChart3 size={20} />,
+    description: 'All accounts with debit/credit balances'
   }
 ]
 
-// Balance Sheet Data
-const balanceSheetData = {
-  assets: [
-    { name: 'Cash & Bank', nameAr: 'النقدية والبنوك', amount: 456890 },
-    { name: 'Accounts Receivable', nameAr: 'الذمم المدينة', amount: 128450 },
-    { name: 'Inventory', nameAr: 'المخزون', amount: 234500 },
-    { name: 'Prepaid Expenses', nameAr: 'مصروفات مدفوعة مقدماً', amount: 25000 },
-    { name: 'Fixed Assets (Net)', nameAr: 'الأصول الثابتة (صافي)', amount: 485000 },
-  ],
-  liabilities: [
-    { name: 'Accounts Payable', nameAr: 'الذمم الدائنة', amount: 89200 },
-    { name: 'Short-term Loans', nameAr: 'القروض قصيرة الأجل', amount: 75000 },
-    { name: 'Accrued Expenses', nameAr: 'مصروفات مستحقة', amount: 35000 },
-    { name: 'Long-term Debt', nameAr: 'ديون طويلة الأجل', amount: 200000 },
-  ],
-  equity: [
-    { name: "Owner's Capital", nameAr: 'رأس المالك', amount: 500000 },
-    { name: 'Retained Earnings', nameAr: 'الأرباح المحتجزة', amount: 430640 },
-  ]
-}
-
-// Income Statement Data
-const incomeStatementData = {
-  revenue: [
-    { name: 'Sales Revenue', nameAr: 'إيرادات المبيعات', amount: 847290 },
-    { name: 'Service Revenue', nameAr: 'إيرادات الخدمات', amount: 125000 },
-    { name: 'Other Income', nameAr: 'إيرادات أخرى', amount: 15000 },
-  ],
-  cogs: [
-    { name: 'Cost of Goods Sold', nameAr: 'تكلفة البضاعة المباعة', amount: -523180 },
-  ],
-  expenses: [
-    { name: 'Salaries & Wages', nameAr: 'الرواتب والأجور', amount: -156200 },
-    { name: 'Operating Expenses', nameAr: 'المصاريف التشغيلية', amount: -198500 },
-    { name: 'Marketing & Advertising', nameAr: 'التسويق والإعلان', amount: -78400 },
-    { name: 'Technology & Software', nameAr: 'التقنية والبرمجيات', amount: -52080 },
-    { name: 'Depreciation', nameAr: 'الإهلاك', amount: -35000 },
-    { name: 'Other Expenses', nameAr: 'مصروفات أخرى', amount: -40000 },
-  ]
-}
-
-// Cash Flow Data
-const cashFlowData = {
-  operating: [
-    { name: 'Net Income', nameAr: 'صافي الربح', amount: 324110 },
-    { name: 'Depreciation', nameAr: 'الإهلاك', amount: 35000 },
-    { name: '(Increase) in AR', nameAr: '(زيادة) في الذمم المدينة', amount: -28450 },
-    { name: 'Increase in AP', nameAr: 'زيادة في الذمم الدائنة', amount: 15200 },
-    { name: 'Change in Inventory', nameAr: 'تغير المخزون', amount: -18500 },
-  ],
-  investing: [
-    { name: 'Purchase of Equipment', nameAr: 'شراء معدات', amount: -85000 },
-    { name: 'Sale of Assets', nameAr: 'بيع أصول', amount: 12000 },
-  ],
-  financing: [
-    { name: 'Loan Proceeds', nameAr: 'عائدات القروض', amount: 100000 },
-    { name: 'Principal Payments', nameAr: 'سداد أصل القرض', amount: -50000 },
-    { name: 'Dividends Paid', nameAr: 'توزيعات مدفوعة', amount: -75000 },
-  ]
-}
-
-// Trial Balance Data
-const trialBalanceData = [
-  { code: '1000', name: 'Cash & Bank', debit: 500000, credit: 43110 },
-  { code: '1200', name: 'Accounts Receivable', debit: 145000, credit: 16550 },
-  { code: '1500', name: 'Inventory', debit: 250000, credit: 15500 },
-  { code: '2000', name: 'Accounts Payable', debit: 15000, credit: 104200 },
-  { code: '2100', name: 'Short-term Loans', debit: 25000, credit: 100000 },
-  { code: '3000', name: "Owner's Equity", debit: 0, credit: 500000 },
-  { code: '4000', name: 'Sales Revenue', debit: 0, credit: 847290 },
-  { code: '5000', name: 'Cost of Goods Sold', debit: 523180, credit: 0 },
-  { code: '5100', name: 'Operating Expenses', debit: 198500, credit: 0 },
-  { code: '5200', name: 'Salaries & Wages', debit: 156200, credit: 0 },
-]
-
-// AR Aging Data
-const arAgingData = [
-  { customer: 'TechCorp Industries', current: 15000, days30: 20000, days60: 8000, days90: 2000, total: 45000 },
-  { customer: 'Acme Corporation', current: 5000, days30: 8000, days60: 4000, days50: 1500, total: 18500 },
-  { customer: 'Global Manufacturing', current: 0, days30: 0, days60: 23000, days90: 44300, total: 67300 },
-  { customer: 'Retail Chain LLC', current: 12000, days30: 9000, days60: 5000, days90: 2900, total: 28900 },
-]
-
-// AP Aging Data
-const apAgingData = [
-  { vendor: 'Office Supplies Co.', current: 5000, days30: 4000, days60: 2500, days90: 1000, total: 12500 },
-  { vendor: 'Tech Equipment Ltd.', current: 15000, days30: 18000, days60: 9000, days90: 3000, total: 45000 },
-  { vendor: 'Global Logistics', current: 7000, days30: 6000, days60: 4000, days90: 1700, total: 18700 },
-  { vendor: 'IT Services Provider', current: 3000, days30: 5000, days60: 3500, days90: 1500, total: 13000 },
-]
-
-// ============ SUB-COMPONENTS ============
-
-function ReportTypeIcon({ type }: { type: ReportData['type'] }) {
-  const iconMap = {
-    'balance-sheet': BarChart3,
-    'income-statement': TrendingUp,
-    'cash-flow': Activity,
-    'trial-balance': Scale,
-    'ar-aging': Users,
-    'ap-aging': CreditCard,
-  }
+// ============ UTILITY FUNCTIONS ============
+const formatCurrency = (amount: number): string => {
+  const absAmount = Math.abs(amount)
+  const formatted = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(absAmount)
   
-  const Icon = iconMap[type] || FileText
-  
-  return <Icon size={20} className="text-indigo-500" />
+  return amount < 0 ? `(${formatted})` : formatted
 }
 
-function ReportCard({ report, onView, onExportPDF, onExportExcel }: { 
-  report: ReportData
-  onView: () => void
-  onExportPDF: () => void
-  onExportExcel: () => void
-}) {
-  return (
-    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
-            <ReportTypeIcon type={report.type} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-slate-900 dark:text-white">{report.title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{report.titleAr}</p>
-          </div>
-        </div>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-          report.status === 'ready' 
-            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-            : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-        }`}>
-          {report.status === 'ready' ? 'Ready' : 'Generating...'}
-        </span>
-      </div>
+const formatDateRange = (start: Date, end: Date): string => {
+  return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+}
+
+// ============ MAIN COMPONENT ============
+export default function FinancialReports() {
+  const { t, dir, locale } = useI18n()
+  const isRTL = dir === 'rtl'
+  
+  // State
+  const [selectedReport, setSelectedReport] = useState<ReportType>('balance-sheet')
+  const [dateRange, setDateRange] = useState<'this-month' | 'this-quarter' | 'this-year' | 'custom'>('this-year')
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [showPreview, setShowPreview] = useState(true)
+  
+  // Refs
+  const reportRef = useRef<HTMLDivElement>(null)
+  
+  // Data
+  const data = generateFinancialData()
+  
+  const currentConfig = reportConfigs.find(r => r.id === selectedReport)!
+  
+  // PDF Export Handler
+  const handleExportPDF = async () => {
+    setIsGeneratingPDF(true)
+    
+    try {
+      // Dynamic import for smaller bundle size
+      const html2pdf = (await import('html2pdf.js')).default
       
-      <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-4">
-        <span className="flex items-center gap-1">
-          <Calendar size={14} />
-          {report.dateRange.from} → {report.dateRange.to}
-        </span>
-      </div>
+      const element = reportRef.current
+      if (!element) throw new Error('Report element not found')
       
-      <div className="flex items-center gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-        <button 
-          onClick={onView}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-        >
-          <Eye size={14} />
-          View
-        </button>
-        <button 
-          onClick={onExportPDF}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-        >
-          <FileDown size={14} />
-          PDF
-        </button>
-        <button 
-          onClick={onExportExcel}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
-        >
-          <FileSpreadsheet size={14} />
-          Excel
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// Balance Sheet Preview Component
-function BalanceSheetPreview() {
-  const totalAssets = balanceSheetData.assets.reduce((sum, a) => sum + a.amount, 0)
-  const totalLiabilities = balanceSheetData.liabilities.reduce((sum, l) => sum + l.amount, 0)
-  const totalEquity = balanceSheetData.equity.reduce((sum, e) => sum + e.amount, 0)
-
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-      {/* Header */}
-      <div className="text-center space-y-2 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">BALANCE SHEET</h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400">الميزانية العمومية</p>
-        <p className="text-sm text-slate-400">For the Period Ended August 26, 2026</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* ASSETS */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-t-xl text-white">
-            <h3 className="text-lg font-bold">ASSETS / الأصول</h3>
-            <DollarSign size={20} />
-          </div>
-          
-          <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-b-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-700">
-            {balanceSheetData.assets.map((asset, idx) => (
-              <div key={idx} className="flex justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                <div>
-                  <p className="font-medium text-slate-900 dark:text-white">{asset.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{asset.nameAr}</p>
-                </div>
-                <span className="font-mono font-bold text-slate-900 dark:text-white">${asset.amount.toLocaleString()}</span>
-              </div>
-            ))}
-            <div className="flex justify-between p-4 bg-blue-50 dark:bg-blue-900/20">
-              <span className="font-bold text-blue-900 dark:text-blue-100">Total Assets / إجمالي الأصول</span>
-              <span className="font-mono font-bold text-blue-900 dark:text-blue-100">${totalAssets.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* LIABILITIES & EQUITY */}
-        <div className="space-y-4">
-          {/* Liabilities */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-t-xl text-white">
-              <h3 className="text-lg font-bold">LIABILITIES / الالتزامات</h3>
-              <CreditCard size={20} />
-            </div>
-            
-            <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-b-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-700">
-              {balanceSheetData.liabilities.map((liability, idx) => (
-                <div key={idx} className="flex justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                  <div>
-                    <p className="font-medium text-slate-900 dark:text-white">{liability.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{liability.nameAr}</p>
-                  </div>
-                  <span className="font-mono font-bold text-red-600 dark:text-red-400">${liability.amount.toLocaleString()}</span>
-                </div>
-              ))}
-              <div className="flex justify-between p-4 bg-orange-50 dark:bg-orange-900/20">
-                <span className="font-bold text-orange-900 dark:text-orange-100">Total Liabilities / إجمالي الالتزامات</span>
-                <span className="font-mono font-bold text-orange-900 dark:text-orange-100">${totalLiabilities.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Equity */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-violet-500 to-purple-500 rounded-t-xl text-white">
-              <h3 className="text-lg font-bold">EQUITY / حقوق الملكية</h3>
-              <Users size={20} />
-            </div>
-            
-            <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-b-xl overflow-hidden divide-y divide-slate-200 dark:divide-slate-700">
-              {balanceSheetData.equity.map((eq, idx) => (
-                <div key={idx} className="flex justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                  <div>
-                    <p className="font-medium text-slate-900 dark:text-white">{eq.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{eq.nameAr}</p>
-                  </div>
-                  <span className="font-mono font-bold text-violet-600 dark:text-violet-400">${eq.amount.toLocaleString()}</span>
-                </div>
-              ))}
-              <div className="flex justify-between p-4 bg-violet-50 dark:bg-violet-900/20">
-                <span className="font-bold text-violet-900 dark:text-violet-100">Total Equity / إجمالي حقوق الملكية</span>
-                <span className="font-mono font-bold text-violet-900 dark:text-violet-100">${totalEquity.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Total L&E */}
-          <div className="flex justify-between p-4 bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 rounded-xl text-white">
-            <span className="font-bold">Total Liab. & Equity / إجمالي الالتزامات وحقوق الملكية</span>
-            <span className="font-mono font-bold">${(totalLiabilities + totalEquity).toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Income Statement Preview Component
-function IncomeStatementPreview() {
-  const totalRevenue = incomeStatementData.revenue.reduce((sum, r) => sum + r.amount, 0)
-  const totalCOGS = Math.abs(incomeStatementData.cogs.reduce((sum, c) => sum + c.amount, 0))
-  const grossProfit = totalRevenue - totalCOGS
-  const totalExpenses = Math.abs(incomeStatementData.expenses.reduce((sum, e) => sum + e.amount, 0))
-  const netIncome = grossProfit - totalExpenses
-
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="text-center space-y-2 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">INCOME STATEMENT</h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400">قائمة الدخل</p>
-        <p className="text-sm text-slate-400">For the Period January 1 - August 26, 2026</p>
-      </div>
-
-      <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-        {/* Revenue Section */}
-        <div className="p-6 space-y-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <TrendingUp size={20} />
-            REVENUE / الإيرادات
-          </h3>
-        </div>
-        
-        <div className="divide-y divide-slate-200 dark:divide-slate-700 p-6 space-y-3">
-          {incomeStatementData.revenue.map((rev, idx) => (
-            <div key={idx} className="flex justify-between items-center">
-              <div>
-                <p className="font-medium text-slate-900 dark:text-white">{rev.name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{rev.nameAr}</p>
-              </div>
-              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">${rev.amount.toLocaleString()}</span>
-            </div>
-          ))}
-          <div className="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
-            <span className="font-bold text-slate-900 dark:text-white">Total Revenue / إجمالي الإيرادات</span>
-            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-lg">${totalRevenue.toLocaleString()}</span>
-          </div>
-        </div>
-
-        {/* COGS */}
-        <div className="p-6 space-y-3 bg-slate-50 dark:bg-slate-700/30">
-          {incomeStatementData.cogs.map((cogs, idx) => (
-            <div key={idx} className="flex justify-between items-center">
-              <div>
-                <p className="font-medium text-slate-900 dark:text-white">{cogs.name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{cogs.nameAr}</p>
-              </div>
-              <span className="font-mono font-bold text-red-600 dark:text-red-400">(${Math.abs(cogs.amount).toLocaleString()})</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Gross Profit */}
-        <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 flex justify-between items-center">
-          <span className="font-bold text-lg text-emerald-900 dark:text-emerald-100">Gross Profit / إجمالي الربح</span>
-          <span className="font-mono font-bold text-lg text-emerald-600 dark:text-emerald-400">${grossProfit.toLocaleString()}</span>
-        </div>
-
-        {/* Expenses */}
-        <div className="p-6 space-y-3 bg-gradient-to-r from-orange-500 to-red-500 text-white">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <TrendingDown size={20} />
-            OPERATING EXPENSES / المصاريف التشغيلية
-          </h3>
-        </div>
-        
-        <div className="divide-y divide-slate-200 dark:divide-slate-700 p-6 space-y-3">
-          {incomeStatementData.expenses.map((exp, idx) => (
-            <div key={idx} className="flex justify-between items-center">
-              <div>
-                <p className="font-medium text-slate-900 dark:text-white">{exp.name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{exp.nameAr}</p>
-              </div>
-              <span className="font-mono font-bold text-red-600 dark:text-red-400">(${Math.abs(exp.amount).toLocaleString()})</span>
-            </div>
-          ))}
-          <div className="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-700">
-            <span className="font-bold text-slate-900 dark:text-white">Total Expenses / إجمالي المصروفات</span>
-            <span className="font-mono font-bold text-red-600 dark:text-red-400 text-lg">(${totalExpenses.toLocaleString()})</span>
-          </div>
-        </div>
-
-        {/* Net Income */}
-        <div className="p-8 bg-gradient-to-r from-indigo-500 to-violet-500 flex justify-between items-center text-white">
-          <span className="font-bold text-2xl">NET INCOME / صافي الربح</span>
-          <span className="font-mono font-bold text-3xl">${netIncome.toLocaleString()}</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Cash Flow Statement Preview Component
-function CashFlowPreview() {
-  const operatingNet = cashFlowData.operating.reduce((sum, o) => sum + o.amount, 0)
-  const investingNet = cashFlowData.investing.reduce((sum, i) => sum + i.amount, 0)
-  const financingNet = cashFlowData.financing.reduce((sum, f) => sum + f.amount, 0)
-  const netChange = operatingNet + investingNet + financingNet
-
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="text-center space-y-2 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">CASH FLOW STATEMENT</h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400">قائمة التدفق النقدي</p>
-        <p className="text-sm text-slate-400">For the Period Ended August 26, 2026</p>
-      </div>
-
-      <div className="space-y-6">
-        {/* Operating Activities */}
-        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-          <div className="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold flex items-center gap-2">
-            <Activity size={20} />
-            CASH FLOWS FROM OPERATING ACTIVITIES / التدفقات النقدية من الأنشطة التشغيلية
-          </div>
-          <div className="divide-y divide-slate-200 dark:divide-slate-700 p-4 space-y-3">
-            {cashFlowData.operating.map((item, idx) => (
-              <div key={idx} className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300">{item.name}</span>
-                <span className={`font-mono font-medium ${item.amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {item.amount >= 0 ? '+' : ''}{item.amount.toLocaleString()}
-                </span>
-              </div>
-            ))}
-            <div className="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-700 font-bold text-lg">
-              <span>Net Cash from Operating / صافي النقد من التشغيل</span>
-              <span className={`font-mono ${operatingNet >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                {operatingNet >= 0 ? '+' : ''}${operatingNet.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Investing Activities */}
-        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-          <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold flex items-center gap-2">
-            <Target size={20} />
-            CASH FLOWS FROM INVESTING ACTIVITIES / التدفقات النقدية من الأنشطة الاستثمارية
-          </div>
-          <div className="divide-y divide-slate-200 dark:divide-slate-700 p-4 space-y-3">
-            {cashFlowData.investing.map((item, idx) => (
-              <div key={idx} className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300">{item.name}</span>
-                <span className={`font-mono font-medium ${item.amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {item.amount >= 0 ? '+' : ''}{item.amount.toLocaleString()}
-                </span>
-              </div>
-            ))}
-            <div className="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-700 font-bold text-lg">
-              <span>Net Cash from Investing / صافي النقد من الاستثمار</span>
-              <span className={`font-mono ${investingNet >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                {investingNet >= 0 ? '+' : ''}${investingNet.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Financing Activities */}
-        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-          <div className="p-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold flex items-center gap-2">
-            <Wallet size={20} />
-            CASH FLOWS FROM FINANCING ACTIVITIES / التدفقات النقدية من أنشطة التمويل
-          </div>
-          <div className="divide-y divide-slate-200 dark:divide-slate-700 p-4 space-y-3">
-            {cashFlowData.financing.map((item, idx) => (
-              <div key={idx} className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300">{item.name}</span>
-                <span className={`font-mono font-medium ${item.amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {item.amount >= 0 ? '+' : ''}{item.amount.toLocaleString()}
-                </span>
-              </div>
-            ))}
-            <div className="flex justify-between pt-3 border-t border-slate-200 dark:border-slate-700 font-bold text-lg">
-              <span>Net Cash from Financing / صافي النقد من التمويل</span>
-              <span className={`font-mono ${financingNet >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                {financingNet >= 0 ? '+' : ''}${financingNet.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Net Change in Cash */}
-        <div className="p-6 bg-gradient-to-r from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 rounded-xl text-white">
-          <div className="flex justify-between items-center">
-            <span className="font-bold text-xl">NET CHANGE IN CASH / التغير الصافي في النقدية</span>
-            <span className="font-mono font-bold text-2xl">{netChange >= 0 ? '+' : ''}${netChange.toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Trial Balance Preview Component
-function TrialBalancePreview() {
-  const totalDebit = trialBalanceData.reduce((sum, t) => sum + t.debit, 0)
-  const totalCredit = trialBalanceData.reduce((sum, t) => sum + t.credit, 0)
-
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-      {/* Header */}
-      <div className="text-center space-y-2 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">TRIAL BALANCE</h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400">ميزان المراجعة</p>
-        <p className="text-sm text-slate-400">As of August 26, 2026</p>
-      </div>
-
-      <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            <thead>
-              <tr className="bg-slate-100 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
-                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Account Code</th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Account Name</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Debit ($)</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Credit ($)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {trialBalanceData.map((account, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                  <td className="px-4 py-3 font-mono text-sm text-indigo-600 dark:text-indigo-400">{account.code}</td>
-                  <td className="px-4 py-3 text-sm text-slate-900 dark:text-white font-medium">{account.name}</td>
-                  <td className="px-4 py-3 text-right font-mono text-sm text-slate-700 dark:text-slate-300">
-                    {account.debit > 0 ? account.debit.toLocaleString() : '-'}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono text-sm text-slate-700 dark:text-slate-300">
-                    {account.credit > 0 ? account.credit.toLocaleString() : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="bg-slate-100 dark:bg-slate-700 font-bold">
-                <td colSpan={2} className="px-4 py-4 text-slate-900 dark:text-white">TOTAL / الإجمالي</td>
-                <td className="px-4 py-4 text-right font-mono text-emerald-600 dark:text-emerald-400">${totalDebit.toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-red-600 dark:text-red-400">${totalCredit.toLocaleString()}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        {/* Mobile Cards */}
-        <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-700">
-          {trialBalanceData.map((account, idx) => (
-            <div key={idx} className="p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400">{account.code}</span>
-                  <span className="ml-2 text-sm font-medium text-slate-900 dark:text-white">{account.name}</span>
-                </div>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-slate-400">Dr: <strong className="text-emerald-600 dark:text-emerald-400">{account.debit > 0 ? account.debit.toLocaleString() : '-'}</strong></span>
-                <span className="text-slate-500 dark:text-slate-400">Cr: <strong className="text-red-600 dark:text-red-400">{account.credit > 0 ? account.credit.toLocaleString() : '-'}</strong></span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Totals Footer */}
-        <div className="p-4 bg-slate-100 dark:bg-slate-700 grid grid-cols-3 gap-4 text-center">
-          <div className="font-bold text-slate-900 dark:text-white">TOTAL</div>
-          <div className="font-mono font-bold text-emerald-600 dark:text-emerald-400">${totalDebit.toLocaleString()}</div>
-          <div className="font-mono font-bold text-red-600 dark:text-red-400">${totalCredit.toLocaleString()}</div>
-        </div>
-      </div>
-
-      {/* Status Badge */}
-      <div className="flex items-center justify-center gap-2 p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
-        <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400" />
-        <span className="font-medium text-emerald-700 dark:text-emerald-300">Trial Balance is Balanced / ميزان المراجعة متوازن ✓</span>
-      </div>
-    </div>
-  )
-}
-
-// AR/AP Aging Preview Components
-function ARAgingPreview() {
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="text-center space-y-2 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">ACCOUNTS RECEIVABLE AGING</h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400">تقارير أعمار الذمم المدينة</p>
-        <p className="text-sm text-slate-400">As of August 26, 2026</p>
-      </div>
-
-      <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
-            <thead>
-              <tr className="bg-slate-100 dark:bg-slate-700">
-                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Customer</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">Current</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-blue-600 dark:text-blue-400">1-30 Days</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-amber-600 dark:text-amber-400">31-60 Days</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-red-600 dark:text-red-400">61+ Days</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white font-bold">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {arAgingData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{row.customer}</td>
-                  <td className="px-4 py-3 text-right font-mono text-emerald-600 dark:text-emerald-400">${row.current.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono text-blue-600 dark:text-blue-400">${row.days30.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono text-amber-600 dark:text-amber-400">${row.days60.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono text-red-600 dark:text-red-400">${row.days90.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono font-bold text-slate-900 dark:text-white">${row.total.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="bg-slate-100 dark:bg-slate-700 font-bold">
-                <td className="px-4 py-4 text-slate-900 dark:text-white">TOTAL</td>
-                <td className="px-4 py-4 text-right font-mono text-emerald-600 dark:text-emerald-400">${arAgingData.reduce((s,r)=>s+r.current,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-blue-600 dark:text-blue-400">${arAgingData.reduce((s,r)=>s+r.days30,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-amber-600 dark:text-amber-400">${arAgingData.reduce((s,r)=>s+r.days60,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-red-600 dark:text-red-400">${arAgingData.reduce((s,r)=>s+r.days90,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-slate-900 dark:text-white">${arAgingData.reduce((s,r)=>s+r.total,0).toLocaleString()}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function APAgingPreview() {
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-      <div className="text-center space-y-2 pb-6 border-b border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">ACCOUNTS PAYABLE AGING</h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400">تقارير أعمار الذمم الدائنة</p>
-        <p className="text-sm text-slate-400">As of August 26, 2026</p>
-      </div>
-
-      <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
-            <thead>
-              <tr className="bg-slate-100 dark:bg-slate-700">
-                <th className="text-left px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300">Vendor</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400">Current</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-blue-600 dark:text-blue-400">1-30 Days</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-amber-600 dark:text-amber-400">31-60 Days</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-red-600 dark:text-red-400">61+ Days</th>
-                <th className="text-right px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white font-bold">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {apAgingData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-700/30">
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{row.vendor}</td>
-                  <td className="px-4 py-3 text-right font-mono text-emerald-600 dark:text-emerald-400">${row.current.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono text-blue-600 dark:text-blue-400">${row.days30.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono text-amber-600 dark:text-amber-400">${row.days60.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono text-red-600 dark:text-red-400">${row.days90.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right font-mono font-bold text-slate-900 dark:text-white">${row.total.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="bg-slate-100 dark:bg-slate-700 font-bold">
-                <td className="px-4 py-4 text-slate-900 dark:text-white">TOTAL</td>
-                <td className="px-4 py-4 text-right font-mono text-emerald-600 dark:text-emerald-400">${apAgingData.reduce((s,r)=>s+r.current,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-blue-600 dark:text-blue-400">${apAgingData.reduce((s,r)=>s+r.days30,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-amber-600 dark:text-amber-400">${apAgingData.reduce((s,r)=>s+r.days60,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-red-600 dark:text-red-400">${apAgingData.reduce((s,r)=>s+r.days90,0).toLocaleString()}</td>
-                <td className="px-4 py-4 text-right font-mono text-slate-900 dark:text-white">${apAgingData.reduce((s,r)=>s+r.total,0).toLocaleString()}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// PDF Export Function (Simulated)
-const exportToPDF = (reportName: string) => {
-  // Create a simple text-based "PDF" for demo purposes
-  // In production, you'd use libraries like jsPDF or react-pdf
-  const content = `
-========================================
-${reportName.toUpperCase()}
-Nexus ERP Financial Management System
-Generated: ${new Date().toISOString()}
-========================================
-
-This is a demonstration of PDF export functionality.
-In a production environment, this would generate a proper PDF file
-with all the financial data formatted professionally.
-
-Report Contents:
-- Complete financial data tables
-- Professional formatting
-- Company header and footer
-- Page numbers
-- Currency formatting
-
-----------------------------------------
-© ${new Date.getFullYear()} Nexus ERP System
-  `
-
-  // Create blob and download
-  const blob = new Blob([content], { type: 'application/pdf' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${reportName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
-
-// Excel Export Function (Simulated)
-const exportToExcel = (reportName: string) => {
-  const csvContent = `${reportName}\nGenerated: ${new Date().toISOString()}\n\nCategory,Amount\nRevenue,847290\nExpenses,-523180\nNet Profit,324110`
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `${selectedReport.replace('-', '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: selectedReport === 'trial-balance' ? 'landscape' : 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      }
+      
+      await html2pdf().set(opt).from(element).save()
+    } catch (error) {
+      console.error('PDF generation failed:', error)
+      alert('Failed to generate PDF. Please try again.')
+    } finally {
+      setIsGeneratingPDF(false)
+    }
+  }
   
-  const blob = new Blob([csvContent], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${reportName.replace(/\s+/g, '_')}.csv`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
-
-// Main Reports Section Component
-export default function ReportsSection() {
-  const [selectedReport, setSelectedReport] = useState<ReportData['type'] | null>(null)
-  const [isGenerating, setIsGenerating] = useState(false)
-
-  const handleExportPDF = (reportTitle: string) => {
-    setIsGenerating(true)
-    setTimeout(() => {
-      exportToPDF(reportTitle)
-      setIsGenerating(false)
-    }, 1000)
+  // Print Handler
+  const handlePrint = () => {
+    window.print()
   }
 
-  const renderReportPreview = () => {
+  // ============ RENDER REPORT CONTENT ============
+  const renderReportContent = () => {
     switch (selectedReport) {
       case 'balance-sheet':
-        return <BalanceSheetPreview />
+        return <BalanceSheetReport data={data.balanceSheet} isRTL={isRTL} locale={locale} />
       case 'income-statement':
-        return <IncomeStatementPreview />
+        return <IncomeStatementReport data={data.incomeStatement} isRTL={isRTL} locale={locale} />
       case 'cash-flow':
-        return <CashFlowPreview />
+        return <CashFlowReport data={data.cashFlow} isRTL={isRTL} locale={locale} />
       case 'trial-balance':
-        return <TrialBalancePreview />
-      case 'ar-aging':
-        return <ARAgingPreview />
-      case 'ap-aging':
-        return <APAgingPreview />
+        return <TrialBalanceReport data={data.trialBalance} isRTL={isRTL} locale={locale} />
       default:
         return null
     }
   }
 
-  if (selectedReport) {
-    return (
-      <div className="space-y-6">
-        {/* Back Button */}
-        <button
-          onClick={() => setSelectedReport(null)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-        >
-          <ChevronDown size={18} className="rotate-90" />
-          Back to Reports
-        </button>
-
-        {/* Report Preview */}
-        {renderReportPreview()}
-
-        {/* Export Actions */}
-        <div className="flex flex-wrap gap-3 justify-center pt-6 border-t border-slate-200 dark:border-slate-700">
+  return (
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className={`text-2xl font-bold text-slate-900 dark:text-slate-100 ${isRTL ? '' : ''}`}>
+            <FileText className="inline-block mr-2 mb-1" size={28} />
+            {locale === 'ar' ? 'التقارير المالية' : 'Financial Reports'}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            {locale === 'ar' 
+              ? 'إنشاء وتصدير التقارير المالية الاحترافية' 
+              : 'Generate and export professional financial reports'}
+          </p>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex gap-3">
           <button
-            onClick={() => handleExportPDF(reportsList.find(r => r.type === selectedReport)?.title || '')}
-            disabled={isGenerating}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setShowPreview(!showPreview)}
+            className="
+              flex items-center gap-2 px-4 py-2.5 
+              bg-white dark:bg-slate-800 
+              border border-slate-200 dark:border-slate-700 
+              rounded-xl text-slate-700 dark:text-slate-300 
+              hover:bg-slate-50 dark:hover:bg-slate-700 
+              transition-colors duration-200
+              font-medium text-sm
+            "
           >
-            <FileDown size={18} />
-            {isGenerating ? 'Generating...' : 'Download PDF'}
+            <Eye size={18} />
+            {showPreview ? (locale === 'ar' ? 'إخفاء' : 'Hide') : (locale === 'ar' ? 'عرض' : 'Preview')}
           </button>
+          
           <button
-            onClick={() => window.print()}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-medium shadow-lg transition-all"
+            onClick={handlePrint}
+            className="
+              flex items-center gap-2 px-4 py-2.5 
+              bg-white dark:bg-slate-800 
+              border border-slate-200 dark:border-slate-700 
+              rounded-xl text-slate-700 dark:text-slate-300 
+              hover:bg-slate-50 dark:hover:bg-slate-700 
+              transition-colors duration-200
+              font-medium text-sm
+            "
           >
             <Printer size={18} />
-            Print Report
+            {locale === 'ar' ? 'طباعة' : 'Print'}
+          </button>
+          
+          <button
+            onClick={handleExportPDF}
+            disabled={isGeneratingPDF}
+            className="
+              flex items-center gap-2 px-5 py-2.5 
+              bg-gradient-to-r from-indigo-600 to-purple-600 
+              hover:from-indigo-700 hover:to-purple-700 
+              rounded-xl text-white 
+              shadow-lg shadow-indigo-500/25 
+              transition-all duration-200
+              font-medium text-sm
+              disabled:opacity-70 disabled:cursor-not-allowed
+            "
+          >
+            {isGeneratingPDF ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                {locale === 'ar' ? 'جاري الإنشاء...' : 'Generating...'}
+              </>
+            ) : (
+              <>
+                <Download size={18} />
+                {locale === 'ar' ? 'تصدير PDF' : 'Export PDF'}
+              </>
+            )}
           </button>
         </div>
       </div>
-    )
-  }
+
+      {/* Controls Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+        {/* Report Type Selector */}
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <FileText size={16} className="inline mr-1" />
+            {locale === 'ar' ? 'نوع التقرير' : 'Report Type'}
+          </label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {reportConfigs.map((config) => (
+              <button
+                key={config.id}
+                onClick={() => setSelectedReport(config.id)}
+                className={`
+                  flex items-center justify-center gap-2 p-3 rounded-xl 
+                  transition-all duration-200 font-medium text-sm
+                  ${selectedReport === config.id
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                  }
+                `}
+              >
+                {config.icon}
+                <span className="hidden lg:inline">{locale === 'ar' ? config.titleAr : config.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Date Range Selector */}
+        <div className="sm:w-64">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            <Calendar size={16} className="inline mr-1" />
+            {locale === 'ar' ? 'الفترة الزمنية' : 'Period'}
+          </label>
+          <select
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value as typeof dateRange)}
+            className="
+              w-full px-4 py-2.5 
+              bg-white dark:bg-slate-700 
+              border border-slate-200 dark:border-slate-600 
+              rounded-xl text-slate-900 dark:text-slate-100 
+              focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500
+              transition-colors duration-200
+            "
+          >
+            <option value="this-month">{locale === 'ar' ? 'هذا الشهر' : 'This Month'}</option>
+            <option value="this-quarter">{locale === 'ar' ? 'هذا الربع' : 'This Quarter'}</option>
+            <option value="this-year">{locale === 'ar' ? 'هذه السنة' : 'This Year'}</option>
+            <option value="custom">{locale === 'ar' ? 'مخصص' : 'Custom Range'}</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Report Description */}
+      <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-800/30">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg text-indigo-600 dark:text-indigo-400">
+            {currentConfig.icon}
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+              {locale === 'ar' ? currentConfig.titleAr : currentConfig.title}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              {currentConfig.description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Report Content */}
+      {showPreview && (
+        <div 
+          ref={reportRef}
+          className="bg-white dark:bg-slate-800/70 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-xl overflow-hidden"
+        >
+          {/* Report Header */}
+          <div className="p-6 md:p-8 border-b border-slate-200 dark:border-slate-700/50 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800 dark:to-slate-800/50 print:bg-white">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Building2 size={28} className="text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Nexus ERP Solutions
+                  </h1>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    {locale === 'ar' ? 'نكس لإدارة الموارد' : 'Enterprise Resource Management'}
+                  </p>
+                  <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">
+                    123 Business District, Tech City, TC 12345
+                  </p>
+                </div>
+              </div>
+              
+              <div className={`${isRTL ? 'md:text-left' : 'md:text-right'} space-y-1`}>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {locale === 'ar' ? currentConfig.titleAr : currentConfig.title}
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  {locale === 'ar' ? 'الفترة: ' : 'Period: '}
+                  {dateRange === 'this-month' && (locale === 'ar' ? 'يناير 2026' : 'January 2026')}
+                  {dateRange === 'this-quarter' && (locale === 'ar' ? 'الربع الأول 2026' : 'Q1 2026')}
+                  {dateRange === 'this-year' && (locale === 'ar' ? 'السنة المالية 2026' : 'Fiscal Year 2026')}
+                  {dateRange === 'custom' && (locale === 'ar' ? 'مخصص' : 'Custom')}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-500">
+                  {locale === 'ar' ? 'تاريخ الإصدار: ' : 'Generated: '}
+                  {new Date().toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Report Body */}
+          <div className="p-6 md:p-8">
+            {renderReportContent()}
+          </div>
+
+          {/* Report Footer */}
+          <div className="px-6 md:px-8 py-4 border-t border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-slate-500 dark:text-slate-400">
+              <p>
+                © {new Date().getFullYear()} Nexus ERP Solutions — {locale === 'ar' ? 'تقرير سري' : 'Confidential Report'}
+              </p>
+              <p className="font-mono text-xs">
+                {locale === 'ar' ? 'معرف التقرير: ' : 'Report ID: '}
+                RPT-{Date.now().toString(36).toUpperCase()}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============ BALANCE SHEET REPORT ============
+function BalanceSheetReport({ data, isRTL, locale }: { data: BalanceSheetData; isRTL: boolean; locale: string }) {
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Assets Section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-indigo-600 dark:border-indigo-400">
+            <DollarSign size={20} className="text-indigo-600 dark:text-indigo-400" />
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              {locale === 'ar' ? 'الأصول' : 'ASSETS'}
+            </h3>
+          </div>
+          
+          {data.assets.map((category) => (
+            <div key={category.category} className="mb-6">
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">
+                {category.category}
+              </h4>
+              <table className="w-full">
+                <tbody>
+                  {category.items.map((item) => (
+                    <tr key={item.name} className="border-b border-slate-100 dark:border-slate-700/50">
+                      <td className="py-2.5 pr-2 text-slate-700 dark:text-slate-300">{item.name}</td>
+                      <td className={`py-2.5 text-right font-mono ${item.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                        {formatCurrency(item.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                  <tr className="border-t-2 border-slate-300 dark:border-slate-600">
+                    <td className="py-3 pr-2 font-bold text-slate-900 dark:text-slate-100">
+                      Total {category.category.split(' ')[0]}
+                    </td>
+                    <td className="py-3 text-right font-bold font-mono text-slate-900 dark:text-slate-100">
+                      {formatCurrency(category.total)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ))}
+          
+          <div className="mt-4 p-4 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-200 dark:border-indigo-800/50">
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-lg text-indigo-900 dark:text-indigo-100">
+                {locale === 'ar' ? 'إجمالي الأصول' : 'TOTAL ASSETS'}
+              </span>
+              <span className="font-bold text-xl font-mono text-indigo-900 dark:text-indigo-100">
+                {formatCurrency(data.totalAssets)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Liabilities & Equity Section */}
+        <div>
+          {/* Liabilities */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-orange-500 dark:border-orange-400">
+              <TrendingDown size={20} className="text-orange-500 dark:text-orange-400" />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {locale === 'ar' ? 'الالتزامات' : 'LIABILITIES'}
+              </h3>
+            </div>
+            
+            {data.liabilities.map((category) => (
+              <div key={category.category} className="mb-6">
+                <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">
+                  {category.category}
+                </h4>
+                <table className="w-full">
+                  <tbody>
+                    {category.items.map((item) => (
+                      <tr key={item.name} className="border-b border-slate-100 dark:border-slate-700/50">
+                        <td className="py-2.5 pr-2 text-slate-700 dark:text-slate-300">{item.name}</td>
+                        <td className="py-2.5 text-right font-mono text-slate-900 dark:text-slate-100">
+                          {formatCurrency(item.amount)}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="border-t-2 border-slate-300 dark:border-slate-600">
+                      <td className="py-3 pr-2 font-bold text-slate-900 dark:text-slate-100">
+                        Total {category.category.split(' ')[0]}
+                      </td>
+                      <td className="py-3 text-right font-bold font-mono text-slate-900 dark:text-slate-100">
+                        {formatCurrency(category.total)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ))}
+            
+            <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/30 rounded-xl border border-orange-200 dark:border-orange-800/50">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-lg text-orange-900 dark:text-orange-100">
+                  {locale === 'ar' ? 'إجمالي الالتزامات' : 'TOTAL LIABILITIES'}
+                </span>
+                <span className="font-bold text-xl font-mono text-orange-900 dark:text-orange-100">
+                  {formatCurrency(data.totalLiabilities)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Equity */}
+          <div>
+            <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-green-600 dark:border-green-400">
+              <ArrowRightLeft size={20} className="text-green-600 dark:text-green-400" />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {locale === 'ar' ? 'حقوق الملكية' : "OWNER'S EQUITY"}
+              </h3>
+            </div>
+            
+            <table className="w-full mb-4">
+              <tbody>
+                {data.equity.map((item) => (
+                  <tr key={item.name} className="border-b border-slate-100 dark:border-slate-700/50">
+                    <td className="py-2.5 pr-2 text-slate-700 dark:text-slate-300">{item.name}</td>
+                    <td className="py-2.5 text-right font-mono text-slate-900 dark:text-slate-100">
+                      {formatCurrency(item.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            <div className="p-4 bg-green-50 dark:bg-green-950/30 rounded-xl border border-green-200 dark:border-green-800/50">
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-lg text-green-900 dark:text-green-100">
+                  {locale === 'ar' ? 'إجمالي حقوق الملكية' : 'TOTAL EQUITY'}
+                </span>
+                <span className="font-bold text-xl font-mono text-green-900 dark:text-green-100">
+                  {formatCurrency(data.totalEquity)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Verification */}
+      <div className="mt-8 p-6 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-around gap-4 text-center">
+          <div>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Assets</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
+              {formatCurrency(data.totalAssets)}
+            </p>
+          </div>
+          <div className="text-3xl font-light text-slate-400">=</div>
+          <div>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Liab. + Equity</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
+              {formatCurrency(data.totalLiabilities + data.totalEquity)}
+            </p>
+          </div>
+          <div className={`px-4 py-2 rounded-full text-sm font-bold ${
+            Math.abs(data.totalAssets - (data.totalLiabilities + data.totalEquity)) < 0.01
+              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+              : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+          }`}>
+            {Math.abs(data.totalAssets - (data.totalLiabilities + data.totalEquity)) < 0.01
+              ? '✓ Balanced'
+              : '⚠ Imbalanced'}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============ INCOME STATEMENT REPORT ============
+function IncomeStatementReport({ data, isRTL, locale }: { data: IncomeStatementData; isRTL: boolean; locale: string }) {
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Revenue Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-green-600 dark:border-green-400">
+          <TrendingUp size={20} className="text-green-600 dark:text-green-400" />
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {locale === 'ar' ? 'الإيرادات' : 'REVENUE'}
+          </h3>
+        </div>
+        
+        <table className="w-full">
+          <tbody>
+            {data.revenue.map((item) => (
+              <tr key={item.category} className="border-b border-slate-100 dark:border-slate-700/50">
+                <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.category}</td>
+                <td className="py-3 pl-4 text-right font-mono text-green-600 dark:text-green-400 font-semibold">
+                  {formatCurrency(item.amount)}
+                </td>
+              </tr>
+            ))}
+            <tr className="bg-green-50 dark:bg-green-950/20">
+              <td className="py-4 pr-4 font-bold text-lg text-green-900 dark:text-green-100">
+                {locale === 'ar' ? 'إجمالي الإيرادات' : 'TOTAL REVENUE'}
+              </td>
+              <td className="py-4 pl-4 text-right font-bold text-lg font-mono text-green-900 dark:text-green-100">
+                {formatCurrency(data.totalRevenue)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Cost of Goods Sold */}
+      <div className="pl-4 md:pl-8 border-l-4 border-slate-300 dark:border-slate-600">
+        <table className="w-full">
+          <tbody>
+            <tr>
+              <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">
+                {locale === 'ar' ? 'تكلفة البضاعة المباعة' : 'Cost of Goods Sold (COGS)'}
+              </td>
+              <td className="py-3 pl-4 text-right font-mono text-red-600 dark:text-red-400 font-semibold">
+                ({formatCurrency(data.expenses[0].amount)})
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-blue-900 dark:text-blue-100">
+              {locale === 'ar' ? 'إجمالي الربح' : 'GROSS PROFIT'}
+            </span>
+            <span className="font-bold text-xl font-mono text-blue-900 dark:text-blue-100">
+              {formatCurrency(data.grossProfit)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Operating Expenses */}
+      <div>
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-orange-500 dark:border-orange-400">
+          <TrendingDown size={20} className="text-orange-500 dark:text-orange-400" />
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {locale === 'ar' ? 'المصاريف التشغيلية' : 'OPERATING EXPENSES'}
+          </h3>
+        </div>
+        
+        <table className="w-full">
+          <tbody>
+            {data.expenses.slice(1, 5).map((item) => (
+              <tr key={item.category} className="border-b border-slate-100 dark:border-slate-700/50">
+                <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.category}</td>
+                <td className="py-3 pl-4 text-right font-mono text-red-600 dark:text-red-400">
+                  ({formatCurrency(item.amount)})
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-xl">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-purple-900 dark:text-purple-100">
+              {locale === 'ar' ? 'ربح التشغيل' : 'OPERATING INCOME'}
+            </span>
+            <span className="font-bold text-xl font-mono text-purple-900 dark:text-purple-100">
+              {formatCurrency(data.operatingIncome)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Other Expenses */}
+      <div>
+        <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">
+          {locale === 'ar' ? 'مصاريف أخرى' : 'Other Expenses'}
+        </h4>
+        
+        <table className="w-full">
+          <tbody>
+            {data.expenses.slice(5).map((item) => (
+              <tr key={item.category} className="border-b border-slate-100 dark:border-slate-700/50">
+                <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.category}</td>
+                <td className="py-3 pl-4 text-right font-mono text-red-600 dark:text-red-400">
+                  ({formatCurrency(item.amount)})
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Net Income */}
+      <div className="mt-8 p-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-xl shadow-indigo-500/30">
+        <div className="text-center">
+          <p className="text-indigo-100 text-lg mb-2">
+            {locale === 'ar' ? 'صافي الربح' : 'NET INCOME'}
+          </p>
+          <p className="text-4xl md:text-5xl font-bold text-white font-mono">
+            {formatCurrency(data.netIncome)}
+          </p>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-white text-sm">
+            <TrendingUp size={16} />
+            <span>{locale === 'ar' ? 'ربحي' : 'Profitable'}</span>
+            <span className="font-bold">
+              {((data.netIncome / data.totalRevenue) * 100).toFixed(1)}% Margin
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============ CASH FLOW REPORT ============
+function CashFlowReport({ data, isRTL, locale }: { data: CashFlowData; isRTL: boolean; locale: string }) {
+  const calculateTotal = (items: CashFlowItem[]) => 
+    items.reduce((sum, item) => sum + item.amount, 0)
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-            <FileText size={28} className="text-indigo-500" />
-            Financial Reports
-            <span className="text-lg font-normal text-slate-500">/ التقارير المالية</span>
+    <div className="space-y-8 max-w-4xl mx-auto">
+      {/* Operating Activities */}
+      <div>
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-blue-600 dark:border-blue-400">
+          <div className="w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {locale === 'ar' ? 'الأنشطة التشغيلية' : 'CASH FLOW FROM OPERATING ACTIVITIES'}
           </h3>
-          <p className="text-slate-500 mt-1">Generate, view, and export professional financial reports</p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
-            <Calendar size={16} />
-            Date Range
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
-            <Filter size={16} />
-            Filter
-          </button>
+        <table className="w-full">
+          <tbody>
+            {data.operatingActivities.map((item) => (
+              <tr key={item.description} className="border-b border-slate-100 dark:border-slate-700/50">
+                <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.description}</td>
+                <td className={`py-3 pl-4 text-right font-mono font-semibold ${
+                  item.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {item.amount >= 0 ? '+' : ''}{formatCurrency(item.amount)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/30 rounded-xl border-l-4 border-blue-600 dark:border-blue-400">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-blue-900 dark:text-blue-100">
+              {locale === 'ar' ? 'صافي التدفق التشغيلي' : 'Net Cash from Operations'}
+            </span>
+            <span className="font-bold text-xl font-mono text-blue-900 dark:text-blue-100">
+              {formatCurrency(calculateTotal(data.operatingActivities))}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl p-4 text-white">
-          <div className="flex items-center gap-2 mb-2 opacity-90">
-            <BarChart3 size={18} />
-            <span className="text-sm font-medium">Reports Available</span>
-          </div>
-          <p className="text-2xl font-bold">{reportsList.length}</p>
+      {/* Investing Activities */}
+      <div>
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-purple-600 dark:border-purple-400">
+          <div className="w-3 h-3 rounded-full bg-purple-600 dark:bg-purple-400"></div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {locale === 'ar' ? 'أنشطة الاستثمار' : 'CASH FLOW FROM INVESTING ACTIVITIES'}
+          </h3>
         </div>
         
-        <div className="bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl p-4 text-white">
-          <div className="flex items-center gap-2 mb-2 opacity-90">
-            <CheckCircle2 size={18} />
-            <span className="text-sm font-medium">Ready</span>
-          </div>
-          <p className="text-2xl font-bold">{reportsList.filter(r => r.status === 'ready').length}</p>
-        </div>
+        <table className="w-full">
+          <tbody>
+            {data.investingActivities.map((item) => (
+              <tr key={item.description} className="border-b border-slate-100 dark:border-slate-700/50">
+                <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.description}</td>
+                <td className={`py-3 pl-4 text-right font-mono font-semibold ${
+                  item.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {item.amount >= 0 ? '+' : ''}{formatCurrency(item.amount)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         
-        <div className="bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl p-4 text-white">
-          <div className="flex items-center gap-2 mb-2 opacity-90">
-            <FileDown size={18} />
-            <span className="text-sm font-medium">Exports Today</span>
+        <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-950/30 rounded-xl border-l-4 border-purple-600 dark:border-purple-400">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-purple-900 dark:text-purple-100">
+              {locale === 'ar' ? 'صافي تدفق الاستثمار' : 'Net Cash from Investing'}
+            </span>
+            <span className="font-bold text-xl font-mono text-purple-900 dark:text-purple-100">
+              {formatCurrency(calculateTotal(data.investingActivities))}
+            </span>
           </div>
-          <p className="text-2xl font-bold">12</p>
-        </div>
-        
-        <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-4 text-white">
-          <div className="flex items-center gap-2 mb-2 opacity-90">
-            <Clock size={18} />
-            <span className="text-sm font-medium">Last Updated</span>
-          </div>
-          <p className="text-2xl font-bold">Now</p>
         </div>
       </div>
 
-      {/* Reports Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {reportsList.map((report) => (
-          <ReportCard
-            key={report.id}
-            report={report}
-            onView={() => setSelectedReport(report.type)}
-            onExportPDF={() => handleExportPDF(report.title)}
-            onExportExcel={() => exportToExcel(report.title)}
-          />
-        ))}
+      {/* Financing Activities */}
+      <div>
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b-2 border-orange-500 dark:border-orange-400">
+          <div className="w-3 h-3 rounded-full bg-orange-500 dark:bg-orange-400"></div>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            {locale === 'ar' ? 'أنشطة التمويل' : 'CASH FLOW FROM FINANCING ACTIVITIES'}
+          </h3>
+        </div>
+        
+        <table className="w-full">
+          <tbody>
+            {data.financingActivities.map((item) => (
+              <tr key={item.description} className="border-b border-slate-100 dark:border-slate-700/50">
+                <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.description}</td>
+                <td className={`py-3 pl-4 text-right font-mono font-semibold ${
+                  item.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                }`}>
+                  {item.amount >= 0 ? '+' : ''}{formatCurrency(item.amount)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/30 rounded-xl border-l-4 border-orange-500 dark:border-orange-400">
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-orange-900 dark:text-orange-100">
+              {locale === 'ar' ? 'صافي تدفق التمويل' : 'Net Cash from Financing'}
+            </span>
+            <span className="font-bold text-xl font-mono text-orange-900 dark:text-orange-100">
+              {formatCurrency(calculateTotal(data.financingActivities))}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Help Text */}
-      <div className="text-center p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
-        <p className="text-sm text-indigo-700 dark:text-indigo-300">
-          💡 Click on any report to view it in full screen, then download as PDF or print directly.
+      {/* Summary */}
+      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+        <table className="w-full">
+          <thead className="bg-slate-100 dark:bg-slate-700/50">
+            <tr>
+              <th className="py-4 px-6 text-left font-bold text-slate-900 dark:text-slate-100">
+                {locale === 'ar' ? 'ملخص النقدية' : 'CASH SUMMARY'}
+              </th>
+              <th className="py-4 px-6 text-right font-bold text-slate-900 dark:text-slate-100"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-t border-slate-200 dark:border-slate-700">
+              <td className="py-4 px-6 text-slate-700 dark:text-slate-300">
+                {locale === 'ar' ? 'رصيد النقدية في بداية الفترة' : 'Beginning Cash Balance'}
+              </td>
+              <td className="py-4 px-6 text-right font-mono text-slate-900 dark:text-slate-100">
+                {formatCurrency(data.beginningCash)}
+              </td>
+            </tr>
+            <tr className="bg-indigo-50 dark:bg-indigo-950/20 border-t border-b border-indigo-200 dark:border-indigo-800/50">
+              <td className="py-4 px-6 font-bold text-indigo-900 dark:text-indigo-100">
+                {locale === 'ar' ? 'صافي التغير في النقدية' : 'Net Change in Cash'}
+              </td>
+              <td className="py-4 px-6 text-right font-bold font-mono text-indigo-900 dark:text-indigo-100">
+                {formatCurrency(data.netCashFlow)}
+              </td>
+            </tr>
+            <tr className="bg-gradient-to-r from-green-500 to-emerald-500">
+              <td className="py-5 px-6 font-bold text-white text-lg">
+                {locale === 'ar' ? 'رصيد النقدية في نهاية الفترة' : 'Ending Cash Balance'}
+              </td>
+              <td className="py-5 px-6 text-right font-bold font-mono text-white text-xl">
+                {formatCurrency(data.endingCash)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ============ TRIAL BALANCE REPORT ============
+function TrialBalanceReport({ data, isRTL, locale }: { data: TrialBalanceItem[]; isRTL: boolean; locale: string }) {
+  const totalDebits = data.reduce((sum, item) => sum + item.debit, 0)
+  const totalCredits = data.reduce((sum, item) => sum + item.credit, 0)
+
+  return (
+    <div className="overflow-x-auto">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          {locale === 'ar' ? `إجمالي الحسابات: ${data.length}` : `Total Accounts: ${data.length}`}
         </p>
+        <div className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+          Math.abs(totalDebits - totalCredits) < 0.01
+            ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+            : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+        }`}>
+          {Math.abs(totalDebits - totalCredits) < 0.01 ? '✓ In Balance' : '⚠ Out of Balance'}
+        </div>
       </div>
+      
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-slate-100 dark:bg-slate-700/50">
+            <th className={`py-3 px-4 text-left font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+              {locale === 'ar' ? 'رمز الحساب' : 'Account Code'}
+            </th>
+            <th className={`py-3 px-4 text-left font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+              {locale === 'ar' ? 'اسم الحساب' : 'Account Name'}
+            </th>
+            <th className={`py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+              {locale === 'ar' ? 'مدين' : 'Debit ($)'}
+            </th>
+            <th className={`py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+              {locale === 'ar' ? 'دائن' : 'Credit ($)'}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr 
+              key={item.accountCode}
+              className={`
+                border-b border-slate-100 dark:border-slate-700/50
+                ${index % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50/50 dark:bg-slate-800/30'}
+                hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-colors
+              `}
+            >
+              <td className="py-3 px-4 font-mono text-sm text-slate-600 dark:text-slate-400">
+                {item.accountCode}
+              </td>
+              <td className="py-3 px-4 text-slate-700 dark:text-slate-300 font-medium">
+                {item.accountName}
+              </td>
+              <td className="py-3 px-4 text-right font-mono text-slate-900 dark:text-slate-100">
+                {item.debit > 0 ? formatCurrency(item.debit) : '-'}
+              </td>
+              <td className="py-3 px-4 text-right font-mono text-slate-900 dark:text-slate-100">
+                {item.credit > 0 ? formatCurrency(item.credit) : '-'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr className="bg-gradient-to-r from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-800">
+            <td colSpan={2} className="py-4 px-4 font-bold text-white text-lg">
+              {locale === 'ar' ? 'المجموع' : 'TOTALS'}
+            </td>
+            <td className="py-4 px-4 text-right font-bold font-mono text-white text-lg">
+              {formatCurrency(totalDebits)}
+            </td>
+            <td className="py-4 px-4 text-right font-bold font-mono text-white text-lg">
+              {formatCurrency(totalCredits)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   )
 }
