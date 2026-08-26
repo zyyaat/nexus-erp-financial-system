@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Bell, Menu } from 'lucide-react'
+import { Search, Bell, Menu, X } from 'lucide-react'
 
 interface TopNavProps {
   onMenuClick: () => void
@@ -9,6 +9,7 @@ interface TopNavProps {
 
 export default function TopNav({ onMenuClick }: TopNavProps) {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [searchFocused, setSearchFocused] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,60 +21,140 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
 
   return (
     <header
-      className={`fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] bg-white/70 dark:bg-slate-900/70 backdrop-blur-md transition-all duration-300 z-30 justify-between items-center h-16 px-4 md:px-8 ${
-        isScrolled ? 'border-b border-white/40 shadow-sm' : 'border-b border-transparent'
-      } ${'md:ml-64'}`}
+      className={`
+        fixed top-0 left-0 right-0 
+        bg-white/90 dark:bg-slate-900/90 
+        backdrop-blur-lg 
+        transition-all duration-300 z-30
+        ${isScrolled ? 'border-b border-slate-200/50 shadow-sm' : ''}
+      `}
       id="top-nav"
     >
-      <div className="flex items-center space-x-4">
-        {/* Hamburger Menu (Mobile Only) */}
-        <button
-          onClick={onMenuClick}
-          className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        >
-          <Menu size={24} />
-        </button>
+      <div className="flex items-center justify-between h-16 px-4 md:px-6">
+        {/* Left Section: Hamburger + Search */}
+        <div className="flex items-center flex-1 min-w-0 gap-3">
+          {/* Hamburger Menu (Mobile Only) */}
+          <button
+            onClick={onMenuClick}
+            className="
+              flex-shrink-0 p-2 -ml-2 
+              rounded-xl text-slate-600 
+              hover:bg-slate-100 
+              active:bg-slate-200
+              transition-colors 
+              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+            "
+            aria-label="Open menu"
+          >
+            <Menu size={22} strokeWidth={2} />
+          </button>
 
-        {/* Search Bar */}
-        <div className="flex-1 max-w-xl">
-          <div className="relative group focus-within:ring-2 focus-within:ring-indigo-500/30 rounded-xl transition-all duration-300">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
-            </span>
-            <input
-              type="text"
-              placeholder="Search operations, analytics, settings..."
-              className="block w-full pl-10 pr-3 py-2.5 md:py-2 border border-transparent rounded-xl leading-5 bg-slate-100/30 text-slate-900 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-indigo-500/50 sm:text-sm transition-all duration-300"
-            />
+          {/* Search Bar - Hidden on very small screens, expands on larger */}
+          <div className={`hidden sm:flex flex-1 max-w-md transition-all duration-300 ${searchFocused ? 'max-w-lg' : ''}`}>
+            <div className={`
+              relative w-full group 
+              focus-within:ring-2 focus-within:ring-indigo-500/30 
+              rounded-xl transition-all duration-200
+              ${searchFocused ? 'bg-white shadow-sm' : ''}
+            `}>
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search 
+                  className={`transition-colors ${searchFocused ? 'text-indigo-500' : 'text-slate-400'}`} 
+                  size={18} 
+                />
+              </span>
+              <input
+                type="text"
+                placeholder="Search..."
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                className="
+                  block w-full pl-10 pr-4 py-2.5 
+                  border border-transparent rounded-xl 
+                  leading-5 
+                  bg-slate-100/80 
+                  text-slate-900 text-sm 
+                  placeholder-slate-400 
+                  focus:outline-none focus:bg-white focus:border-indigo-500/30 
+                  transition-all duration-200
+                "
+              />
+            </div>
           </div>
+        </div>
+
+        {/* Right Section: Actions + Profile */}
+        <div className="flex items-center flex-shrink-0 gap-1 sm:gap-2 ml-3">
+          {/* Notifications Button */}
+          <button 
+            className="
+              relative p-2.5 rounded-xl 
+              text-slate-500 hover:text-slate-700 
+              hover:bg-slate-100 
+              active:bg-slate-200
+              transition-colors 
+              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+            "
+            aria-label="Notifications"
+          >
+            <Bell size={20} strokeWidth={2} />
+            {/* Notification Badge */}
+            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+          </button>
+
+          {/* User Profile Button - Better Aligned */}
+          <button 
+            className="
+              flex items-center gap-2 
+              pl-3 pr-2 py-1.5 
+              rounded-full 
+              text-slate-600 hover:text-slate-800 
+              hover:bg-slate-100 
+              active:bg-slate-200
+              transition-colors 
+              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+            "
+            aria-label="User menu"
+          >
+            {/* User Avatar - Fixed Size & Properly Styled */}
+            <img
+              alt="E. Larson"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoUjdl6JxQ7xr6TtNXNe5yuWpE6JyXvtJdGu5cl3Kgm8IwbLHIqEYhZLg3NzLswZcOlLnobLxo3Yg7JPZLA018Bj05yk3jkudcWtUR_n6scAEQ2NMqU7ew3yCT7_MDdQjp1kNWjGuqCkA0tISPAvTS48joKg2R5yWnI8-AQVfnHc2FVsZoL0-3dZ0UG68X4sSPe-Z5NkSAiWfWulj5eyGYClHXJ1hkm-FxfBr2Dm9ZH9-tTen8NiFi"
+              className="
+                w-8 h-8 rounded-full object-cover 
+                ring-2 ring-white 
+                shadow-sm
+              "
+            />
+            {/* Username - Hidden on small mobile */}
+            <span className="hidden lg:block text-sm font-medium max-w-[80px] truncate">
+              E. Larson
+            </span>
+          </button>
         </div>
       </div>
 
-      {/* Right Actions */}
-      <div className="flex items-center space-x-1 md:space-x-2 ml-4">
-        {/* Notifications */}
-        <button className="p-2 rounded-xl text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30 relative">
-          <Bell size={20} />
-          <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-        </button>
-
-        {/* Apps (Hidden on small mobile) */}
-        <button className="hidden sm:block p-2 rounded-xl text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <Menu size={20} />
-        </button>
-
-        {/* Divider (Hidden on small mobile) */}
-        <div className="hidden lg:block h-8 w-[1px] bg-slate-200 mx-2"></div>
-
-        {/* User Profile */}
-        <button className="flex items-center space-x-2 p-1 pl-2 pr-1 rounded-full text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <span className="font-medium text-sm hidden lg:block mr-2">E. Larson</span>
-          <img
-            alt="User Avatar"
-            className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoUjdl6JxQ7xr6TtNXNe5yuWpE6JyXvtJdGu5cl3Kgm8IwbLHIqEYhZLg3NzLswZcOlLnobLxo3Yg7JPZLA018Bj05yk3jkudcWtUR_n6scAEQ2NMqU7ew3yCT7_MDdQjp1kNWjGuqCkA0tISPAvTS48joKg2R5yWnI8-AQVfnHc2FVsZoL0-3dZ0UG68X4sSPe-Z5NkSAiWfWulj5eyGYClHXJ1hkm-FxfBr2Dm9ZH9-tTen8NiFi"
+      {/* Mobile Search Bar (Full Width Below Header) */}
+      <div className="sm:hidden px-4 pb-3">
+        <div className="relative group">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="text-slate-400" size={18} />
+          </span>
+          <input
+            type="text"
+            placeholder="Search operations, analytics, settings..."
+            className="
+              block w-full pl-10 pr-4 py-2.5 
+              border border-slate-200/50 rounded-xl 
+              leading-5 
+              bg-slate-50/80 
+              text-slate-900 text-sm 
+              placeholder-slate-400 
+              focus:outline-none focus:bg-white focus:border-indigo-500/30 focus:ring-2 focus:ring-indigo-500/20
+              transition-all duration-200
+            "
           />
-        </button>
+        </div>
       </div>
     </header>
   )
