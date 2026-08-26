@@ -55,3 +55,8 @@ server.log
 
 # Skills files (not needed for deployment)
 skills/
+
+# Image uploads (not for deployment)
+upload/
+*.jpg
+*.png
