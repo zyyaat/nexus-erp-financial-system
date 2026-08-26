@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 // ============ TYPES ============
 interface Transaction {
@@ -47,7 +48,7 @@ interface Invoice {
 // ============ MOCK DATA ============
 const financialKPIs = [
   {
-    title: 'Total Revenue',
+    titleKey: 'financials.totalRevenue',
     value: '$847,290',
     change: 15.3,
     icon: TrendingUp,
@@ -56,7 +57,7 @@ const financialKPIs = [
     textColor: 'text-green-600'
   },
   {
-    title: 'Total Expenses',
+    titleKey: 'financials.totalExpenses',
     value: '$523,180',
     change: -4.2,
     icon: TrendingDown,
@@ -65,7 +66,7 @@ const financialKPIs = [
     textColor: 'text-red-600'
   },
   {
-    title: 'Net Profit',
+    titleKey: 'financials.netProfit',
     value: '$324,110',
     change: 28.7,
     icon: DollarSign,
@@ -74,7 +75,7 @@ const financialKPIs = [
     textColor: 'text-indigo-600'
   },
   {
-    title: 'Pending Invoices',
+    titleKey: 'financials.pendingInvoices',
     value: '$128,450',
     change: -12.1,
     icon: FileText,
@@ -163,6 +164,8 @@ const expenseBreakdown = [
 // ============ SUB-COMPONENTS ============
 
 function TransactionTypeBadge({ type }: { type: Transaction['type'] }) {
+  const { t } = useI18n()
+  
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
       type === 'income' 
@@ -170,46 +173,51 @@ function TransactionTypeBadge({ type }: { type: Transaction['type'] }) {
         : 'bg-red-100 text-red-700'
     }`}>
       {type === 'income' ? <ArrowUpLeft size={12} /> : <ArrowDownRight size={12} />}
-      {type === 'income' ? 'Income' : 'Expense'}
+      {type === 'income' ? t('txn.type.income') : t('txn.type.expense')}
     </span>
   )
 }
 
 function TransactionStatusBadge({ status }: { status: Transaction['status'] }) {
+  const { t } = useI18n()
+  
   const config = {
-    completed: { icon: CheckCircle2, label: 'Completed', className: 'text-green-600 bg-green-100' },
-    pending: { icon: Clock, label: 'Pending', className: 'text-amber-600 bg-amber-100' },
-    failed: { icon: AlertCircle, label: 'Failed', className: 'text-red-600 bg-red-100' }
+    completed: { icon: CheckCircle2, labelKey: 'txnStatus.completed', className: 'text-green-600 bg-green-100' },
+    pending: { icon: Clock, labelKey: 'txnStatus.pending', className: 'text-amber-600 bg-amber-100' },
+    failed: { icon: AlertCircle, labelKey: 'txnStatus.failed', className: 'text-red-600 bg-red-100' }
   }
 
-  const { icon: Icon, label, className } = config[status]
+  const { icon: Icon, labelKey, className } = config[status]
   
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${className}`}>
       <Icon size={12} />
-      {label}
+      {t(labelKey)}
     </span>
   )
 }
 
 function InvoiceStatusBadge({ status }: { status: Invoice['status'] }) {
+  const { t } = useI18n()
+  
   const config = {
-    paid: { label: 'Paid', className: 'bg-green-100 text-green-700 border-green-200' },
-    pending: { label: 'Pending', className: 'bg-blue-100 text-blue-700 border-blue-200' },
-    overdue: { label: 'Overdue', className: 'bg-red-100 text-red-700 border-red-200' },
-    draft: { label: 'Draft', className: 'bg-slate-100 text-slate-600 border-slate-200' }
+    paid: { labelKey: 'invStatus.paid', className: 'bg-green-100 text-green-700 border-green-200' },
+    pending: { labelKey: 'invStatus.pending', className: 'bg-blue-100 text-blue-700 border-blue-200' },
+    overdue: { labelKey: 'invStatus.overdue', className: 'bg-red-100 text-red-700 border-red-200' },
+    draft: { labelKey: 'invStatus.draft', className: 'bg-slate-100 text-slate-600 border-slate-200' }
   }
 
-  const { label, className } = config[status]
+  const { labelKey, className } = config[status]
   
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${className}`}>
-      {label}
+      {t(labelKey)}
     </span>
   )
 }
 
 function FinancialKPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
+  const { t } = useI18n()
   const Icon = kpi.icon
   const isPositive = kpi.change >= 0
 
@@ -234,7 +242,7 @@ function FinancialKPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
       </div>
 
       <div className="relative z-10">
-        <p className="text-sm font-medium text-slate-500 mb-1">{kpi.title}</p>
+        <p className="text-sm font-medium text-slate-500 mb-1">{t(kpi.titleKey)}</p>
         <h3 className="text-2xl font-bold text-slate-900">{kpi.value}</h3>
       </div>
     </div>
@@ -243,11 +251,12 @@ function FinancialKPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
 
 // ============ MAIN COMPONENT ============
 export default function FinancialsPage() {
+  const { t } = useI18n()
   const [activeTab, setActiveTab] = useState<'transactions' | 'invoices'>('transactions')
 
   // Calculate totals
-  const totalIncome = recentTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
-  const totalExpenses = recentTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
+  const totalIncome = recentTransactions.filter(tr => tr.type === 'income').reduce((sum, tr) => sum + tr.amount, 0)
+  const totalExpenses = recentTransactions.filter(tr => tr.type === 'expense').reduce((sum, tr) => sum + tr.amount, 0)
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -255,24 +264,24 @@ export default function FinancialsPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
-            Financial{' '}
+            {t('financials.title').split(' ')[0]}{' '}
             <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-              Center
+              {t('financials.title').split(' ')[1] || ''}
             </span>
           </h2>
           <p className="text-base md:text-lg text-slate-500">
-            Monitor revenue, expenses, invoices, and financial health.
+            {t('financials.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2 backdrop-blur-md shadow-sm">
             <Download size={16} />
-            Export Report
+            {t('financials.exportReport')}
           </button>
           <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center gap-2">
             <Plus size={16} />
-            Create Invoice
+            {t('financials.createInvoice')}
           </button>
         </div>
       </div>
@@ -280,7 +289,7 @@ export default function FinancialsPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {financialKPIs.map((kpi) => (
-          <FinancialKPICard key={kpi.title} kpi={kpi} />
+          <FinancialKPICard key={kpi.titleKey} kpi={kpi} />
         ))}
       </div>
 
@@ -299,7 +308,7 @@ export default function FinancialsPage() {
               }`}
             >
               <Receipt size={16} className="inline mr-2" />
-              Transactions
+              {t('tab.transactions')}
             </button>
             <button 
               onClick={() => setActiveTab('invoices')}
@@ -310,7 +319,7 @@ export default function FinancialsPage() {
               }`}
             >
               <FileText size={16} className="inline mr-2" />
-              Invoices ({invoices.length})
+              {t('tab.invoices')} ({invoices.length})
             </button>
           </div>
 
@@ -323,11 +332,11 @@ export default function FinancialsPage() {
                 <div className="flex items-center gap-6 pb-4 mb-4 border-b border-slate-200">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-sm text-slate-600">Income: <strong className="text-green-700">${totalIncome.toLocaleString()}</strong></span>
+                    <span className="text-sm text-slate-600">{t('txn.type.income')}: <strong className="text-green-700">${totalIncome.toLocaleString()}</strong></span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span className="text-sm text-slate-600">Expenses: <strong className="text-red-700">${totalExpenses.toLocaleString()}</strong></span>
+                    <span className="text-sm text-slate-600">{t('txn.type.expense')}: <strong className="text-red-700">${totalExpenses.toLocaleString()}</strong></span>
                   </div>
                 </div>
 
@@ -364,11 +373,11 @@ export default function FinancialsPage() {
               <div className="space-y-4">
                 {/* Invoices Table Header */}
                 <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 bg-slate-50 rounded-lg text-xs font-semibold text-slate-600 uppercase">
-                  <div className="col-span-3">Invoice</div>
-                  <div className="col-span-3">Client</div>
-                  <div className="col-span-2 text-right">Amount</div>
-                  <div className="col-span-2 text-center">Status</div>
-                  <div className="col-span-2 text-right">Due Date</div>
+                  <div className="col-span-3">{t('table.invoice')}</div>
+                  <div className="col-span-3">{t('table.client')}</div>
+                  <div className="col-span-2 text-right">{t('table.amount')}</div>
+                  <div className="col-span-2 text-center">{t('table.status')}</div>
+                  <div className="col-span-2 text-right">{t('table.dueDate')}</div>
                 </div>
 
                 {/* Invoice Items */}
@@ -405,7 +414,7 @@ export default function FinancialsPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <PieChart size={18} className="text-violet-500" />
-              Expense Breakdown
+              {t('financials.expenseBreakdown')}
             </h3>
 
             <div className="space-y-4">
@@ -427,7 +436,7 @@ export default function FinancialsPage() {
 
             <div className="mt-4 pt-4 border-t border-slate-200">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-slate-700">Total Expenses</span>
+                <span className="text-sm font-semibold text-slate-700">{t('financials.totalExpensesLabel')}</span>
                 <span className="text-lg font-bold text-slate-900">$523,180</span>
               </div>
             </div>
@@ -437,22 +446,22 @@ export default function FinancialsPage() {
           <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-5 text-white shadow-xl">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
               <Wallet size={18} />
-              Cash Flow Summary
+              {t('financials.cashFlowSummary')}
             </h4>
             
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                <span className="text-sm">This Month</span>
+                <span className="text-sm">{t('time.thisMonth')}</span>
                 <span className="text-lg font-bold">$124,110</span>
               </div>
               
               <div className="flex justify-between items-center p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                <span className="text-sm">Last Month</span>
+                <span className="text-sm">{t('time.lastMonth')}</span>
                 <span className="text-lg font-bold">$98,430</span>
               </div>
               
               <div className="flex justify-between items-center p-3 bg-white/30 rounded-lg backdrop-blur-sm mt-2">
-                <span className="text-sm font-medium">Growth</span>
+                <span className="text-sm font-medium">{t('time.growth')}</span>
                 <span className="text-lg font-bold flex items-center gap-1">
                   <TrendingUp size={18} />
                   +26.1%
@@ -465,14 +474,14 @@ export default function FinancialsPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <Calendar size={18} className="text-amber-500" />
-              Upcoming Payments
+              {t('financials.upcomingPayments')}
             </h3>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-amber-50/50 rounded-lg border border-amber-100">
                 <div>
                   <p className="text-sm font-medium text-slate-900">Office Rent</p>
-                  <p className="text-xs text-amber-700">Due in 5 days</p>
+                  <p className="text-xs text-amber-700">{t('time.dueInDays').replace('{days}', '5')}</p>
                 </div>
                 <span className="font-bold text-amber-700">$8,500</span>
               </div>
@@ -480,7 +489,7 @@ export default function FinancialsPage() {
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-slate-900">Software Licenses</p>
-                  <p className="text-xs text-slate-500">Due in 12 days</p>
+                  <p className="text-xs text-slate-500">{t('time.dueInDays').replace('{days}', '12')}</p>
                 </div>
                 <span className="font-bold text-slate-900">$2,400</span>
               </div>

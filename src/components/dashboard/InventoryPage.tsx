@@ -18,6 +18,7 @@ import {
   BarChart3,
   RefreshCw
 } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 // ============ TYPES ============
 interface Product {
@@ -44,7 +45,7 @@ interface CategoryData {
 // ============ MOCK DATA ============
 const inventoryKPIs = [
   {
-    title: 'Total Products',
+    titleKey: 'inventory.totalProducts',
     value: '1,247',
     change: 5.2,
     icon: Package,
@@ -53,7 +54,7 @@ const inventoryKPIs = [
     textColor: 'text-indigo-600'
   },
   {
-    title: 'Low Stock Items',
+    titleKey: 'inventory.lowStockItems',
     value: '23',
     change: -8.1,
     icon: AlertTriangle,
@@ -62,7 +63,7 @@ const inventoryKPIs = [
     textColor: 'text-amber-600'
   },
   {
-    title: 'Total Value',
+    titleKey: 'inventory.totalValue',
     value: '$2.4M',
     change: 12.7,
     icon: TrendingUp,
@@ -155,28 +156,29 @@ const categories: CategoryData[] = [
   { name: 'Other', count: 100, value: 140000, percentage: 6, color: 'bg-slate-400' }
 ]
 
-const lowStockAlerts = products.filter(p => p.status === 'low-stock' || p.status === 'out-of-stock')
-
 // ============ SUB-COMPONENTS ============
 
 function StatusBadge({ status }: { status: Product['status'] }) {
+  const { t } = useI18n()
+  
   const config = {
-    'in-stock': { label: 'In Stock', className: 'bg-green-100 text-green-700 border-green-200' },
-    'low-stock': { label: 'Low Stock', className: 'bg-amber-100 text-amber-700 border-amber-200' },
-    'out-of-stock': { label: 'Out of Stock', className: 'bg-red-100 text-red-700 border-red-200' },
-    'overstock': { label: 'Overstock', className: 'bg-blue-100 text-blue-700 border-blue-200' }
+    'in-stock': { labelKey: 'invStatus.inStock', className: 'bg-green-100 text-green-700 border-green-200' },
+    'low-stock': { labelKey: 'invStatus.lowStock', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+    'out-of-stock': { labelKey: 'invStatus.outOfStock', className: 'bg-red-100 text-red-700 border-red-200' },
+    'overstock': { labelKey: 'invStatus.overstock', className: 'bg-blue-100 text-blue-700 border-blue-200' }
   }
 
-  const { label, className } = config[status]
+  const { labelKey, className } = config[status]
 
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${className}`}>
-      {label}
+      {t(labelKey)}
     </span>
   )
 }
 
 function InventoryKPICard({ kpi }: { kpi: typeof inventoryKPIs[0] }) {
+  const { t } = useI18n()
   const Icon = kpi.icon
   const isPositive = kpi.change >= 0
 
@@ -201,7 +203,7 @@ function InventoryKPICard({ kpi }: { kpi: typeof inventoryKPIs[0] }) {
       </div>
 
       <div className="relative z-10">
-        <p className="text-sm font-medium text-slate-500 mb-1">{kpi.title}</p>
+        <p className="text-sm font-medium text-slate-500 mb-1">{t(kpi.titleKey)}</p>
         <h3 className="text-3xl font-bold text-slate-900">{kpi.value}</h3>
       </div>
     </div>
@@ -209,6 +211,8 @@ function InventoryKPICard({ kpi }: { kpi: typeof inventoryKPIs[0] }) {
 }
 
 function ProductRow({ product }: { product: Product }) {
+  const { t } = useI18n()
+  
   return (
     <tr className="group hover:bg-white/60 transition-colors">
       <td className="px-4 py-3">
@@ -245,10 +249,10 @@ function ProductRow({ product }: { product: Product }) {
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
-          <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="View">
+          <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title={t('common.view')}>
             <Eye size={16} className="text-slate-500" />
           </button>
-          <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="Edit">
+          <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title={t('common.edit')}>
             <Edit3 size={16} className="text-slate-500" />
           </button>
           <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title="More">
@@ -262,6 +266,7 @@ function ProductRow({ product }: { product: Product }) {
 
 // ============ MAIN COMPONENT ============
 export default function InventoryPage() {
+  const { t } = useI18n()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
@@ -274,30 +279,33 @@ export default function InventoryPage() {
     return matchesSearch && matchesStatus
   })
 
+  // Get low stock alerts
+  const lowStockAlerts = products.filter(p => p.status === 'low-stock' || p.status === 'out-of-stock')
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Page Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
-            Inventory{' '}
+            {t('inventory.title').split(' ')[0]}{' '}
             <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-              Management
+              {t('inventory.title').split(' ')[1] || ''}
             </span>
           </h2>
           <p className="text-base md:text-lg text-slate-500">
-            Track stock levels, manage products, and monitor inventory across all warehouses.
+            {t('inventory.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2 backdrop-blur-md shadow-sm">
             <RefreshCw size={16} />
-            Sync
+            {t('inventory.sync')}
           </button>
           <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center gap-2">
             <Plus size={16} />
-            Add Product
+            {t('inventory.addProduct')}
           </button>
         </div>
       </div>
@@ -305,7 +313,7 @@ export default function InventoryPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {inventoryKPIs.map((kpi) => (
-          <InventoryKPICard key={kpi.title} kpi={kpi} />
+          <InventoryKPICard key={kpi.titleKey} kpi={kpi} />
         ))}
       </div>
 
@@ -318,7 +326,7 @@ export default function InventoryPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <Package size={20} className="text-indigo-500" />
-                Products ({filteredProducts.length})
+                {t('inventory.products')} ({filteredProducts.length})
               </h3>
 
               <div className="flex items-center gap-2">
@@ -347,7 +355,7 @@ export default function InventoryPage() {
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search by name or SKU..."
+                  placeholder={t('inventory.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
@@ -360,11 +368,11 @@ export default function InventoryPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
               >
-                <option value="all">All Status</option>
-                <option value="in-stock">In Stock</option>
-                <option value="low-stock">Low Stock</option>
-                <option value="out-of-stock">Out of Stock</option>
-                <option value="overstock">Overstock</option>
+                <option value="all">{t('filter.allStatus')}</option>
+                <option value="in-stock">{t('invStatus.inStock')}</option>
+                <option value="low-stock">{t('invStatus.lowStock')}</option>
+                <option value="out-of-stock">{t('invStatus.outOfStock')}</option>
+                <option value="overstock">{t('invStatus.overstock')}</option>
               </select>
             </div>
           </div>
@@ -376,25 +384,25 @@ export default function InventoryPage() {
                 <thead className="bg-slate-50/80 border-b border-slate-200">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Product
+                      {t('table.product')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden md:table-cell">
-                      Category
+                      {t('table.category')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Qty
+                      {t('table.quantity')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden sm:table-cell">
-                      Cost
+                      {t('table.cost')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden lg:table-cell">
-                      Value
+                      {t('table.value')}
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Status
+                      {t('table.status')}
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                      Actions
+                      {t('table.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -409,7 +417,7 @@ export default function InventoryPage() {
             {filteredProducts.length === 0 && (
               <div className="text-center py-12 text-slate-500">
                 <Package size={48} className="mx-auto mb-3 text-slate-300" />
-                <p>No products found matching your criteria.</p>
+                <p>{t('inventory.noProducts')}</p>
               </div>
             )}
           </div>
@@ -421,7 +429,7 @@ export default function InventoryPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <AlertTriangle size={18} className="text-amber-500" />
-              Low Stock Alerts ({lowStockAlerts.length})
+              {t('inventory.lowStockAlerts')} ({lowStockAlerts.length})
             </h3>
 
             <div className="space-y-3">
@@ -433,7 +441,7 @@ export default function InventoryPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm text-slate-900 truncate">{product.name}</p>
                     <p className="text-xs text-amber-700 mt-0.5">
-                      {product.quantity === 0 ? 'Out of stock!' : `Only ${product.quantity} left`}
+                      {product.quantity === 0 ? t('inventory.outOfStockMsg') : t('inventory.onlyLeft').replace('{count}', String(product.quantity))}
                     </p>
                   </div>
                 </div>
@@ -441,7 +449,7 @@ export default function InventoryPage() {
             </div>
 
             <button className="w-full mt-4 pt-3 border-t border-slate-100 text-center text-sm font-medium text-amber-600 hover:text-amber-700 transition-colors">
-              View All Alerts →
+              {t('inventory.viewAllAlerts')}
             </button>
           </div>
 
@@ -449,7 +457,7 @@ export default function InventoryPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <BarChart3 size={18} className="text-violet-500" />
-              Categories
+              {t('inventory.categories')}
             </h3>
 
             <div className="space-y-4">
@@ -457,7 +465,7 @@ export default function InventoryPage() {
                 <div key={category.name}>
                   <div className="flex justify-between items-center mb-1.5">
                     <span className="text-sm font-medium text-slate-700">{category.name}</span>
-                    <span className="text-xs text-slate-500">{category.count} items • ${(category.value / 1000).toFixed(0)}k</span>
+                    <span className="text-xs text-slate-500">{category.count} {t('inventory.items')} • ${(category.value / 1000).toFixed(0)}k</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                     <div 
@@ -474,33 +482,19 @@ export default function InventoryPage() {
           <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-5 text-white shadow-xl">
             <h4 className="font-semibold mb-3 flex items-center gap-2">
               <Warehouse size={18} />
-              Warehouses
+              {t('inventory.warehouses')}
             </h4>
             
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Truck size={16} />
-                  <span className="text-sm font-medium">Warehouse A</span>
+              {['Warehouse A', 'Warehouse B', 'Warehouse C'].map((warehouse, i) => (
+                <div key={warehouse} className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <Truck size={16} />
+                    <span className="text-sm font-medium">{warehouse}</span>
+                  </div>
+                  <span className="text-sm bg-white/30 px-2 py-0.5 rounded-full">{[523, 398, 326][i]} {t('inventory.items')}</span>
                 </div>
-                <span className="text-sm bg-white/30 px-2 py-0.5 rounded-full">523 items</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Truck size={16} />
-                  <span className="text-sm font-medium">Warehouse B</span>
-                </div>
-                <span className="text-sm bg-white/30 px-2 py-0.5 rounded-full">398 items</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Truck size={16} />
-                  <span className="text-sm font-medium">Warehouse C</span>
-                </div>
-                <span className="text-sm bg-white/30 px-2 py-0.5 rounded-full">326 items</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>

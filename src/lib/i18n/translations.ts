@@ -169,7 +169,7 @@ export const translations: Translations = {
     es: 'Latencia API'
   },
 
-  // Operations Page
+  // ==================== OPERATIONS PAGE ====================
   'ops.title': {
     ar: 'مركز العمليات',
     en: 'Operations Center',
@@ -178,33 +178,57 @@ export const translations: Translations = {
   },
   'ops.subtitle': {
     ar: 'إدارة وتتبع جميع العمليات اليومية',
-    en: 'Manage and track all daily operations',
+    en: 'Monitor production, orders, and maintenance workflows.',
     fr: 'Gérer et suivre toutes les opérations quotidiennes',
     es: 'Gestionar y seguir todas las operaciones diarias'
   },
+  
+  // Operations KPIs
+  'ops.activeProduction': {
+    ar: 'الإنتاج النشط',
+    en: 'Active Production',
+    fr: 'Production active',
+    es: 'Producción activa'
+  },
+  'ops.pendingOrders': {
+    ar: 'طلبات معلقة',
+    en: 'Pending Orders',
+    fr: 'Commandes en attente',
+    es: 'Pedidos pendientes'
+  },
+  'ops.maintenanceTasks': {
+    ar: 'مهام الصيانة',
+    en: 'Maintenance Tasks',
+    fr: 'Tâches de maintenance',
+    es: 'Tareas de mantenimiento'
+  },
+  
+  // Operations Stats
+  'ops.activeCount': {
+    ar: 'نشط',
+    en: 'Active',
+    fr: 'Actif',
+    es: 'Activo'
+  },
+  'ops.doneCount': {
+    ar: 'مكتمل',
+    en: 'Done',
+    fr: 'Terminé',
+    es: 'Completado'
+  },
+  'ops.pendingCount': {
+    ar: 'معلق',
+    en: 'Pending',
+    fr: 'En attente',
+    es: 'Pendiente'
+  },
+  
+  // Operations Sections
   'ops.activeWorkflows': {
     ar: 'سير العمل النشط',
     en: 'Active Workflows',
     fr: 'Flux de travail actifs',
     es: 'Flujos de trabajo activos'
-  },
-  'ops.pendingTasks': {
-    ar: 'مهام معلقة',
-    en: 'Pending Tasks',
-    fr: 'Tâches en attente',
-    es: 'Tareas pendientes'
-  },
-  'ops.completionRate': {
-    ar: 'معدل الإنجاز',
-    en: 'Completion Rate',
-    fr: 'Taux d\'achèvement',
-    es: 'Tasa de finalización'
-  },
-  'ops.workflows': {
-    ar: 'سير العمل',
-    en: 'Workflows',
-    fr: 'Flux de travail',
-    es: 'Flujos de trabajo'
   },
   'ops.activityFeed': {
     ar: 'نشاط حديث',
@@ -218,6 +242,14 @@ export const translations: Translations = {
     fr: 'Actions rapides',
     es: 'Acciones rápidas'
   },
+  'ops.commonTasks': {
+    ar: 'مهام شائعة',
+    en: 'Common operations tasks',
+    fr: 'Tâches courantes',
+    es: 'Tareas comunes'
+  },
+  
+  // Quick Action Buttons
   'ops.newOrder': {
     ar: 'طلب جديد',
     en: 'New Order',
@@ -229,6 +261,12 @@ export const translations: Translations = {
     en: 'Start Production',
     fr: 'Démarrer la production',
     es: 'Iniciar producción'
+  },
+  'ops.scheduleMaintenance': {
+    ar: 'جدولة صيانة',
+    en: 'Schedule Maintenance',
+    fr: 'Planifier la maintenance',
+    es: 'Programar mantenimiento'
   },
   'ops.runReport': {
     ar: 'تشغيل تقرير',
@@ -242,92 +280,54 @@ export const translations: Translations = {
     fr: 'Voir les journales',
     es: 'Ver registros'
   },
+  'ops.viewAllActivity': {
+    ar: 'عرض كل النشاطات',
+    en: 'View All Activity →',
+    fr: 'Voir toute l\'activité →',
+    es: 'Ver toda la actividad →'
+  },
+  
+  // Filter Options
   'ops.allStatuses': {
     ar: 'الكل',
     en: 'All',
     fr: 'Tous',
     es: 'Todos'
   },
-  'ops.inProgress': {
-    ar: 'قيد التنفيذ',
-    en: 'In Progress',
-    fr: 'En cours',
-    es: 'En progreso'
+  'ops.inProgressStatus': {
+    ar: 'نشط',
+    en: 'Active',
+    fr: 'Actif',
+    es: 'Activo'
   },
-  'ops.pending': {
-    ar: 'معلق',
-    en: 'Pending',
-    fr: 'En attente',
-    es: 'Pendiente'
-  },
-  'ops.completed': {
-    ar: 'مكتمل',
-    en: 'Completed',
-    fr: 'Terminé',
-    es: 'Completado'
-  },
-  'ops.onHold': {
+  'ops.onHoldStatus': {
     ar: 'مؤجل',
     en: 'On Hold',
     fr: 'En pause',
     es: 'Pausado'
   },
-  'ops.priority': {
-    ar: 'الأولوية',
-    en: 'Priority',
-    fr: 'Priorité',
-    es: 'Prioridad'
+  
+  // Workflow Card
+  'ops.progress': {
+    ar: 'التقدم',
+    en: 'Progress',
+    fr: 'Progression',
+    es: 'Progreso'
   },
-  'ops.status': {
-    ar: 'الحالة',
-    en: 'Status',
-    fr: 'Statut',
-    es: 'Estado'
+  'ops.due': {
+    ar: 'استحقاق:',
+    en: 'Due:',
+    fr: 'Échéance:',
+    es: 'Vencimiento:'
   },
-  'ops.assignee': {
-    ar: 'المكلف به',
-    en: 'Assignee',
-    fr: 'Assigné',
-    es: 'Asignado'
+  'ops.noWorkflows': {
+    ar: 'لا توجد سير عمل لهذا الفلتر',
+    en: 'No workflows found for this filter.',
+    fr: 'Aucun flux de travail trouvé pour ce filtre.',
+    es: 'No se encontraron flujos de trabajo para este filtro.'
   },
-  'ops.dueDate': {
-    ar: 'تاريخ الاستحقاق',
-    en: 'Due Date',
-    fr: 'Date d\'échéance',
-    es: 'Fecha límite'
-  },
-  'ops.orderProcessing': {
-    ar: 'معالجة الطلبات',
-    en: 'Order Processing',
-    fr: 'Traitement des commandes',
-    es: 'Procesamiento de pedidos'
-  },
-  'ops.productionLine': {
-    ar: 'خط الإنتاج',
-    en: 'Production Line',
-    fr: 'Ligne de production',
-    es: 'Línea de producción'
-  },
-  'ops.qualityCheck': {
-    ar: 'فحص الجودة',
-    en: 'Quality Check',
-    fr: 'Contrôle qualité',
-    es: 'Control de calidad'
-  },
-  'ops.maintenance': {
-    ar: 'صيانة',
-    en: 'Maintenance',
-    fr: 'Maintenance',
-    es: 'Mantenimiento'
-  },
-  'ops.shipping': {
-    ar: 'الشحن',
-    en: 'Shipping',
-    fr: 'Expédition',
-    es: 'Envío'
-  },
-
-  // Status Badges
+  
+  // Status Badges (Operations)
   'status.inProgress': {
     ar: 'قيد التنفيذ',
     en: 'In Progress',
@@ -352,13 +352,19 @@ export const translations: Translations = {
     fr: 'En pause',
     es: 'Pausado'
   },
-
+  
   // Priority Badges
   'priority.critical': {
     ar: 'حرج',
     en: 'Critical',
     fr: 'Critique',
     es: 'Crítico'
+  },
+  'priority.urgent': {
+    ar: 'عاجل',
+    en: 'Urgent',
+    fr: 'Urgent',
+    es: 'Urgente'
   },
   'priority.high': {
     ar: 'مرتفع',
@@ -378,8 +384,708 @@ export const translations: Translations = {
     fr: 'Faible',
     es: 'Bajo'
   },
+  
+  // Activity Messages
+  'activity.shipmentCompleted': {
+    ar: 'تم إكمال الشحنة #999 وإرسالها',
+    en: 'Shipment #999 completed and dispatched',
+    fr: 'Expédition #999 terminée et expédiée',
+    env: 'Envío #999 completado y despachado'
+  },
+  'activity.inventoryAlert': {
+    ar: 'تنبيه المخزون: المنتج #42 منخفض (12 وحدة متبقية)',
+    en: 'Inventory alert: Item #42 running low (12 units left)',
+    fr: 'Alerte stock: Article #42 faible (12 unités restantes)',
+    es: 'Alerta de inventario: Artículo #42 bajo (12 unidades restantes)'
+  },
+  'activity.newOrder': {
+    ar: 'طلب جديد من Acme Corp ($45,000)',
+    en: 'New order received from Acme Corp ($45,000)',
+    fr: 'Nouvelle commande reçue d\'Acme Corp ($45 000)',
+    es: 'Nuevo pedido recibido de Acme Corp ($45,000)'
+  },
+  'activity.qualityCheck': {
+    ar: 'نجح فحص الجودة للإنتاج #909',
+    en: 'Quality check passed for Production #909',
+    fr: 'Contrôle qualité réussi pour la Production #909',
+    es: 'Control de calidad aprobado para Producción #909'
+  },
+  'activity.maintenanceOverdue': {
+    ar: 'صيانة الآلة B متأخرة بيومين',
+    en: 'Machine B maintenance overdue by 2 days',
+    fr: 'Maintenance Machine B en retard de 2 jours',
+    es: 'Mantenimiento Máquina B retrasado por 2 días'
+  },
+  
+  // Time expressions
+  'time.minutesAgo': {
+    ar: 'دقائق مضت',
+    en: 'minutes ago',
+    fr: 'minutes il y a',
+    es: 'minutos atrás'
+  },
+  'time.hoursAgo': {
+    ar: 'ساعات مضت',
+    en: 'hours ago',
+    fr: 'heures il y a',
+    es: 'horas atrás'
+  },
+  'time.justNow': {
+    ar: 'الآن',
+    en: 'Just now',
+    fr: 'À l\'instant',
+    es: 'Ahora mismo'
+  },
 
-  // Settings Page
+  // ==================== INVENTORY PAGE ====================
+  'inventory.title': {
+    ar: 'إدارة المخزون',
+    en: 'Inventory Management',
+    fr: 'Gestion des stocks',
+    es: 'Gestión de inventario'
+  },
+  'inventory.subtitle': {
+    ar: 'تتبع وإدارة جميع المنتجات والمواد',
+    en: 'Track stock levels, manage products, and monitor inventory across all warehouses.',
+    fr: 'Suivre et gérer tous les produits et matériaux',
+    es: 'Rastrear y gestionar todos los productos y materiales'
+  },
+  
+  // Inventory KPIs
+  'inventory.totalProducts': {
+    ar: 'إجمالي المنتجات',
+    en: 'Total Products',
+    fr: 'Total des produits',
+    es: 'Total de productos'
+  },
+  'inventory.lowStockItems': {
+    ar: 'منتجات منخفضة',
+    en: 'Low Stock Items',
+    fr: 'Articles en stock faible',
+    es: 'Artículos con stock bajo'
+  },
+  'inventory.totalValue': {
+    ar: 'القيمة الإجمالية',
+    en: 'Total Value',
+    fr: 'Valeur totale',
+    es: 'Valor total'
+  },
+  
+  // Inventory Buttons
+  'inventory.sync': {
+    ar: 'مزامنة',
+    en: 'Sync',
+    fr: 'Synchroniser',
+    es: 'Sincronizar'
+  },
+  'inventory.addProduct': {
+    ar: 'إضافة منتج',
+    en: 'Add Product',
+    fr: 'Ajouter un produit',
+    es: 'Agregar producto'
+  },
+  
+  // Inventory Sections
+  'inventory.products': {
+    ar: 'المنتجات',
+    en: 'Products',
+    fr: 'Produits',
+    es: 'Productos'
+  },
+  'inventory.lowStockAlerts': {
+    ar: 'تنبيهات المخزون المنخفض',
+    en: 'Low Stock Alerts',
+    fr: 'Alertes de stock faible',
+    es: 'Alertas de stock bajo'
+  },
+  'inventory.viewAllAlerts': {
+    ar: 'عرض جميع التنبيهات',
+    en: 'View All Alerts →',
+    fr: 'Voir toutes les alertes →',
+    es: 'Ver todas las alertas →'
+  },
+  'inventory.categories': {
+    ar: 'الفئات',
+    en: 'Categories',
+    fr: 'Catégories',
+    es: 'Categorías'
+  },
+  'inventory.warehouses': {
+    ar: 'المستودعات',
+    en: 'Warehouses',
+    fr: 'Entrepôts',
+    es: 'Almacenes'
+  },
+  'inventory.items': {
+    ar: 'عنصر',
+    en: 'items',
+    fr: 'articles',
+    es: 'artículos'
+  },
+  
+  // Table Headers
+  'table.product': {
+    ar: 'المنتج',
+    en: 'Product',
+    fr: 'Produit',
+    es: 'Producto'
+  },
+  'table.category': {
+    ar: 'الفئة',
+    en: 'Category',
+    fr: 'Catégorie',
+    es: 'Categoría'
+  },
+  'table.quantity': {
+    ar: 'الكمية',
+    en: 'Qty',
+    fr: 'Qté',
+    es: 'Cant.'
+  },
+  'table.cost': {
+    ar: 'التكلفة',
+    en: 'Cost',
+    fr: 'Coût',
+    es: 'Costo'
+  },
+  'table.value': {
+    ar: 'القيمة',
+    en: 'Value',
+    fr: 'Valeur',
+    es: 'Valor'
+  },
+  'table.status': {
+    ar: 'الحالة',
+    en: 'Status',
+    fr: 'Statut',
+    es: 'Estado'
+  },
+  'table.actions': {
+    ar: 'إجراءات',
+    en: 'Actions',
+    fr: 'Actions',
+    es: 'Acciones'
+  },
+  
+  // Status Badges (Inventory)
+  'invStatus.inStock': {
+    ar: 'متوفر',
+    en: 'In Stock',
+    fr: 'En stock',
+    es: 'Disponible'
+  },
+  'invStatus.lowStock': {
+    ar: 'مخزون منخفض',
+    en: 'Low Stock',
+    fr: 'Stock faible',
+    es: 'Stock bajo'
+  },
+  'invStatus.outOfStock': {
+    ar: 'نفذ المخزون',
+    en: 'Out of Stock',
+    fr: 'Rupture de stock',
+    es: 'Agotado'
+  },
+  'invStatus.overstock': {
+    ar: 'مخزون زائد',
+    en: 'Overstock',
+    fr: 'Surstock',
+    es: 'Sobrestock'
+  },
+  
+  // Filter Options (Inventory)
+  'filter.allStatus': {
+    ar: 'كل الحالات',
+    en: 'All Status',
+    fr: 'Tous les statuts',
+    es: 'Todos los estados'
+  },
+  
+  // Search & Messages
+  'inventory.searchPlaceholder': {
+    ar: 'بحث بالاسم أو SKU...',
+    en: 'Search by name or SKU...',
+    fr: 'Rechercher par nom ou SKU...',
+    es: 'Buscar por nombre o SKU...'
+  },
+  'inventory.noProducts': {
+    ar: 'لا توجد منتجات تطابق معايرك',
+    en: 'No products found matching your criteria.',
+    fr: 'Aucun produit trouvé correspondant à vos critères.',
+    es: 'No se encontraron productos que coincidan con sus criterios.'
+  },
+  'inventory.outOfStockMsg': {
+    ar: 'نفذ المخزون!',
+    en: 'Out of stock!',
+    fr: 'Rupture de stock!',
+    env: '¡Agotado!'
+  },
+  'inventory.onlyLeft': {
+    ar: 'متبقي {count} فقط',
+    en: 'Only {count} left',
+    fr: 'Il ne reste que {count}',
+    env: 'Solo quedan {count}'
+  },
+
+  // ==================== FINANCIALS PAGE ====================
+  'financials.title': {
+    ar: 'المركز المالي',
+    en: 'Financial Center',
+    fr: 'Centre financier',
+    es: 'Centro financiero'
+  },
+  'financials.subtitle': {
+    ar: 'مراقبة الإيرادات والمصروفات والفواتير والصحة المالية',
+    en: 'Monitor revenue, expenses, invoices, and financial health.',
+    fr: 'Surveiller les revenus, dépenses, factures et santé financière.',
+    es: 'Monitorear ingresos, gastos, facturas y salud financiera.'
+  },
+  
+  // Financials KPIs
+  'financials.totalRevenue': {
+    ar: 'إجمالي الإيرادات',
+    en: 'Total Revenue',
+    fr: 'Revenu total',
+    es: 'Ingresos totales'
+  },
+  'financials.totalExpenses': {
+    ar: 'إجمالي المصروفات',
+    en: 'Total Expenses',
+    fr: 'Dépenses totales',
+    es: 'Gastos totales'
+  },
+  'financials.netProfit': {
+    ar: 'صافي الربح',
+    en: 'Net Profit',
+    fr: 'Bénéfice net',
+    es: 'Beneficio neto'
+  },
+  'financials.pendingInvoices': {
+    ar: 'فواتير معلقة',
+    en: 'Pending Invoices',
+    fr: 'Factures en attente',
+    es: 'Facturas pendientes'
+  },
+  
+  // Financials Buttons
+  'financials.exportReport': {
+    ar: 'تصدير تقرير',
+    en: 'Export Report',
+    fr: 'Exporter un rapport',
+    es: 'Exportar informe'
+  },
+  'financials.createInvoice': {
+    ar: 'إنشاء فاتورة',
+    en: 'Create Invoice',
+    fr: 'Créer une facture',
+    es: 'Crear factura'
+  },
+  
+  // Tabs
+  'tab.transactions': {
+    ar: 'المعاملات',
+    en: 'Transactions',
+    fr: 'Transactions',
+    es: 'Transacciones'
+  },
+  'tab.invoices': {
+    ar: 'الفواتير',
+    en: 'Invoices',
+    fr: 'Factures',
+    es: 'Facturas'
+  },
+  
+  // Transaction Types
+  'txn.type.income': {
+    ar: 'إيراد',
+    en: 'Income',
+    fr: 'Revenu',
+    es: 'Ingreso'
+  },
+  'txn.type.expense': {
+    ar: 'مصروف',
+    en: 'Expense',
+    fr: 'Dépense',
+    es: 'Gasto'
+  },
+  
+  // Transaction Status
+  'txnStatus.completed': {
+    ar: 'مكتمل',
+    en: 'Completed',
+    fr: 'Terminée',
+    es: 'Completada'
+  },
+  'txnStatus.pending': {
+    ar: 'معلق',
+    en: 'Pending',
+    fr: 'En attente',
+    es: 'Pendiente'
+  },
+  'txnStatus.failed': {
+    ar: 'فشل',
+    en: 'Failed',
+    fr: 'Échouée',
+    es: 'Fallida'
+  },
+  
+  // Invoice Status
+  'invStatus.paid': {
+    ar: 'مدفوعة',
+    en: 'Paid',
+    fr: 'Payée',
+    es: 'Pagada'
+  },
+  'invStatus.pending': {
+    ar: 'معلقة',
+    en: 'Pending',
+    fr: 'En attente',
+    es: 'Pendiente'
+  },
+  'invStatus.overdue': {
+    ar: 'متأخرة',
+    en: 'Overdue',
+    fr: 'En retard',
+    es: 'Vencida'
+  },
+  'invStatus.draft': {
+    ar: 'مسودة',
+    en: 'Draft',
+    fr: 'Brouillon',
+    es: 'Borrador'
+  },
+  
+  // Sidebar Sections
+  'financials.expenseBreakdown': {
+    ar: 'تفصيل المصروفات',
+    en: 'Expense Breakdown',
+    fr: 'Répartition des dépenses',
+    es: 'Desglose de gastos'
+  },
+  'financials.totalExpensesLabel': {
+    ar: 'إجمالي المصروفات',
+    en: 'Total Expenses',
+    fr: 'Dépenses totales',
+    es: 'Gastos totales'
+  },
+  'financials.cashFlowSummary': {
+    ar: 'ملخص التدفقات النقدية',
+    en: 'Cash Flow Summary',
+    fr: 'Résumé des flux de trésorerie',
+    res: 'Resumen de flujo de caja'
+  },
+  'financials.upcomingPayments': {
+    ar: 'المدفوعات القادمة',
+    en: 'Upcoming Payments',
+    fr: 'Paiements à venir',
+    es: 'Próximos pagos'
+  },
+  
+  // Time Periods
+  'time.thisMonth': {
+    ar: 'هذا الشهر',
+    en: 'This Month',
+    fr: 'Ce mois',
+    es: 'Este mes'
+  },
+  'time.lastMonth': {
+    ar: 'الشهر الماضي',
+    en: 'Last Month',
+    fr: 'Le mois dernier',
+    es: 'El mes pasado'
+  },
+  'time.growth': {
+    ar: 'نمو',
+    en: 'Growth',
+    fr: 'Croissance',
+    es: 'Crecimiento'
+  },
+  'time.dueInDays': {
+    ar: 'استحقاق خلال {days} أيام',
+    en: 'Due in {days} days',
+    fr: 'Échéance dans {days} jours',
+    es: 'Vence en {days} días'
+  },
+  
+  // Table Headers (Financials)
+  'table.invoice': {
+    ar: 'فاتورة',
+    en: 'Invoice',
+    fr: 'Facture',
+    es: 'Factura'
+  },
+  'table.client': {
+    ar: 'عميل',
+    en: 'Client',
+    fr: 'Client',
+    es: 'Cliente'
+  },
+  'table.amount': {
+    ar: 'المبلغ',
+    en: 'Amount',
+    fr: 'Montant',
+    es: 'Monto'
+  },
+  'table.dueDate': {
+    ar: 'تاريخ الاستحقاق',
+    en: 'Due Date',
+    fr: 'Date d\'échéance',
+    es: 'Fecha de vencimiento'
+  },
+
+  // ==================== ANALYTICS PAGE ====================
+  'analytics.title': {
+    ar: 'مركز التحليلات',
+    en: 'Analytics Hub',
+    fr: 'Centre d\'analytique',
+    es: 'Centro de analíticas'
+  },
+  'analytics.subtitle': {
+    ar: 'غوص عميق في البيانات مع رسوم متقدمة وذكاء أعمال',
+    en: 'Deep dive into data with advanced charts and business intelligence.',
+    fr: 'Plongez dans les données avec des graphiques avancés et BI.',
+    es: 'Profundiza en datos con gráficos avanzados e inteligencia de negocios.'
+  },
+  
+  // Analytics KPIs
+  'analytics.pageViews': {
+    ar: 'مشاهدات الصفحة',
+    en: 'Page Views',
+    fr: 'Vues de page',
+    es: 'Vistas de página'
+  },
+  'analytics.conversionRate': {
+    ar: 'معدل التحويل',
+    en: 'Conversion Rate',
+    fr: 'Taux de conversion',
+    es: 'Tasa de conversión'
+  },
+  'analytics.activeUsers': {
+    ar: 'المستخدمين النشطين',
+    en: 'Active Users',
+    fr: 'Utilisateurs actifs',
+    es: 'Usuarios activos'
+  },
+  'analytics.revenuePerUser': {
+    ar: 'الإيراد لكل مستخدم',
+    en: 'Revenue/User',
+    fr: 'Revenu/utilisateur',
+    es: 'Ingresos/usuario'
+  },
+  
+  // Time Range Options
+  'range.today': {
+    ar: 'اليوم',
+    en: 'Today',
+    fr: 'Aujourd\'hui',
+    es: 'Hoy'
+  },
+  'range.thisWeek': {
+    ar: 'هذا الأسبوع',
+    en: 'This Week',
+    fr: 'Cette semaine',
+    es: 'Esta semana'
+  },
+  'range.thisMonth': {
+    ar: 'هذا الشهر',
+    en: 'This Month',
+    fr: 'Ce mois',
+    es: 'Este mes'
+  },
+  'range.thisQuarter': {
+    ar: 'هذا الربع',
+    en: 'This Quarter',
+    fr: 'Ce trimestre',
+    es: 'Este trimestre'
+  },
+  'range.thisYear': {
+    ar: 'هذا العام',
+    en: 'This Year',
+    fr: 'Cette année',
+    es: 'Este año'
+  },
+  
+  // Analytics Sections
+  'analytics.trafficOverview': {
+    ar: 'نظرة عامة على الزيارات',
+    en: 'Traffic Overview',
+    fr: 'Aperçu du trafic',
+    es: 'Resumen del tráfico'
+  },
+  'analytics.weeklyTrends': {
+    ar: 'اتجاهات الزيارات الأسبوعية',
+    en: 'Weekly visitor trends',
+    fr: 'Tendances hebdomadaires',
+    es: 'Tendencias semanales de visitantes'
+  },
+  'analytics.thisWeek': {
+    ar: 'هذا الأسبوع',
+    en: 'This Week',
+    fr: 'Cette semaine',
+    es: 'Esta semana'
+  },
+  'analytics.lastWeek': {
+    ar: 'الأسبوع الماضي',
+    en: 'Last Week',
+    fr: 'La semaine dernière',
+    es: 'La semana pasada'
+  },
+  'analytics.topPages': {
+    ar: 'الصفحات الأكثر زيارة',
+    en: 'Top Pages',
+    fr: 'Pages populaires',
+    es: 'Páginas principales'
+  },
+  'analytics.trafficSources': {
+    ar: 'مصادر الزيارات',
+    en: 'Traffic Sources',
+    fr: 'Sources de trafic',
+    es: 'Fuentes de tráfico'
+  },
+  'analytics.deviceBreakdown': {
+    ar: 'توزيع الأجهزة',
+    en: 'Device Breakdown',
+    fr: 'Répartition des appareils',
+    es: 'Desglose de dispositivos'
+  },
+  'analytics.liveActivity': {
+    ar: 'نشاط مباشر',
+    en: 'Live Activity',
+    fr: 'Activité en direct',
+    es: 'Actividad en vivo'
+  },
+  
+  // Stats
+  'stats.totalVisits': {
+    ar: 'إجمالي الزيارات',
+    en: 'Total Visits',
+    fr: 'Visites totales',
+    es: 'Visitas totales'
+  },
+  'stats.vsLastWeek': {
+    ar: 'مقارنة بالأسبوع الماضي',
+    en: 'vs Last Week',
+    fr: 'vs Semaine dernière',
+    es: 'vs Semana pasada'
+  },
+  'stats.avgDuration': {
+    ar: 'متوسط المدة',
+    en: 'Avg. Duration',
+    fr: 'Durée moy.',
+    es: 'Duración prom.'
+  },
+  
+  // Table Headers (Analytics)
+  'table.page': {
+    ar: 'صفحة',
+    en: 'Page',
+    fr: 'Page',
+    es: 'Página'
+  },
+  'table.views': {
+    ar: 'مشاهدات',
+    en: 'Views',
+    fr: 'Vues',
+    es: 'Vistas'
+  },
+  'table.bounceRate': {
+    ar: 'معدل الارتداد %',
+    en: 'Bounce %',
+    fr: 'Taux de rebond %',
+    es: 'Tasa de rebote %'
+  },
+  'table.avgTime': {
+    ar: 'متوسط الوقت',
+    en: 'Avg Time',
+    fr: 'Temps moy.',
+    es: 'Tiempo prom.'
+  },
+  
+  // Activity Types
+  'activity.pageView': {
+    ar: 'مشاهدة صفحة',
+    en: 'Page View',
+    fr: 'Vue de page',
+    es: 'Vista de página'
+  },
+  'activity.signUp': {
+    ar: 'تسجيل جديد',
+    en: 'Sign Up',
+    fr: 'Inscription',
+    es: 'Registro'
+  },
+  'activity.purchase': {
+    ar: 'شراء',
+    en: 'Purchase',
+    fr: 'Achat',
+    es: 'Compra'
+  },
+  'activity.download': {
+    ar: 'تحميل',
+    en: 'Download',
+    fr: 'Téléchargement',
+    desc: 'Descarga'
+  },
+  
+  // Device Types
+  'device.desktop': {
+    ar: 'كمبيوتر',
+    en: 'Desktop',
+    fr: 'Ordinateur',
+    es: 'Escritorio'
+  },
+  'device.mobile': {
+    ar: 'موبايل',
+    en: 'Mobile',
+    fr: 'Mobile',
+    es: 'Móvil'
+  },
+  'device.tablet': {
+    ar: 'تابلت',
+    en: 'Tablet',
+    fr: 'Tablette',
+    es: 'Tableta'
+  },
+  'device.users': {
+    ar: 'مستخدمين',
+    en: 'users',
+    fr: 'utilisateurs',
+    es: 'usuarios'
+  },
+  
+  // Traffic Sources
+  'source.organicSearch': {
+    ar: 'بحث عضوي',
+    en: 'Organic Search',
+    fr: 'Recherche organique',
+    es: 'Búsqueda orgánica'
+  },
+  'source.direct': {
+    ar: 'مباشر',
+    en: 'Direct',
+    fr: 'Direct',
+    es: 'Directo'
+  },
+  'source.socialMedia': {
+    ar: 'وسائل التواصل',
+    en: 'Social Media',
+    fr: 'Réseaux sociaux',
+    es: 'Redes sociales'
+  },
+  'source.referral': {
+    ar: 'إحالات',
+    en: 'Referral',
+    fr: 'Parrainage',
+    es: 'Referidos'
+  },
+  'source.email': {
+    ar: 'بريد إلكتروني',
+    en: 'Email',
+    fr: 'E-mail',
+    es: 'Correo electrónico'
+  },
+
+  // ==================== SETTINGS PAGE ====================
   'settings.title': {
     ar: 'الإعدادات',
     en: 'Settings',
@@ -499,48 +1205,6 @@ export const translations: Translations = {
     en: 'Save Changes',
     fr: 'Enregistrer les modifications',
     es: 'Guardar cambios'
-  },
-
-  // Inventory Page
-  'inventory.title': {
-    ar: 'إدارة المخزون',
-    en: 'Inventory Management',
-    fr: 'Gestion des stocks',
-    es: 'Gestión de inventario'
-  },
-  'inventory.subtitle': {
-    ar: 'تتبع وإدارة جميع المنتجات والمواد',
-    en: 'Track and manage all products and materials',
-    fr: 'Suivre et gérer tous les produits et matériaux',
-    es: 'Rastrear y gestionar todos los productos y materiales'
-  },
-
-  // Financials Page
-  'financials.title': {
-    ar: 'التقارير المالية',
-    en: 'Financial Reports',
-    fr: 'Rapports financiers',
-    es: 'Informes financieros'
-  },
-  'financials.subtitle': {
-    ar: 'نظرة شاملة على الأداء المالي',
-    en: 'Comprehensive financial performance overview',
-    fr: 'Aperçu complet des performances financières',
-    es: 'Vista general integral del rendimiento financiero'
-  },
-
-  // Analytics Page
-  'analytics.title': {
-    ar: 'التحليلات المتقدمة',
-    en: 'Advanced Analytics',
-    fr: 'Analytiques avancés',
-    es: 'Analíticas avanzadas'
-  },
-  'analytics.subtitle': {
-    ar: 'رؤى عميقة واتجاهات البيانات',
-    en: 'Deep insights and data trends',
-    fr: 'Perspectives approfondies et tendances des données',
-    es: 'Perspectivas profundas y tendencias de datos'
   },
 
   // Common

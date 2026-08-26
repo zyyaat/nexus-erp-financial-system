@@ -17,13 +17,14 @@ import {
   Zap,
   RefreshCw
 } from 'lucide-react'
+import { useI18n } from '@/lib/i18n'
 
 // ============ TYPES ============
 interface MetricCard {
-  title: string
+  titleKey: string
   value: string
   change: number
-  changeLabel: string
+  changeLabelKey: string
   icon: React.ElementType
   color: string
   bgColor: string
@@ -39,40 +40,40 @@ interface DataPoint {
 // ============ MOCK DATA ============
 const analyticsKPIs: MetricCard[] = [
   {
-    title: 'Page Views',
+    titleKey: 'analytics.pageViews',
     value: '284.5K',
     change: 18.2,
-    changeLabel: 'vs last week',
+    changeLabelKey: 'kpi.vsLastMonth',
     icon: Eye,
     color: 'indigo',
     bgColor: 'bg-indigo-100',
     textColor: 'text-indigo-600'
   },
   {
-    title: 'Conversion Rate',
+    titleKey: 'analytics.conversionRate',
     value: '3.24%',
     change: 0.8,
-    changeLabel: 'vs last week',
+    changeLabelKey: 'kpi.vsLastMonth',
     icon: Target,
     color: 'green',
     bgColor: 'bg-green-100',
     textColor: 'text-green-600'
   },
   {
-    title: 'Active Users',
+    titleKey: 'analytics.activeUsers',
     value: '14,289',
     change: -2.1,
-    changeLabel: 'vs last week',
+    changeLabelKey: 'kpi.vsLastMonth',
     icon: Users,
     color: 'blue',
     bgColor: 'bg-blue-100',
     textColor: 'text-blue-600'
   },
   {
-    title: 'Revenue/User',
+    titleKey: 'analytics.revenuePerUser',
     value: '$84.02',
     change: 5.4,
-    changeLabel: 'vs last week',
+    changeLabelKey: 'kpi.vsLastMonth',
     icon: Zap,
     color: 'violet',
     bgColor: 'bg-violet-100',
@@ -115,6 +116,7 @@ const trafficSources = [
 // ============ SUB-COMPONENTS ============
 
 function AnalyticsKPICard({ kpi }: { kpi: MetricCard }) {
+  const { t } = useI18n()
   const Icon = kpi.icon
   const isPositive = kpi.change >= 0
 
@@ -137,9 +139,9 @@ function AnalyticsKPICard({ kpi }: { kpi: MetricCard }) {
       </div>
 
       <div className="relative z-10">
-        <p className="text-sm font-medium text-slate-500 mb-1">{kpi.title}</p>
+        <p className="text-sm font-medium text-slate-500 mb-1">{t(kpi.titleKey)}</p>
         <h3 className="text-2xl font-bold text-slate-900">{kpi.value}</h3>
-        <p className="text-xs text-slate-400 mt-1">{kpi.changeLabel}</p>
+        <p className="text-xs text-slate-400 mt-1">{t(kpi.changeLabelKey)}</p>
       </div>
     </div>
   )
@@ -169,8 +171,20 @@ function MiniChart({ data, height = 60 }: { data: DataPoint[]; height?: number }
 
 // ============ MAIN COMPONENT ============
 export default function AnalyticsPage() {
+  const { t } = useI18n()
   const [timeRange, setTimeRange] = useState('week')
-  const [selectedMetric, setSelectedMetric] = useState('traffic')
+
+  // Get time range options
+  const getTimeRangeLabel = (range: string) => {
+    switch(range) {
+      case 'today': return t('range.today')
+      case 'week': return t('range.thisWeek')
+      case 'month': return t('range.thisMonth')
+      case 'quarter': return t('range.thisQuarter')
+      case 'year': return t('range.thisYear')
+      default: return range
+    }
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -178,13 +192,13 @@ export default function AnalyticsPage() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
-            Analytics{' '}
+            {t('analytics.title').split(' ')[0]}{' '}
             <span className="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">
-              Hub
+              {t('analytics.title').split(' ')[1] || ''}
             </span>
           </h2>
           <p className="text-base md:text-lg text-slate-500">
-            Deep dive into data with advanced charts and business intelligence.
+            {t('analytics.subtitle')}
           </p>
         </div>
 
@@ -195,16 +209,16 @@ export default function AnalyticsPage() {
             onChange={(e) => setTimeRange(e.target.value)}
             className="px-4 py-2.5 bg-white/70 backdrop-blur-md border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
           >
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
+            <option value="today">{t('range.today')}</option>
+            <option value="week">{t('range.thisWeek')}</option>
+            <option value="month">{t('range.thisMonth')}</option>
+            <option value="quarter">{t('range.thisQuarter')}</option>
+            <option value="year">{t('range.thisYear')}</option>
           </select>
 
           <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center gap-2">
             <Download size={16} />
-            Export
+            {t('common.export')}
           </button>
         </div>
       </div>
@@ -212,7 +226,7 @@ export default function AnalyticsPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {analyticsKPIs.map((kpi) => (
-          <AnalyticsKPICard key={kpi.title} kpi={kpi} />
+          <AnalyticsKPICard key={kpi.titleKey} kpi={kpi} />
         ))}
       </div>
 
@@ -226,19 +240,19 @@ export default function AnalyticsPage() {
               <div>
                 <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                   <Activity size={20} className="text-indigo-500" />
-                  Traffic Overview
+                  {t('analytics.trafficOverview')}
                 </h3>
-                <p className="text-sm text-slate-500 mt-1">Weekly visitor trends</p>
+                <p className="text-sm text-slate-500 mt-1">{t('analytics.weeklyTrends')}</p>
               </div>
               
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-indigo-500"></span>
-                  <span className="text-xs text-slate-600">This Week</span>
+                  <span className="text-xs text-slate-600">{t('analytics.thisWeek')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-slate-300"></span>
-                  <span className="text-xs text-slate-600">Last Week</span>
+                  <span className="text-xs text-slate-600">{t('analytics.lastWeek')}</span>
                 </div>
               </div>
             </div>
@@ -259,15 +273,15 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-200">
               <div className="text-center">
                 <p className="text-2xl font-bold text-slate-900">312K</p>
-                <p className="text-xs text-slate-500">Total Visits</p>
+                <p className="text-xs text-slate-500">{t('stats.totalVisits')}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600">+18%</p>
-                <p className="text-xs text-slate-500">vs Last Week</p>
+                <p className="text-xs text-slate-500">{t('stats.vsLastWeek')}</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-slate-900">2m 34s</p>
-                <p className="text-xs text-slate-500">Avg. Duration</p>
+                <p className="text-xs text-slate-500">{t('stats.avgDuration')}</p>
               </div>
             </div>
           </div>
@@ -276,17 +290,17 @@ export default function AnalyticsPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <BarChart3 size={18} className="text-violet-500" />
-              Top Pages
+              {t('analytics.topPages')}
             </h3>
 
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Page</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Views</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">Bounce %</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase hidden md:table-cell">Avg Time</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">{t('table.page')}</th>
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase">{t('table.views')}</th>
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase hidden sm:table-cell">{t('table.bounceRate')}</th>
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase hidden md:table-cell">{t('table.avgTime')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -316,14 +330,14 @@ export default function AnalyticsPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <TrendingUp size={18} className="text-emerald-500" />
-              Traffic Sources
+              {t('analytics.trafficSources')}
             </h3>
 
             <div className="space-y-4">
               {trafficSources.map((source) => (
                 <div key={source.source}>
                   <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-sm font-medium text-slate-700">{source.source}</span>
+                    <span className="text-sm font-medium text-slate-700">{source.source.replace(' ', '')}</span>
                     <span className="text-xs text-slate-500">{source.percentage}% ({(source.visits / 1000).toFixed(1)}k)</span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
@@ -341,7 +355,7 @@ export default function AnalyticsPage() {
           <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl p-5 text-white shadow-xl">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
               <Users size={18} />
-              Device Breakdown
+              {t('analytics.deviceBreakdown')}
             </h4>
             
             <div className="space-y-4">
@@ -352,8 +366,8 @@ export default function AnalyticsPage() {
                       {device.device === 'Desktop' ? '🖥️' : device.device === 'Mobile' ? '📱' : '📋'}
                     </div>
                     <div>
-                      <p className="font-medium">{device.device}</p>
-                      <p className="text-xs text-white/70">{device.users.toLocaleString()} users</p>
+                      <p className="font-medium">{device.device === 'Desktop' ? t('device.desktop') : device.device === 'Mobile' ? t('device.mobile') : t('device.tablet')}</p>
+                      <p className="text-xs text-white/70">{device.users.toLocaleString()} {t('device.users')}</p>
                     </div>
                   </div>
                   <span className="text-lg font-bold">{device.percentage}%</span>
@@ -366,16 +380,16 @@ export default function AnalyticsPage() {
           <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
             <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <RefreshCw size={18} className="text-cyan-500 animate-spin" style={{ animationDuration: '3s' }} />
-              Live Activity
+              {t('analytics.liveActivity')}
             </h3>
 
             <div className="space-y-3 max-h-[240px] overflow-y-auto pr-2 custom-scrollbar">
               {[
-                { action: 'Page View', location: '/products', time: 'Just now', type: 'view' as const },
-                { action: 'Sign Up', location: 'New User from US', time: '2m ago', type: 'conversion' as const },
-                { action: 'Purchase', location: '$245.00 order', time: '5m ago', type: 'revenue' as const },
-                { action: 'Page View', location: '/pricing', time: '7m ago', type: 'view' as const },
-                { action: 'Download', location: 'Whitepaper PDF', time: '12m ago', type: 'engagement' as const }
+                { actionKey: 'activity.pageView', location: '/products', timeKey: 'time.justNow', type: 'view' as const },
+                { actionKey: 'activity.signUp', location: 'New User from US', timeKey: '2m ago', type: 'conversion' as const },
+                { actionKey: 'activity.purchase', location: '$245.00 order', timeKey: '5m ago', type: 'revenue' as const },
+                { actionKey: 'activity.pageView', location: '/pricing', timeKey: '7m ago', type: 'view' as const },
+                { actionKey: 'activity.download', location: 'Whitepaper PDF', timeKey: '12m ago', type: 'engagement' as const }
               ].map((activity, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 bg-slate-50/80 rounded-lg">
                   <div className={`w-2 h-2 rounded-full mt-2 ${
@@ -385,10 +399,10 @@ export default function AnalyticsPage() {
                     'bg-purple-500'
                   }`}></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900">{activity.action}</p>
+                    <p className="text-sm font-medium text-slate-900">{t(activity.actionKey)}</p>
                     <p className="text-xs text-slate-500 truncate">{activity.location}</p>
                   </div>
-                  <span className="text-xs text-slate-400 whitespace-nowrap">{activity.time}</span>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">{activity.timeKey}</span>
                 </div>
               ))}
             </div>
