@@ -53,9 +53,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Bento Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-          {/* KPI Cards Row */}
+        {/* KPI Cards Row - Full Width Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
           <KPICard
             title="Total Revenue"
             value="$1.2M"
@@ -77,14 +76,18 @@ export default function Home() {
             changeLabel="vs. last month (14,590)"
             icon="users"
           />
+        </div>
+
+        {/* Charts Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
 
           {/* Revenue Chart */}
-          <div className="md:col-span-8">
+          <div className="lg:col-span-8">
             <RevenueChart />
           </div>
 
           {/* System Health */}
-          <div className="md:col-span-4">
+          <div className="lg:col-span-4">
             <SystemHealth />
           </div>
         </div>
