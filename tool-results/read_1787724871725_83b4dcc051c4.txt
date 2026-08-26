@@ -1,0 +1,1400 @@
+     1→'use client'
+     2→
+     3→import { useState, useMemo } from 'react'
+     4→import { 
+     5→  DollarSign, 
+     6→  TrendingUp, 
+     7→  TrendingDown,
+     8→  CreditCard,
+     9→  FileText,
+    10→  ArrowUpRight,
+    11→  ArrowDownRight,
+    12→  ArrowDownLeft,
+    13→  ArrowUpLeft,
+    14→  Download,
+    15→  Plus,
+    16→  Filter,
+    17→  Calendar,
+    18→  PieChart,
+    19→  Receipt,
+    20→  Wallet,
+    21→  AlertCircle,
+    22→  CheckCircle2,
+    23→  Clock,
+    24→  Building2,
+    25→  Users,
+    26→  Landmark,
+    27→  Calculator,
+    28→  BarChart3,
+    29→  Globe,
+    30→  Banknote,
+    31→  Target,
+    32→  Activity,
+    33→  Eye,
+    34→  Settings,
+    35→  ChevronDown,
+    36→  ChevronRight,
+    37→  Search,
+    38→  Printer,
+    39→  RefreshCw,
+    40→  Upload,
+    41→  MoreHorizontal,
+    42→  X,
+    43→  AlertTriangle,
+    44→  ChevronLeft,
+    45→  Package,
+    46→  Truck,
+    47→  Shield,
+    48→  Scale,
+    49→  ClipboardList,
+    50→  BookOpen,
+    51→  Coins,
+    52→  PiggyBank,
+    53→  CreditCard as CreditCardIcon,
+    54→  ArrowRightLeft,
+    55→  Percent,
+    56→  LineChart,
+    57→  TrendingUpIcon
+    58→} from 'lucide-react'
+    59→import { useI18n } from '@/lib/i18n'
+    60→
+    61→// ============ TYPES ============
+    62→interface Transaction {
+    63→  id: string
+    64→  type: 'income' | 'expense'
+    65→  description: string
+    66→  amount: number
+    67→  category: string
+    68→  date: string
+    69→  status: 'completed' | 'pending' | 'failed'
+    70→  invoice?: string
+    71→  currency?: string
+    72→}
+    73→
+    74→interface Invoice {
+    75→  id: string
+    76→  client: string
+    77→  clientAr?: string
+    78→  amount: number
+    79→  status: 'paid' | 'pending' | 'overdue' | 'draft'
+    80→  issuedDate: string
+    81→  dueDate: string
+    82→  currency?: string
+    83→}
+    84→
+    85→interface GLAccount {
+    86→  id: string
+    87→  code: string
+    88→  name: string
+    89→  nameAr?: string
+    90→  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
+    91→  balance: number
+    92→  debit: number
+    93→  credit: number
+    94→  currency: string
+    95→}
+    96→
+    97→interface Vendor {
+    98→  id: string
+    99→  code: string
+   100→  name: string
+   101→  nameAr?: string
+   102→  email: string
+   103→  totalDue: number
+   104→  currency: string
+   105→  status: 'active' | 'inactive'
+   106→}
+   107→
+   108→interface Customer {
+   109→  id: string
+   110→  code: string
+   111→  name: string
+   112→  nameAr?: string
+   113→  email: string
+   114→  totalReceivable: number
+   115→  currency: string
+   116→  status: 'active' | 'inactive'
+   117→}
+   118→
+   119→interface BankAccount {
+   120→  id: string
+   121→  name: string
+   122→  bankName: string
+   123→  accountNumber: string
+   124→  balance: number
+   125→  availableBalance: number
+   126→  currency: string
+   127→  type: 'checking' | 'savings' | 'investment'
+   128→  status: 'active'
+   129→}
+   130→
+   131→// ============ MOCK DATA ============
+   132→const financialKPIs = [
+   133→  {
+   134→    titleKey: 'financials.totalRevenue',
+   135→    titleAr: 'إجمالي الإيرادات',
+   136→    value: '$847,290',
+   137→    change: 15.3,
+   138→    icon: TrendingUp,
+   139→    color: 'emerald',
+   140→    bgColor: 'bg-emerald-100',
+   141→    textColor: 'text-emerald-600'
+   142→  },
+   143→  {
+   144→    titleKey: 'financials.totalExpenses',
+   145→    titleAr: 'إجمالي المصروفات',
+   146→    value: '$523,180',
+   147→    change: -4.2,
+   148→    icon: TrendingDown,
+   149→    color: 'red',
+   150→    bgColor: 'bg-red-100',
+   151→    textColor: 'text-red-600'
+   152→  },
+   153→  {
+   154→    titleKey: 'financials.netProfit',
+   155→    titleAr: 'صافي الربح',
+   156→    value: '$324,110',
+   157→    change: 28.7,
+   158→    icon: DollarSign,
+   159→    color: 'blue',
+   160→    bgColor: 'bg-blue-100',
+   161→    textColor: 'text-blue-600'
+   162→  },
+   163→  {
+   164→    titleKey: 'financials.cashPosition',
+   165→    titleAr: 'مركز النقدية',
+   166→    value: '$456,890',
+   167→    change: 12.5,
+   168→    icon: Wallet,
+   169→    color: 'violet',
+   170→    bgColor: 'bg-violet-100',
+   171→    textColor: 'text-violet-600'
+   172→  }
+   173→]
+   174→
+   175→const liquidityKPIs = [
+   176→  { label: 'Current Ratio', labelAr: 'نسبة التداول', value: '1.85', status: 'good', target: '1.5+' },
+   177→  { label: 'Quick Ratio', labelAr: 'نسبة السيولة السريعة', value: '1.42', status: 'good', target: '1.0+' },
+   178→  { label: 'Cash Ratio', labelAr: 'نسبة النقدية', value: '0.87', status: 'warning', target: '0.5+' },
+   179→  { label: 'Working Capital', labelAr: 'رأس العامل', value: '$245K', status: 'good', target: '+' }
+   180→]
+   181→
+   182→const profitabilityKPIs = [
+   183→  { label: 'Gross Margin', labelAr: 'هامش الربح الإجمالي', value: '38.2%', change: '+2.1%' },
+   184→  { label: 'Operating Margin', labelAr: 'هامش الربح التشغيلي', value: '24.5%', change: '+3.8%' },
+   185→  { label: 'Net Profit Margin', labelAr: 'هامش صافي الربح', value: '18.9%', change: '+5.2%' },
+   186→  { label: 'ROE', labelAr: 'العائد على حقوق الملكية', value: '22.4%', change: '+4.1%' },
+   187→  { label: 'ROA', labelAr: 'العائد على الأصول', value: '14.7%', change: '+2.8%' },
+   188→  { label: 'ROIC', labelAr: 'العائد على رأس المال المستثمر', value: '19.2%', change: '+3.5%' }
+   189→]
+   190→
+   191→const recentTransactions: Transaction[] = [
+   192→  { id: 'TXN-001', type: 'income', description: 'Payment received - TechCorp Industries', amount: 45000, category: 'Sales', date: '2026-08-26', status: 'completed', invoice: 'INV-2026-089', currency: 'USD' },
+   193→  { id: 'TXN-002', type: 'expense', description: 'Office rent payment - August', amount: 8500, category: 'Operations', date: '2026-08-25', status: 'completed', currency: 'USD' },
+   194→  { id: 'TXN-003', type: 'income', description: 'Product sales - Online Store', amount: 12350, category: 'E-commerce', date: '2026-08-25', status: 'completed', invoice: 'INV-2026-090', currency: 'EUR' },
+   195→  { id: 'TXN-004', type: 'expense', description: 'Software licenses renewal', amount: 2400, category: 'Technology', date: '2026-08-24', status: 'pending', currency: 'USD' },
+   196→  { id: 'TXN-005', type: 'income', description: 'Consulting services - Acme Corp', amount: 18500, category: 'Services', date: '2026-08-24', status: 'pending', invoice: 'INV-2026-091', currency: 'SAR' },
+   197→  { id: 'TXN-006', type: 'expense', description: 'Marketing campaign Q3', amount: 15000, category: 'Marketing', date: '2026-08-23', status: 'completed', currency: 'USD' },
+   198→  { id: 'TXN-007', type: 'income', description: 'Export sales - Gulf Region', amount: 32000, category: 'International', date: '2026-08-22', status: 'completed', invoice: 'INV-2026-092', currency: 'AED' },
+   199→  { id: 'TXN-008', type: 'expense', description: 'Employee salaries August', amount: 156200, category: 'Payroll', date: '2026-08-20', status: 'completed', currency: 'SAR' }
+   200→]
+   201→
+   202→const invoices: Invoice[] = [
+   203→  { id: 'INV-2026-089', client: 'TechCorp Industries', clientAr: 'تيك كورب للصناعات', amount: 45000, status: 'paid', issuedDate: '2026-08-20', dueDate: '2026-09-20', currency: 'USD' },
+   204→  { id: 'INV-2026-090', client: 'Online Store Customer', clientAr: 'عميل المتجر الإلكتروني', amount: 12350, status: 'paid', issuedDate: '2026-08-22', dueDate: '2026-09-22', currency: 'EUR' },
+   205→  { id: 'INV-2026-091', client: 'Acme Corporation', clientAr: 'أكيم كوربوريشن', amount: 18500, status: 'pending', issuedDate: '2026-08-24', dueDate: '2026-09-24', currency: 'SAR' },
+   206→  { id: 'INV-2026-092', client: 'Global Manufacturing', clientAr: 'التصنيع العالمي', amount: 67300, status: 'overdue', issuedDate: '2026-07-15', dueDate: '2026-08-15', currency: 'AED' },
+   207→  { id: 'INV-2026-093', client: 'SupplyChain Ltd', clientAr: 'سلاسل التوريد المحدودة', amount: 28900, status: 'draft', issuedDate: '2026-08-26', dueDate: '2026-09-26', currency: 'USD' }
+   208→]
+   209→
+   210→const glAccounts: GLAccount[] = [
+   211→  { id: '1', code: '1000', name: 'Cash & Bank', nameAr: 'النقدية والبنوك', type: 'asset', balance: 456890, debit: 500000, credit: 43110, currency: 'USD' },
+   212→  { id: '2', code: '1200', name: 'Accounts Receivable', nameAr: 'الذمم المدينة', type: 'asset', balance: 128450, debit: 145000, credit: 16550, currency: 'USD' },
+   213→  { id: '3', code: '1500', name: 'Inventory', nameAr: 'المخزون', type: 'asset', balance: 234500, debit: 250000, credit: 15500, currency: 'USD' },
+   214→  { id: '4', code: '2000', name: 'Accounts Payable', nameAr: 'الذمم الدائنة', type: 'liability', balance: -89200, debit: 15000, credit: 104200, currency: 'USD' },
+   215→  { id: '5', code: '2100', name: 'Short-term Loans', nameAr: 'القروض قصيرة الأجل', type: 'liability', balance: -75000, debit: 25000, credit: 100000, currency: 'USD' },
+   216→  { id: '6', code: '3000', name: 'Owner\'s Equity', nameAr: 'حقوق المالك', type: 'equity', balance: 500000, debit: 0, credit: 500000, currency: 'USD' },
+   217→  { id: '7', code: '4000', name: 'Sales Revenue', nameAr: 'إيرادات المبيعات', type: 'revenue', balance: 847290, debit: 0, credit: 847290, currency: 'USD' },
+   218→  { id: '8', code: '5000', name: 'Cost of Goods Sold', nameAr: 'تكلفة البضاعة المباعة', type: 'expense', balance: -523180, debit: 523180, credit: 0, currency: 'USD' },
+   219→  { id: '9', code: '5100', name: 'Operating Expenses', nameAr: 'المصاريف التشغيلية', type: 'expense', balance: -198500, debit: 198500, credit: 0, currency: 'USD' },
+   220→  { id: '10', code: '5200', name: 'Salaries & Wages', nameAr: 'الرواتب والأجور', type: 'expense', balance: -156200, debit: 156200, credit: 0, currency: 'USD' }
+   221→]
+   222→
+   223→const vendors: Vendor[] = [
+   224→  { id: 'V001', code: 'V001', name: 'Office Supplies Co.', nameAr: 'شركة المكتبات', email: 'procurement@officesupplies.com', totalDue: 12500, currency: 'USD', status: 'active' },
+   225→  { id: 'V002', code: 'V002', name: 'Tech Equipment Ltd.', nameAr: 'معدات التقنية المحدودة', email: 'orders@techequip.com', totalDue: 45000, currency: 'EUR', status: 'active' },
+   226→  { id: 'V003', code: 'V003', name: 'Global Logistics', nameAr: 'الخدمات اللوجستية العالمية', email: 'shipping@globallogistics.com', totalDue: 18700, currency: 'USD', status: 'active' },
+   227→  { id: 'V004', code: 'V004', name: 'IT Services Provider', nameAr: 'مقدم خدمات تقنية المعلومات', email: 'support@itservices.com', totalDue: 13000, currency: 'SAR', status: 'inactive' }
+   228→]
+   229→
+   230→const customers: Customer[] = [
+   231→  { id: 'C001', code: 'C001', name: 'TechCorp Industries', nameAr: 'تيك كورب للصناعات', email: 'ap@techcorp.com', totalReceivable: 45000, currency: 'USD', status: 'active' },
+   232→  { id: 'C002', code: 'C002', name: 'Acme Corporation', nameAr: 'أكيم كوربوريشن', email: 'finance@acme.com', totalReceivable: 18500, currency: 'SAR', status: 'active' },
+   233→  { id: 'C003', code: 'C003', name: 'Global Manufacturing', nameAr: 'التصنيع العالمي', email: 'ar@globalmfg.com', totalReceivable: 67300, currency: 'AED', status: 'active' },
+   234→  { id: 'C004', code: 'C004', name: 'Retail Chain LLC', nameAr: 'سلسلة التجزئة', email: 'accounts@retailchain.com', totalReceivable: 28900, currency: 'EUR', status: 'active' }
+   235→]
+   236→
+   237→const bankAccounts: BankAccount[] = [
+   238→  { id: 'BA001', name: 'Main Operating Account', bankName: 'First National Bank', accountNumber: '****4582', balance: 285000, availableBalance: 275000, currency: 'USD', type: 'checking', status: 'active' },
+   239→  { id: 'BA002', name: 'Payroll Account', bankName: 'First National Bank', accountNumber: '****7891', balance: 95890, availableBalance: 95890, currency: 'USD', type: 'checking', status: 'active' },
+   240→  { id: 'BA003', name: 'Euro Account', bankName: 'European Central Bank', accountNumber: '****3344', balance: 75900, availableBalance: 75900, currency: 'EUR', type: 'savings', status: 'active' },
+   241→  { id: 'BA004', name: 'SAR Account', bankName: 'Saudi National Bank', accountNumber: '****6677', balance: 142350, availableBalance: 140000, currency: 'SAR', type: 'checking', status: 'active' }
+   242→]
+   243→
+   244→const expenseBreakdown = [
+   245→  { name: 'Operations', nameAr: 'العمليات', amount: 198500, percentage: 38, color: 'bg-indigo-500' },
+   246→  { name: 'Salaries', nameAr: 'الرواتب', amount: 156200, percentage: 30, color: 'bg-violet-500' },
+   247→  { name: 'Marketing', nameAr: 'التسويق', amount: 78400, percentage: 15, color: 'bg-blue-500' },
+   248→  { name: 'Technology', nameAr: 'التقنية', amount: 52080, percentage: 10, color: 'bg-emerald-500' },
+   249→  { name: 'Other', nameAr: 'أخرى', amount: 40000, percentage: 7, color: 'bg-slate-400' }
+   250→]
+   251→
+   252→const currencies = [
+   253→  { code: 'USD', name: 'US Dollar', nameAr: 'دولار أمريكي', symbol: '$', rate: 1.0000, balance: 456890 },
+   254→  { code: 'EUR', name: 'Euro', nameAr: 'يورو', symbol: '€', rate: 1.0875, balance: 98240 },
+   255→  { code: 'SAR', name: 'Saudi Riyal', nameAr: 'ريال سعودي', symbol: '﷼', rate: 0.2667, balance: 178550 },
+   256→  { code: 'AED', name: 'UAE Dirham', nameAr: 'درهم إماراتي', symbol: 'د.إ', rate: 0.2723, balance: 18320 },
+   257→  { code: 'GBP', name: 'British Pound', nameAr: 'جنيه إسترليني', symbol: '£', rate: 1.2742, balance: 12450 }
+   258→]
+   259→
+   260→// ============ SUB-COMPONENTS ============
+   261→
+   262→function TransactionTypeBadge({ type }: { type: Transaction['type'] }) {
+   263→  const { t } = useI18n()
+   264→  
+   265→  return (
+   266→    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+   267→      type === 'income' 
+   268→        ? 'bg-emerald-100 text-emerald-700' 
+   269→        : 'bg-red-100 text-red-700'
+   270→    }`}>
+   271→      {type === 'income' ? <ArrowUpLeft size={12} /> : <ArrowDownRight size={12} />}
+   272→      {type === 'income' ? t('txn.type.income') : t('txn.type.expense')}
+   273→    </span>
+   274→  )
+   275→}
+   276→
+   277→function TransactionStatusBadge({ status }: { status: Transaction['status'] }) {
+   278→  const config = {
+   279→    completed: { icon: CheckCircle2, className: 'text-emerald-600 bg-emerald-100' },
+   280→    pending: { icon: Clock, className: 'text-amber-600 bg-amber-100' },
+   281→    failed: { icon: AlertCircle, className: 'text-red-600 bg-red-100' }
+   282→  }
+   283→
+   284→  const { icon: Icon, className } = config[status]
+   285→  
+   286→  return (
+   287→    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${className}`}>
+   288→      <Icon size={12} />
+   289→      {status.charAt(0).toUpperCase() + status.slice(1)}
+   290→    </span>
+   291→  )
+   292→}
+   293→
+   294→function InvoiceStatusBadge({ status }: { status: Invoice['status'] }) {
+   295→  const config = {
+   296→    paid: { className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+   297→    pending: { className: 'bg-blue-100 text-blue-700 border-blue-200' },
+   298→    overdue: { className: 'bg-red-100 text-red-700 border-red-200' },
+   299→    draft: { className: 'bg-slate-100 text-slate-600 border-slate-200' }
+   300→  }
+   301→
+   302→  return (
+   303→    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config[status].className}`}>
+   304→      {status.charAt(0).toUpperCase() + status.slice(1)}
+   305→    </span>
+   306→  )
+   307→}
+   308→
+   309→function CurrencyBadge({ code }: { code: string }) {
+   310→  const curr = currencies.find(c => c.code === code)
+   311→  return (
+   312→    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-mono bg-slate-100 text-slate-600">
+   313→      <Globe size={10} />
+   314→      {code}
+   315→    </span>
+   316→  )
+   317→}
+   318→
+   319→function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
+   320→  const Icon = kpi.icon
+   321→  const isPositive = kpi.change >= 0
+   322→
+   323→  return (
+   324→    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-slate-200/50">
+   325→      <div className={`absolute top-0 right-0 w-28 h-28 ${kpi.bgColor} rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
+   326→
+   327→      <div className="flex justify-between items-start mb-3 relative z-10">
+   328→        <div className={`p-2.5 ${kpi.bgColor} rounded-xl ${kpi.textColor}`}>
+   329→          <Icon size={20} />
+   330→        </div>
+   331→        {kpi.change !== 0 && (
+   332→          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+   333→            isPositive 
+   334→              ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+   335→              : 'bg-red-100 text-red-700 border border-red-200'
+   336→          }`}>
+   337→            {isPositive ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
+   338→            {Math.abs(kpi.change)}%
+   339→          </span>
+   340→        )}
+   341→      </div>
+   342→
+   343→      <div className="relative z-10">
+   344→        <p className="text-xs font-medium text-slate-500 mb-1">{kpi.titleAr || kpi.titleKey}</p>
+   345→        <h3 className="text-xl font-bold text-slate-900">{kpi.value}</h3>
+   346→      </div>
+   347→    </div>
+   348→  )
+   349→}
+   350→
+   351→// Tab Navigation Component
+   352→type FinanceTab = 'overview' | 'gl' | 'ap' | 'ar' | 'treasury' | 'reports' | 'budget'
+   353→
+   354→function TabNavigation({ activeTab, setActiveTab }: { activeTab: FinanceTab; setActiveTab: (tab: FinanceTab) => void }) {
+   355→  const tabs = [
+   356→    { id: 'overview' as FinanceTab, icon: BarChart3, label: 'Overview', labelAr: 'نظرة عامة' },
+   357→    { id: 'gl' as FinanceTab, icon: BookOpen, label: 'General Ledger', labelAr: 'دفتر الأستاذ العام' },
+   358→    { id: 'ap' as FinanceTab, icon: CreditCard, label: 'Accounts Payable', labelAr: 'حسابات الدائنة' },
+   359→    { id: 'ar' as FinanceTab, icon: Users, label: 'Accounts Receivable', labelAr: 'حسابات القبض' },
+   360→    { id: 'treasury' as FinanceTab, icon: Landmark, label: 'Treasury', labelAr: 'الخزينة' },
+   361→    { id: 'reports' as FinanceTab, icon: FileText, label: 'Reports', labelAr: 'التقارير' },
+   362→    { id: 'budget' as FinanceTab, icon: Target, label: 'Budget', labelAr: 'الميزانية' }
+   363→  ]
+   364→
+   365→  return (
+   366→    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-1.5 shadow-lg flex gap-1 overflow-x-auto">
+   367→      {tabs.map((tab) => (
+   368→        <button 
+   369→          key={tab.id}
+   370→          onClick={() => setActiveTab(tab.id)}
+   371→          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
+   372→            activeTab === tab.id 
+   373→              ? 'bg-white text-indigo-600 shadow-sm' 
+   374→              : 'text-slate-600 hover:bg-slate-100'
+   375→          }`}
+   376→        >
+   377→          <tab.icon size={16} />
+   378→          <span className="hidden sm:inline">{tab.label}</span>
+   379→          <span className="sm:hidden">{tab.labelAr?.split(' ')[0]}</span>
+   380→        </button>
+   381→      ))}
+   382→    </div>
+   383→  )
+   384→}
+   385→
+   386→// Overview Section
+   387→function OverviewSection() {
+   388→  const totalIncome = recentTransactions.filter(tr => tr.type === 'income').reduce((sum, tr) => sum + tr.amount, 0)
+   389→  const totalExpenses = recentTransactions.filter(tr => tr.type === 'expense').reduce((sum, tr) => sum + tr.amount, 0)
+   390→
+   391→  return (
+   392→    <div className="space-y-6">
+   393→      {/* Main KPI Cards */}
+   394→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+   395→        {financialKPIs.map((kpi) => (
+   396→          <KPICard key={kpi.titleKey} kpi={kpi} />
+   397→        ))}
+   398→      </div>
+   399→
+   400→      {/* Secondary KPIs Row */}
+   401→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+   402→        {/* Liquidity Metrics */}
+   403→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   404→          <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
+   405→            <Activity size={18} className="text-blue-500" />
+   406→            Liquidity Metrics / مؤشرات السيولة
+   407→          </h3>
+   408→          <div className="grid grid-cols-2 gap-3">
+   409→            {liquidityKPIs.map((kpi) => (
+   410→              <div key={kpi.label} className="p-3 bg-slate-50 rounded-lg">
+   411→                <p className="text-xs text-slate-500 mb-1">{kpi.labelAr}</p>
+   412→                <div className="flex items-center justify-between">
+   413→                  <span className={`text-sm font-bold ${
+   414→                    kpi.status === 'good' ? 'text-emerald-600' : 'text-amber-600'
+   415→                  }`}>{kpi.value}</span>
+   416→                  <span className="text-xs text-slate-400">{kpi.target}</span>
+   417→                </div>
+   418→              </div>
+   419→            ))}
+   420→          </div>
+   421→        </div>
+   422→
+   423→        {/* Profitability Metrics */}
+   424→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   425→          <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
+   426→            <TrendingUpIcon size={18} className="text-emerald-500" />
+   427→            Profitability Metrics / مؤشرات الربحية
+   428→          </h3>
+   429→          <div className="space-y-3">
+   430→            {profitabilityKPIs.map((kpi) => (
+   431→              <div key={kpi.label} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg">
+   432→                <span className="text-sm text-slate-700">{kpi.labelAr}</span>
+   433→                <div className="flex items-center gap-2">
+   434→                  <span className="font-bold text-slate-900">{kpi.value}</span>
+   435→                  <span className="text-xs font-medium text-emerald-600">{kpi.change}</span>
+   436→                </div>
+   437→              </div>
+   438→            ))}
+   439→          </div>
+   440→        </div>
+   441→      </div>
+   442→
+   443→      {/* Transactions and Sidebar */}
+   444→      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+   445→        {/* Recent Transactions */}
+   446→        <div className="xl:col-span-2 space-y-4">
+   447→          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   448→            <div className="flex items-center justify-between mb-4">
+   449→              <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+   450→                <Receipt size={18} className="text-indigo-500" />
+   451→                Recent Transactions / آخر المعاملات
+   452→              </h3>
+   453→              <div className="flex items-center gap-2">
+   454→                <button className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+   455→                  <Filter size={16} className="text-slate-500" />
+   456→                </button>
+   457→                <button className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+   458→                  <Download size={16} className="text-slate-500" />
+   459→                </button>
+   460→              </div>
+   461→            </div>
+   462→
+   463→            {/* Summary */}
+   464→            <div className="flex items-center gap-6 pb-4 mb-4 border-b border-slate-200">
+   465→              <div className="flex items-center gap-2">
+   466→                <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+   467→                <span className="text-sm text-slate-600">Income: <strong className="text-emerald-700">${totalIncome.toLocaleString()}</strong></span>
+   468→              </div>
+   469→              <div className="flex items-center gap-2">
+   470→                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+   471→                <span className="text-sm text-slate-600">Expense: <strong className="text-red-700">${totalExpenses.toLocaleString()}</strong></span>
+   472→              </div>
+   473→            </div>
+   474→
+   475→            {/* Transaction List */}
+   476→            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2">
+   477→              {recentTransactions.map((transaction) => (
+   478→                <div key={transaction.id} className="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl hover:bg-slate-100/80 transition-colors group">
+   479→                  <div className="flex items-center gap-4 flex-1 min-w-0">
+   480→                    <div className={`p-2.5 rounded-xl ${transaction.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'}`}>
+   481→                      {transaction.type === 'income' ? <ArrowUpLeft size={18} className="text-emerald-600" /> : <ArrowDownRight size={18} className="text-red-600" />}
+   482→                    </div>
+   483→                    <div className="flex-1 min-w-0">
+   484→                      <p className="font-medium text-sm text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{transaction.description}</p>
+   485→                      <div className="flex items-center gap-2 mt-1">
+   486→                        <TransactionStatusBadge status={transaction.status} />
+   487→                        <span className="text-xs text-slate-400">{transaction.date}</span>
+   488→                        {transaction.invoice && (
+   489→                          <span className="text-xs text-indigo-500 font-mono">{transaction.invoice}</span>
+   490→                        )}
+   491→                        {transaction.currency && <CurrencyBadge code={transaction.currency} />}
+   492→                      </div>
+   493→                    </div>
+   494→                  </div>
+   495→                  <div className="text-right ml-4">
+   496→                    <p className={`font-bold text-lg ${transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+   497→                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
+   498→                    </p>
+   499→                  </div>
+   500→                </div>
+   501→              ))}
+   502→            </div>
+   503→          </div>
+   504→        </div>
+   505→
+   506→        {/* Sidebar */}
+   507→        <div className="space-y-4">
+   508→          {/* Expense Breakdown */}
+   509→          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   510→            <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
+   511→              <PieChart size={18} className="text-violet-500" />
+   512→              Expense Breakdown / توزيع المصروفات
+   513→            </h3>
+   514→
+   515→            <div className="space-y-4">
+   516→              {expenseBreakdown.map((item) => (
+   517→                <div key={item.name}>
+   518→                  <div className="flex justify-between items-center mb-1.5">
+   519→                    <span className="text-sm font-medium text-slate-700">{item.nameAr}</span>
+   520→                    <span className="text-xs text-slate-500">${(item.amount / 1000).toFixed(1)}k ({item.percentage}%)</span>
+   521→                  </div>
+   522→                  <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+   523→                    <div 
+   524→                      className={`${item.color} h-full rounded-full transition-all duration-500`}
+   525→                      style={{ width: `${item.percentage}%` }}
+   526→                    ></div>
+   527→                  </div>
+   528→                </div>
+   529→              ))}
+   530→            </div>
+   531→
+   532→            <div className="mt-4 pt-4 border-t border-slate-200">
+   533→              <div className="flex justify-between items-center">
+   534→                <span className="text-sm font-semibold text-slate-700">Total / الإجمالي</span>
+   535→                <span className="text-lg font-bold text-slate-900">$523,180</span>
+   536→              </div>
+   537→            </div>
+   538→          </div>
+   539→
+   540→          {/* Cash Position */}
+   541→          <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-5 text-white shadow-xl">
+   542→            <h4 className="font-semibold mb-3 flex items-center gap-2">
+   543→              <Wallet size={18} />
+   544→              Cash Position / مركز النقدية
+   545→            </h4>
+   546→            
+   547→            <div className="space-y-3">
+   548→              <div className="flex justify-between items-center p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+   549→                <span className="text-sm">This Month</span>
+   550→                <span className="text-lg font-bold">$124,110</span>
+   551→              </div>
+   552→              
+   553→              <div className="flex justify-between items-center p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+   554→                <span className="text-sm">Last Month</span>
+   555→                <span className="text-lg font-bold">$98,430</span>
+   556→              </div>
+   557→              
+   558→              <div className="flex justify-between items-center p-3 bg-white/30 rounded-lg backdrop-blur-sm mt-2">
+   559→                <span className="text-sm font-medium">Growth / النمو</span>
+   560→                <span className="text-lg font-bold flex items-center gap-1">
+   561→                  <TrendingUp size={18} />
+   562→                  +26.1%
+   563→                </span>
+   564→              </div>
+   565→            </div>
+   566→          </div>
+   567→
+   568→          {/* Currencies */}
+   569→          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   570→            <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
+   571→              <Globe size={18} className="text-cyan-500" />
+   572→              Multi-Currency / تعدد العملات
+   573→            </h3>
+   574→
+   575→            <div className="space-y-2">
+   576→              {currencies.slice(0, 4).map((curr) => (
+   577→                <div key={curr.code} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg">
+   578→                  <div className="flex items-center gap-2">
+   579→                    <span className="font-mono text-sm font-bold text-slate-700">{curr.symbol}</span>
+   580→                    <span className="text-sm text-slate-600">{curr.code}</span>
+   581→                  </div>
+   582→                  <div className="text-right">
+   583→                    <span className="font-bold text-slate-900">${curr.balance.toLocaleString()}</span>
+   584→                    <span className="text-xs text-slate-400 block">{curr.rate}</span>
+   585→                  </div>
+   586→                </div>
+   587→              ))}
+   588→            </div>
+   589→          </div>
+   590→        </div>
+   591→      </div>
+   592→    </div>
+   593→  )
+   594→}
+   595→
+   596→// General Ledger Section
+   597→function GLSection() {
+   598→  const [searchTerm, setSearchTerm] = useState('')
+   599→  
+   600→  const filteredAccounts = useMemo(() => {
+   601→    if (!searchTerm) return glAccounts
+   602→    return glAccounts.filter(acc => 
+   603→      acc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+   604→      acc.code.includes(searchTerm) ||
+   605→      acc.nameAr?.includes(searchTerm)
+   606→    )
+   607→  }, [searchTerm])
+   608→
+   609→  const totalDebits = filteredAccounts.reduce((sum, acc) => sum + acc.debit, 0)
+   610→  const totalCredits = filteredAccounts.reduce((sum, acc) => sum + acc.credit, 0)
+   611→
+   612→  return (
+   613→    <div className="space-y-6">
+   614→      {/* GL Header */}
+   615→      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+   616→        <div>
+   617→          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+   618→            <BookOpen size={28} className="text-indigo-500" />
+   619→            General Ledger
+   620→            <span className="text-lg font-normal text-slate-500">/ دفتر الأستاذ العام</span>
+   621→          </h3>
+   622→          <p className="text-slate-500 mt-1">Chart of accounts with balances and activity</p>
+   623→        </div>
+   624→        <div className="flex items-center gap-3">
+   625→          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+   626→            <Plus size={16} />
+   627→            New Entry
+   628→          </button>
+   629→          <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center gap-2">
+   630→            <Printer size={16} />
+   631→            Print Trial Balance
+   632→          </button>
+   633→        </div>
+   634→      </div>
+   635→
+   636→      {/* Search and Filter */}
+   637→      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-4 shadow-lg flex flex-col sm:flex-row gap-4">
+   638→        <div className="relative flex-1">
+   639→          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+   640→          <input
+   641→            type="text"
+   642→            placeholder="Search accounts by code or name..."
+   643→            value={searchTerm}
+   644→            onChange={(e) => setSearchTerm(e.target.value)}
+   645→            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none text-sm"
+   646→          />
+   647→        </div>
+   648→        <select className="px-4 py-2.5 rounded-lg border border-slate-200 focus:border-indigo-500 outline-none text-sm bg-white">
+   649→          <option>All Types</option>
+   650→          <option>Assets</option>
+   651→          <option>Liabilities</option>
+   652→          <option>Equity</option>
+   653→          <option>Revenue</option>
+   654→          <option>Expenses</option>
+   655→        </select>
+   656→      </div>
+   657→
+   658→      {/* Trial Balance Summary */}
+   659→      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+   660→        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-5 text-white shadow-lg">
+   661→          <div className="flex items-center gap-2 mb-2 opacity-90">
+   662→            <ArrowDownLeft size={18} />
+   663→            <span className="text-sm font-medium">Total Debits / إجمالي المدين</span>
+   664→          </div>
+   665→          <p className="text-2xl font-bold">${totalDebits.toLocaleString()}</p>
+   666→        </div>
+   667→        <div className="bg-gradient-to-br from-red-500 to-pink-600 rounded-xl p-5 text-white shadow-lg">
+   668→          <div className="flex items-center gap-2 mb-2 opacity-90">
+   669→            <ArrowDownRight size={18} />
+   670→            <span className="text-sm font-medium">Total Credits / إجمالي الدائن</span>
+   671→          </div>
+   672→          <p className="text-2xl font-bold">${totalCredits.toLocaleString()}</p>
+   673→        </div>
+   674→        <div className={`rounded-xl p-5 text-white shadow-lg ${
+   675→          Math.abs(totalDebits - totalCredits) < 0.01 
+   676→            ? 'from-emerald-500 to-green-600' 
+   677→            : 'from-amber-500 to-orange-600'
+   678→        } bg-gradient-to-br`}>
+   679→          <div className="flex items-center gap-2 mb-2 opacity-90">
+   680→            <Scale size={18} />
+   681→            <span className="text-sm font-medium">Difference / الفرق</span>
+   682→          </div>
+   683→          <p className="text-2xl font-bold">${Math.abs(totalDebits - totalCredits).toLocaleString()}</p>
+   684→        </div>
+   685→      </div>
+   686→
+   687→      {/* Accounts Table */}
+   688→      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+   689→        <div className="overflow-x-auto">
+   690→          <table className="w-full">
+   691→            <thead>
+   692→              <tr className="bg-slate-50 border-b border-slate-200">
+   693→                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Code / الرمز</th>
+   694→                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Account Name / اسم الحساب</th>
+   695→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Type / النوع</th>
+   696→                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Debit / مدين</th>
+   697→                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Credit / دائن</th>
+   698→                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Balance / الرصيد</th>
+   699→              </tr>
+   700→            </thead>
+   701→            <tbody>
+   702→              {filteredAccounts.map((account) => (
+   703→                <tr key={account.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+   704→                  <td className="px-5 py-4">
+   705→                    <span className="font-mono text-sm font-medium text-indigo-600">{account.code}</span>
+   706→                  </td>
+   707→                  <td className="px-5 py-4">
+   708→                    <div>
+   709→                      <p className="font-medium text-sm text-slate-900">{account.name}</p>
+   710→                      {account.nameAr && <p className="text-xs text-slate-500">{account.nameAr}</p>}
+   711→                    </div>
+   712→                  </td>
+   713→                  <td className="px-5 py-4 text-center">
+   714→                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
+   715→                      account.type === 'asset' ? 'bg-blue-100 text-blue-700' :
+   716→                      account.type === 'liability' ? 'bg-orange-100 text-orange-700' :
+   717→                      account.type === 'equity' ? 'bg-purple-100 text-purple-700' :
+   718→                      account.type === 'revenue' ? 'bg-emerald-100 text-emerald-700' :
+   719→                      'bg-red-100 text-red-700'
+   720→                    }`}>
+   721→                      {account.type}
+   722→                    </span>
+   723→                  </td>
+   724→                  <td className="px-5 py-4 text-right font-mono text-sm text-slate-700">
+   725→                    {account.debit > 0 ? `$${account.debit.toLocaleString()}` : '-'}
+   726→                  </td>
+   727→                  <td className="px-5 py-4 text-right font-mono text-sm text-slate-700">
+   728→                    {account.credit > 0 ? `$${account.credit.toLocaleString()}` : '-'}
+   729→                  </td>
+   730→                  <td className={`px-5 py-4 text-right font-mono text-sm font-bold ${
+   731→                    account.balance >= 0 ? 'text-slate-900' : 'text-red-600'
+   732→                  }`}>
+   733→                    ${Math.abs(account.balance).toLocaleString()}
+   734→                  </td>
+   735→                </tr>
+   736→              ))}
+   737→            </tbody>
+   738→          </table>
+   739→        </div>
+   740→      </div>
+   741→    </div>
+   742→  )
+   743→}
+   744→
+   745→// Accounts Payable Section
+   746→function APSection() {
+   747→  const totalDue = vendors.reduce((sum, v) => sum + v.totalDue, 0)
+   748→  const overdueCount = 2 // Mock data
+   749→
+   750→  return (
+   751→    <div className="space-y-6">
+   752→      {/* AP Header */}
+   753→      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+   754→        <div>
+   755→          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+   756→            <CreditCard size={28} className="text-orange-500" />
+   757→            Accounts Payable
+   758→            <span className="text-lg font-normal text-slate-500">/ حسابات الدائنة</span>
+   759→          </h3>
+   760→          <p className="text-slate-500 mt-1">Manage vendor invoices and payments</p>
+   761→        </div>
+   762→        <div className="flex items-center gap-3">
+   763→          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+   764→            <Upload size={16} />
+   765→            Import Invoice
+   766→          </button>
+   767→          <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-medium text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all flex items-center gap-2">
+   768→            <Plus size={16} />
+   769→            New Invoice
+   770→          </button>
+   771→        </div>
+   772→      </div>
+   773→
+   774→      {/* AP Summary Cards */}
+   775→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   776→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   777→          <div className="flex items-center gap-3 mb-3">
+   778→            <div className="p-2 bg-orange-100 rounded-lg text-orange-600">
+   779→              <FileText size={20} />
+   780→            </div>
+   781→            <span className="text-sm text-slate-500">Pending Invoices</span>
+   782→          </div>
+   783→          <p className="text-2xl font-bold text-slate-900">12</p>
+   784→          <p className="text-xs text-emerald-600 mt-1">↓ 8% from last month</p>
+   785→        </div>
+   786→        
+   787→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   788→          <div className="flex items-center gap-3 mb-3">
+   789→            <div className="p-2 bg-red-100 rounded-lg text-red-600">
+   790→              <AlertTriangle size={20} />
+   791→            </div>
+   792→            <span className="text-sm text-slate-500">Overdue</span>
+   793→          </div>
+   794→          <p className="text-2xl font-bold text-red-600">{overdueCount}</p>
+   795→          <p className="text-xs text-slate-500 mt-1">Requires attention</p>
+   796→        </div>
+   797→        
+   798→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   799→          <div className="flex items-center gap-3 mb-3">
+   800→            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+   801→              <Wallet size={20} />
+   802→            </div>
+   803→            <span className="text-sm text-slate-500">Total Due</span>
+   804→          </div>
+   805→          <p className="text-2xl font-bold text-slate-900">${totalDue.toLocaleString()}</p>
+   806→          <p className="text-xs text-slate-500 mt-1">Across {vendors.length} vendors</p>
+   807→        </div>
+   808→        
+   809→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   810→          <div className="flex items-center gap-3 mb-3">
+   811→            <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+   812→              <CheckCircle2 size={20} />
+   813→            </div>
+   814→            <span className="text-sm text-slate-500">This Month Paid</span>
+   815→          </div>
+   816→          <p className="text-2xl font-bold text-slate-900">$34,500</p>
+   817→          <p className="text-xs text-emerald-600 mt-1">↑ 12% from last month</p>
+   818→        </div>
+   819→      </div>
+   820→
+   821→      {/* Vendors Table */}
+   822→      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+   823→        <div className="p-5 border-b border-slate-200">
+   824→          <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+   825→            <Building2 size={18} className="text-orange-500" />
+   826→            Vendors / الموردون
+   827→          </h3>
+   828→        </div>
+   829→        <div className="overflow-x-auto">
+   830→          <table className="w-full">
+   831→            <thead>
+   832→              <tr className="bg-slate-50 border-b border-slate-200">
+   833→                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Vendor / المورد</th>
+   834→                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
+   835→                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Amount Due / المستحق</th>
+   836→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Currency / العملة</th>
+   837→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Status / الحالة</th>
+   838→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
+   839→              </tr>
+   840→            </thead>
+   841→            <tbody>
+   842→              {vendors.map((vendor) => (
+   843→                <tr key={vendor.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+   844→                  <td className="px-5 py-4">
+   845→                    <div className="flex items-center gap-3">
+   846→                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm">
+   847→                        {vendor.name.charAt(0)}
+   848→                      </div>
+   849→                      <div>
+   850→                        <p className="font-medium text-sm text-slate-900">{vendor.name}</p>
+   851→                        <p className="text-xs text-slate-500">{vendor.nameAr || vendor.code}</p>
+   852→                      </div>
+   853→                    </div>
+   854→                  </td>
+   855→                  <td className="px-5 py-4 text-sm text-slate-600">{vendor.email}</td>
+   856→                  <td className="px-5 py-4 text-right font-bold text-slate-900">${vendor.totalDue.toLocaleString()}</td>
+   857→                  <td className="px-5 py-4 text-center">
+   858→                    <CurrencyBadge code={vendor.currency} />
+   859→                  </td>
+   860→                  <td className="px-5 py-4 text-center">
+   861→                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+   862→                      vendor.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+   863→                    }`}>
+   864→                      {vendor.status}
+   865→                    </span>
+   866→                  </td>
+   867→                  <td className="px-5 py-4 text-center">
+   868→                    <div className="flex items-center justify-center gap-1">
+   869→                      <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+   870→                        <Eye size={16} />
+   871→                      </button>
+   872→                      <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+   873→                        <MoreHorizontal size={16} />
+   874→                      </button>
+   875→                    </div>
+   876→                  </td>
+   877→                </tr>
+   878→              ))}
+   879→            </tbody>
+   880→          </table>
+   881→        </div>
+   882→      </div>
+   883→    </div>
+   884→  )
+   885→}
+   886→
+   887→// Accounts Receivable Section
+   888→function ARSection() {
+   889→  const totalReceivable = customers.reduce((sum, c) => sum + c.totalReceivable, 0)
+   890→  const overdueAmount = 67300 // From Global Manufacturing
+   891→
+   892→  return (
+   893→    <div className="space-y-6">
+   894→      {/* AR Header */}
+   895→      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+   896→        <div>
+   897→          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+   898→            <Users size={28} className="text-blue-500" />
+   899→            Accounts Receivable
+   900→            <span className="text-lg font-normal text-slate-500">/ حسابات القبض</span>
+   901→          </h3>
+   902→          <p className="text-slate-500 mt-1">Manage customer invoices and collections</p>
+   903→        </div>
+   904→        <div className="flex items-center gap-3">
+   905→          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+   906→            <RefreshCw size={16} />
+   907→            Send Reminders
+   908→          </button>
+   909→          <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium text-sm shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all flex items-center gap-2">
+   910→            <Plus size={16} />
+   911→            New Invoice
+   912→          </button>
+   913→        </div>
+   914→      </div>
+   915→
+   916→      {/* AR Summary Cards */}
+   917→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   918→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   919→          <div className="flex items-center gap-3 mb-3">
+   920→            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+   921→              <FileText size={20} />
+   922→            </div>
+   923→            <span className="text-sm text-slate-500">Outstanding</span>
+   924→          </div>
+   925→          <p className="text-2xl font-bold text-slate-900">{invoices.length}</p>
+   926→          <p className="text-xs text-slate-500 mt-1">Active invoices</p>
+   927→        </div>
+   928→        
+   929→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   930→          <div className="flex items-center gap-3 mb-3">
+   931→            <div className="p-2 bg-red-100 rounded-lg text-red-600">
+   932→              <AlertTriangle size={20} />
+   933→            </div>
+   934→            <span className="text-sm text-slate-500">Overdue Amount</span>
+   935→          </div>
+   936→          <p className="text-2xl font-bold text-red-600">${overdueAmount.toLocaleString()}</p>
+   937→          <p className="text-xs text-slate-500 mt-1">1 invoice overdue</p>
+   938→        </div>
+   939→        
+   940→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   941→          <div className="flex items-center gap-3 mb-3">
+   942→            <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
+   943→              <Coins size={20} />
+   944→            </div>
+   945→            <span className="text-sm text-slate-500">Total Receivable</span>
+   946→          </div>
+   947→          <p className="text-2xl font-bold text-slate-900">${totalReceivable.toLocaleString()}</p>
+   948→          <p className="text-xs text-slate-500 mt-1">Across {customers.length} customers</p>
+   949→        </div>
+   950→        
+   951→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+   952→          <div className="flex items-center gap-3 mb-3">
+   953→            <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+   954→              <PiggyBank size={20} />
+   955→            </div>
+   956→            <span className="text-sm text-slate-500">Collected (MTD)</span>
+   957→          </div>
+   958→          <p className="text-2xl font-bold text-slate-900">$76,050</p>
+   959→          <p className="text-xs text-emerald-600 mt-1">↑ 18% from last month</p>
+   960→        </div>
+   961→      </div>
+   962→
+   963→      {/* Customers Table */}
+   964→      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+   965→        <div className="p-5 border-b border-slate-200">
+   966→          <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+   967→            <Users size={18} className="text-blue-500" />
+   968→            Customers / العملاء
+   969→          </h3>
+   970→        </div>
+   971→        <div className="overflow-x-auto">
+   972→          <table className="w-full">
+   973→            <thead>
+   974→              <tr className="bg-slate-50 border-b border-slate-200">
+   975→                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Customer / العميل</th>
+   976→                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
+   977→                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Receivable / المستحق</th>
+   978→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Currency / العملة</th>
+   979→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Status / الحالة</th>
+   980→                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
+   981→              </tr>
+   982→            </thead>
+   983→            <tbody>
+   984→              {customers.map((customer) => (
+   985→                <tr key={customer.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+   986→                  <td className="px-5 py-4">
+   987→                    <div className="flex items-center gap-3">
+   988→                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
+   989→                        {customer.name.charAt(0)}
+   990→                      </div>
+   991→                      <div>
+   992→                        <p className="font-medium text-sm text-slate-900">{customer.name}</p>
+   993→                        <p className="text-xs text-slate-500">{customer.nameAr || customer.code}</p>
+   994→                      </div>
+   995→                    </div>
+   996→                  </td>
+   997→                  <td className="px-5 py-4 text-sm text-slate-600">{customer.email}</td>
+   998→                  <td className="px-5 py-4 text-right font-bold text-slate-900">${customer.totalReceivable.toLocaleString()}</td>
+   999→                  <td className="px-5 py-4 text-center">
+  1000→                    <CurrencyBadge code={customer.currency} />
+  1001→                  </td>
+  1002→                  <td className="px-5 py-4 text-center">
+  1003→                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+  1004→                      customer.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+  1005→                    }`}>
+  1006→                      {customer.status}
+  1007→                    </span>
+  1008→                  </td>
+  1009→                  <td className="px-5 py-4 text-center">
+  1010→                    <div className="flex items-center justify-center gap-1">
+  1011→                      <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+  1012→                        <Eye size={16} />
+  1013→                      </button>
+  1014→                      <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+  1015→                        <MoreHorizontal size={16} />
+  1016→                      </button>
+  1017→                    </div>
+  1018→                  </td>
+  1019→                </tr>
+  1020→              ))}
+  1021→            </tbody>
+  1022→          </table>
+  1023→        </div>
+  1024→      </div>
+  1025→    </div>
+  1026→  )
+  1027→}
+  1028→
+  1029→// Treasury Section
+  1030→function TreasurySection() {
+  1031→  const totalBalance = bankAccounts.reduce((sum, ba) => sum + ba.balance, 0)
+  1032→  const totalAvailable = bankAccounts.reduce((sum, ba) => sum + ba.availableBalance, 0)
+  1033→
+  1034→  return (
+  1035→    <div className="space-y-6">
+  1036→      {/* Treasury Header */}
+  1037→      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+  1038→        <div>
+  1039→          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+  1040→            <Landmark size={28} className="text-emerald-500" />
+  1041→            Treasury Management
+  1042→            <span className="text-lg font-normal text-slate-500">/ إدارة الخزينة</span>
+  1043→          </h3>
+  1044→          <p className="text-slate-500 mt-1">Monitor cash positions and bank accounts</p>
+  1045→        </div>
+  1046→        <div className="flex items-center gap-3">
+  1047→          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+  1048→            <RefreshCw size={16} />
+  1049→            Reconcile
+  1050→          </button>
+  1051→          <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium text-sm shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all flex items-center gap-2">
+  1052→            <Plus size={16} />
+  1053→            Transfer Funds
+  1054→          </button>
+  1055→        </div>
+  1056→      </div>
+  1057→
+  1058→      {/* Cash Position Summary */}
+  1059→      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  1060→        <div className="md:col-span-2 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 rounded-xl p-6 text-white shadow-xl">
+  1061→          <div className="flex items-center justify-between mb-6">
+  1062→            <div>
+  1063→              <h4 className="font-semibold text-lg opacity-90">Total Cash Position</h4>
+  1064→              <p className="text-sm opacity-75">Combined balance across all accounts</p>
+  1065→            </div>
+  1066→            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+  1067→              <Banknote size={24} />
+  1068→            </div>
+  1069→          </div>
+  1070→          
+  1071→          <div className="grid grid-cols-2 gap-6">
+  1072→            <div>
+  1073→              <p className="text-sm opacity-75 mb-1">Total Balance</p>
+  1074→              <p className="text-3xl font-bold">${totalBalance.toLocaleString()}</p>
+  1075→            </div>
+  1076→            <div>
+  1077→              <p className="text-sm opacity-75 mb-1">Available Balance</p>
+  1078→              <p className="text-3xl font-bold">${totalAvailable.toLocaleString()}</p>
+  1079→            </div>
+  1080→          </div>
+  1081→          
+  1082→          <div className="mt-4 pt-4 border-t border-white/20 grid grid-cols-3 gap-4">
+  1083→            <div>
+  1084→              <p className="text-xs opacity-75">Checking</p>
+  1085→              <p className="text-lg font-semibold">$380,890</p>
+  1086→            </div>
+  1087→            <div>
+  1088→              <p className="text-xs opacity-75">Savings</p>
+  1089→              <p className="text-lg font-semibold">$75,900</p>
+  1090→            </div>
+  1091→            <div>
+  1092→              <p className="text-xs opacity-75">Investment</p>
+  1093→              <p className="text-lg font-semibold">$0</p>
+  1094→            </div>
+  1095→          </div>
+  1096→        </div>
+  1097→
+  1098→        <div className="space-y-4">
+  1099→          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+  1100→            <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+  1101→              <TrendingUp size={18} className="text-emerald-500" />
+  1102→              Cash Flow (MTD)
+  1103→            </h4>
+  1104→            <div className="space-y-2">
+  1105→              <div className="flex justify-between items-center">
+  1106→                <span className="text-sm text-slate-600">Inflows</span>
+  1107→                <span className="font-bold text-emerald-600">$156,780</span>
+  1108→              </div>
+  1109→              <div className="flex justify-between items-center">
+  1110→                <span className="text-sm text-slate-600">Outflows</span>
+  1111→                <span className="font-bold text-red-600">$132,450</span>
+  1112→              </div>
+  1113→              <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
+  1114→                <span className="text-sm font-semibold text-slate-900">Net Flow</span>
+  1115→                <span className="font-bold text-emerald-600">+$24,330</span>
+  1116→              </div>
+  1117→            </div>
+  1118→          </div>
+  1119→
+  1120→          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+  1121→            <div className="flex items-center gap-2 text-amber-800 mb-1">
+  1122→              <AlertTriangle size={16} />
+  1123→              <span className="text-sm font-medium">Attention Required</span>
+  1124→            </div>
+  1125→            <p className="text-xs text-amber-700">1 account not reconciled in 30+ days</p>
+  1126→          </div>
+  1127→        </div>
+  1128→      </div>
+  1129→
+  1130→      {/* Bank Accounts */}
+  1131→      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+  1132→        <div className="p-5 border-b border-slate-200">
+  1133→          <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+  1134→            <Banknote size={18} className="text-emerald-500" />
+  1135→            Bank Accounts / الحساب البكية
+  1136→          </h3>
+  1137→        </div>
+  1138→        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
+  1139→          {bankAccounts.map((account) => (
+  1140→            <div key={account.id} className="border border-slate-200 rounded-xl p-4 hover:border-emerald-300 transition-colors">
+  1141→              <div className="flex items-start justify-between mb-3">
+  1142→                <div className="flex items-center gap-3">
+  1143→                  <div className={`p-2.5 rounded-lg ${
+  1144→                    account.type === 'checking' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'
+  1145→                  }`}>
+  1146→                    <Landmark size={20} />
+  1147→                  </div>
+  1148→                  <div>
+  1149→                    <p className="font-medium text-sm text-slate-900">{account.name}</p>
+  1150→                    <p className="text-xs text-slate-500">{account.bankName}</p>
+  1151→                  </div>
+  1152→                </div>
+  1153→                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+  1154→                  account.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+  1155→                }`}>
+  1156→                  {account.status}
+  1157→                </span>
+  1158→              </div>
+  1159→              
+  1160→              <div className="flex items-center justify-between text-sm mb-2">
+  1161→                <span className="text-slate-500">{account.accountNumber}</span>
+  1162→                <CurrencyBadge code={account.currency} />
+  1163→              </div>
+  1164→              
+  1165→              <div className="grid grid-cols-2 gap-4">
+  1166→                <div>
+  1167→                  <p className="text-xs text-slate-500">Balance</p>
+  1168→                  <p className="font-bold text-slate-900">${account.balance.toLocaleString()}</p>
+  1169→                </div>
+  1170→                <div>
+  1171→                  <p className="text-xs text-slate-500">Available</p>
+  1172→                  <p className="font-bold text-emerald-600">${account.availableBalance.toLocaleString()}</p>
+  1173→                </div>
+  1174→              </div>
+  1175→            </div>
+  1176→          ))}
+  1177→        </div>
+  1178→      </div>
+  1179→    </div>
+  1180→  )
+  1181→}
+  1182→
+  1183→// Reports Placeholder
+  1184→function ReportsSection() {
+  1185→  return (
+  1186→    <div className="space-y-6">
+  1187→      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+  1188→        <div>
+  1189→          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+  1190→            <FileText size={28} className="text-violet-500" />
+  1191→            Financial Reports
+  1192→            <span className="text-lg font-normal text-slate-500">/ التقارير المالية</span>
+  1193→          </h3>
+  1194→          <p className="text-slate-500 mt-1">Generate and export financial statements</p>
+  1195→        </div>
+  1196→        <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 text-white font-medium text-sm shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all flex items-center gap-2">
+  1197→          <Printer size={16} />
+  1198→          Generate Report
+  1199→        </button>
+  1200→      </div>
+  1201→
+  1202→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  1203→        {[
+  1204→          { title: 'Balance Sheet', titleAr: 'الميزانية العمومية', desc: 'Assets, liabilities, and equity statement', icon: Scale, color: 'blue' },
+  1205→          { title: 'Income Statement', titleAr: 'قائمة الدخل', desc: 'Revenue, expenses, and profit summary', icon: BarChart3, color: 'emerald' },
+  1206→          { title: 'Cash Flow Statement', titleAr: 'قائمة التدفق النقدي', desc: 'Operating, investing, financing activities', icon: LineChart, color: 'cyan' },
+  1207→          { title: 'Trial Balance', titleAr: 'ميزان المراجعة', desc: 'All accounts with debit/credit totals', icon: BookOpen, color: 'violet' },
+  1208→          { title: 'Aging Report', titleAr: 'تقرير الاستحقاق', desc: 'AR/AP aging by period', icon: Clock, color: 'orange' },
+  1209→          { title: 'Tax Summary', titleAr: 'ملخص ضريبي', desc: 'Tax liabilities and obligations', icon: Shield, color: 'red' }
+  1210→        ].map((report) => (
+  1211→          <div key={report.title} className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg hover:-translate-y-1 transition-all cursor-pointer group">
+  1212→            <div className={`p-3 rounded-xl bg-${report.color}-100 text-${report.color}-600 w-fit mb-3 group-hover:scale-110 transition-transform`}>
+  1213→              <report.icon size={24} />
+  1214→            </div>
+  1215→            <h4 className="font-semibold text-slate-900 mb-1">{report.title}</h4>
+  1216→            <p className="text-xs text-slate-500 mb-3">{report.desc}</p>
+  1217→            <span className="text-xs font-medium text-${report.color}-600">{report.titleAr}</span>
+  1218→          </div>
+  1219→        ))}
+  1220→      </div>
+  1221→    </div  )
+  1222→}
+  1223→
+  1224→// Budget Placeholder
+  1225→function BudgetSection() {
+  1226→  return (
+  1227→    <div className="space-y-6">
+  1228→      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+  1229→        <div>
+  1230→          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+  1231→            <Target size={28} className="text-teal-500" />
+  1232→            Budget & Forecasting
+  1233→            <span className="text-lg font-normal text-slate-500">/ الميزانية والتنبؤ</span>
+  1234→          </h3>
+  1235→          <p className="text-slate-500 mt-1">Plan, monitor, and analyze budget performance</p>
+  1236→        </div>
+  1237→        <div className="flex items-center gap-3">
+  1238→          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+  1239→            <Upload size={16} />
+  1240→            Import
+  1241→          </button>
+  1242→          <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-medium text-sm shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all flex items-center gap-2">
+  1243→            <Plus size={16} />
+  1244→            Create Budget
+  1245→          </button>
+  1246→        </div>
+  1247→      </div>
+  1248→
+  1249→      {/* Budget Summary */}
+  1250→      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  1251→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+  1252→          <div className="flex items-center gap-3 mb-3">
+  1253→            <div className="p-2 bg-teal-100 rounded-lg text-teal-600">
+  1254→              <Calculator size={20} />
+  1255→            </div>
+  1256→            <span className="text-sm text-slate-500">Annual Budget</span>
+  1257→          </div>
+  1258→          <p className="text-2xl font-bold text-slate-900">$2.4M</p>
+  1259→          <p className="text-xs text-slate-500 mt-1">FY 2026</p>
+  1260→        </div>
+  1261→        
+  1262→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+  1263→          <div className="flex items-center gap-3 mb-3">
+  1264→            <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+  1265→              <Activity size={20} />
+  1266→            </div>
+  1267→            <span className="text-sm text-slate-500">Actual YTD</span>
+  1268→          </div>
+  1269→          <p className="text-2xl font-bold text-slate-900">$1.87M</p>
+  1270→          <p className="text-xs text-emerald-600 mt-1">78% of budget</p>
+  1271→        </div>
+  1272→        
+  1273→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+  1274→          <div className="flex items-center gap-3 mb-3">
+  1275→            <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+  1276→              <TrendingUp size={20} />
+  1277→            </div>
+  1278→            <span className="text-sm text-slate-500">Variance</span>
+  1279→          </div>
+  1280→          <p className="text-2xl font-bold text-emerald-600">$530K</p>
+  1281→          <p className="text-xs text-slate-500 mt-1">Under budget ✓</p>
+  1282→        </div>
+  1283→        
+  1284→        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+  1285→          <div className="flex items-center gap-3 mb-3">
+  1286→            <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
+  1287→              <Percent size={20} />
+  1288→            </div>
+  1289→            <span className="text-sm text-slate-500">% Used</span>
+  1290→          </div>
+  1291→          <p className="text-2xl font-bold text-slate-900">78%</p>
+  1292→          <p className="text-xs text-slate-500 mt-1">8 months remaining</p>
+  1293→        </div>
+  1294→      </div>
+  1295→
+  1296→      {/* Budget by Department Chart Placeholder */}
+  1297→      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg">
+  1298→        <h3 className="text-base font-semibold text-slate-900 mb-6">Budget vs Actual by Department</h3>
+  1299→        <div className="space-y-4">
+  1300→          {[
+  1301→            { dept: 'Sales & Marketing', deptAr: 'المبيع والتسويق', budget: 600000, actual: 585000, pct: 97 },
+  1302→            { dept: 'Operations', deptAr: 'العمليات', budget: 850000, actual: 820000, pct: 96 },
+  1303→            { dept: 'Technology', deptAr: 'التقنية', budget: 450000, actual: 320000, pct: 71 },
+  1304→            { dept: 'HR & Admin', deptAr: 'الموارد البشرية والإدارة', budget: 350000, actual: 145000, pct: 41 },
+  1305→            { dept: 'R&D', deptAr: 'البحث والتطوير', budget: 150000, actual: 0, pct: 0 }
+  1306→          ].map((item) => (
+  1307→            <div key={item.dept}>
+  1308→              <div className="flex justify-between items-center mb-2">
+  1309→                <span className="text-sm font-medium text-slate-700">{item.deptAr}</span>
+  1310→                <span className="text-xs text-slate-500">{item.pct}% used</span>
+  1311→              </div>
+  1312→              <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+  1313→                <div className="h-full flex">
+  1314→                  <div 
+  1315→                    className="bg-emerald-500 transition-all duration-500"
+  1316→                    style={{ width: `${item.pct}%` }}
+  1317→                  ></div>
+  1318→                  <div 
+  1319→                    className="bg-blue-500 transition-all duration-500"
+  1320→                    style={{ width: `${Math.min(item.actual / item.budget * 100, 100)}%` }}
+  1321→                  ></div>
+  1322→                </div>
+  1323→              </div>
+  1324→              <div className="flex justify-between text-xs text-slate-500 mt-1">
+  1325→                <span>${(item.actual / 1000).toFixed(0)}k / ${(item.budget / 1000).toFixed(0)}k</span>
+  1326→                <span>Variance: ${((item.budget - item.actual) / 1000).toFixed(0)}k</span>
+  1327→              </div>
+  1328→            </div>
+  1329→          ))}
+  1330→        </div>
+  1331→      </div>
+  1332→    </div>
+  1333→  )
+  1334→}
+  1335→
+  1336→// ============ MAIN COMPONENT ============
+  1337→export default function FinancialsPage() {
+  1338→  const { t } = useI18n()
+  1339→  const [activeTab, setActiveTab] = useState<FinanceTab>('overview')
+  1340→
+  1341→  const renderContent = () => {
+  1342→    switch (activeTab) {
+  1343→      case 'overview':
+  1344→        return <OverviewSection />
+  1345→      case 'gl':
+  1346→        return <GLSection />
+  1347→      case 'ap':
+  1348→        return <APSection />
+  1349→      case 'ar':
+  1350→        return <ARSection />
+  1351→      case 'treasury':
+  1352→        return <TreasurySection />
+  1353→      case 'reports':
+  1354→        return <ReportsSection />
+  1355→      case 'budget':
+  1356→        return <BudgetSection />
+  1357→      default:
+  1358→        return <OverviewSection />
+  1359→    }
+  1360→  }
+  1361→
+  1362→  return (
+  1363→    <div className="space-y-6 animate-in fade-in duration-300">
+  1364→      {/* Page Header */}
+  1365→      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+  1366→        <div>
+  1367→          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-2 tracking-tight">
+  1368→            Financial Management
+  1369→            <span className="block text-xl md:text-2xl bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent mt-1">
+  1370→              نظام إدارة المالية المتكامل
+  1371→            </span>
+  1372→          </h2>
+  1373→          <p className="text-base md:text-lg text-slate-500 mt-2">
+  1374→            Enterprise-grade financial management with multi-currency support
+  1375→          </p>
+  1376→        </div>
+  1377→
+  1378→        <div className="flex items-center gap-3">
+  1379→          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2 backdrop-blur-md shadow-sm">
+  1380→            <Download size={16} />
+  1381→            Export
+  1382→          </button>
+  1383→          <button className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-medium text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all flex items-center gap-2">
+  1384→            <Plus size={16} />
+  1385→            Quick Entry
+  1386→          </button>
+  1387→        </div>
+  1388→      </div>
+  1389→
+  1390→      {/* Tab Navigation */}
+  1391→      <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+  1392→
+  1393→      {/* Content Area */}
+  1394→      <div className="min-h-[600px]">
+  1395→        {renderContent()}
+  1396→      </div>
+  1397→    </div>
+  1398→  )
+  1399→}
+  1400→
