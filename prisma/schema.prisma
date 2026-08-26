@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,16 +14,368 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Post {
+model Company {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  name      String
+  legalName String?
+  taxId     String?
+  currency  String   @default("USD")
+  fiscalYearStart Int @default(1)
+  address   String?
+  phone     String?
+  email     String?
+  logo      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  accounts       Account[]
+  journalEntries JournalEntry[]
+  vendors        Vendor[]
+  customers      Customer[]
+  bankAccounts   BankAccount[]
+  invoicesAr     InvoiceAr[]
+  invoicesAp     InvoiceAp[]
+  paymentsAp     PaymentAp[]
+  receiptsAr     ReceiptAr[]
+  budgets        Budget[]
+  fixedAssets    FixedAsset[]
+}
+
+model Account {
+  id            String   @id @default(cuid())
+  companyId     String
+  code          String
+  name          String
+  nameAr        String?
+  type          String
+  subtype       String?
+  normalBalance String   @default("debit")
+  parentId      String?
+  isActive      Boolean  @default(true)
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  parent        Account?  @relation("AccountTree", fields: [parentId], references: [id])
+  children      Account[] @relation("AccountTree")
+  journalLines  JournalLine[]
+  budgetLines   BudgetLine[]
+  fixedAssets   FixedAsset[]
+  
+  @@unique([companyId, code])
+}
+
+model JournalEntry {
+  id            String   @id @default(cuid())
+  companyId     String
+  entryNumber   String   @unique
+  date          DateTime
+  description   String
+  reference     String?
+  source        String   @default("manual")
+  status        String   @default("draft")
+  totalDebit    Float
+  totalCredit   Float
+  createdBy     String
+  postedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lines         JournalLine[]
+}
+
+model JournalLine {
+  id            String   @id @default(cuid())
+  entryId       String
+  accountId     String
+  description   String?
+  debit         Float    @default(0)
+  credit        Float    @default(0)
+  amount        Float
+  currency      String   @default("USD")
+  exchangeRate  Float    @default(1)
+  createdAt     DateTime @default(now())
+  
+  entry         JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  account       Account     @relation(fields: [accountId], references: [id])
+}
+
+model Vendor {
+  id            String   @id @default(cuid())
+  companyId     String
+  vendorCode    String   @unique
+  name          String
+  nameAr        String?
+  email         String?
+  phone         String?
+  address       String?
+  taxId         String?
+  paymentTerms  Int      @default(30)
+  currency      String   @default("USD")
+  status        String   @default("active")
+  totalBalance  Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoices      InvoiceAp[]
+  payments      PaymentAp[]
+}
+
+model InvoiceAp {
+  id            String   @id @default(cuid())
+  companyId     String
+  vendorId      String
+  invoiceNumber String
+  invoiceDate   DateTime
+  dueDate       DateTime
+  poNumber      String?
+  description   String?
+  subtotal      Float
+  taxAmount     Float    @default(0)
+  totalAmount   Float
+  amountPaid    Float    @default(0)
+  balanceDue    Float
+  status        String   @default("draft")
+  currency      String   @default("USD")
+  notes         String?
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  vendor        Vendor   @relation(fields: [vendorId], references: [id])
+  payments      PaymentAp[]
+}
+
+model PaymentAp {
+  id            String   @id @default(cuid())
+  companyId     String
+  vendorId      String
+  invoiceApId   String?
+  paymentNumber String
+  paymentDate   DateTime
+  paymentMethod String
+  bankAccountId String?
+  amount        Float
+  currency      String   @default("USD")
+  reference     String?
+  status        String   @default("draft")
+  notes         String?
+  postedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  vendor        Vendor      @relation(fields: [vendorId], references: [id])
+  invoiceAp     InvoiceAp?   @relation(fields: [invoiceApId], references: [id])
+  bankAccount   BankAccount? @relation(fields: [bankAccountId], references: [id])
+}
+
+model Customer {
+  id            String   @id @default(cuid())
+  companyId     String
+  customerCode  String   @unique
+  name          String
+  nameAr        String?
+  email         String?
+  phone         String?
+  address       String?
+  taxId         String?
+  paymentTerms  Int      @default(30)
+  creditLimit   Float    @default(0)
+  currency      String   @default("USD")
+  status        String   @default("active")
+  totalBalance  Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  invoices      InvoiceAr[]
+  receipts      ReceiptAr[]
+}
+
+model InvoiceAr {
+  id            String   @id @default(cuid())
+  companyId     String
+  customerId    String
+  invoiceNumber String
+  invoiceDate   DateTime
+  dueDate       DateTime
+  soNumber      String?
+  description   String?
+  subtotal      Float
+  taxAmount     Float    @default(0)
+  totalAmount   Float
+  amountReceived Float   @default(0)
+  balanceDue    Float
+  status        String   @default("draft")
+  currency      String   @default("USD")
+  notes         String?
+  sentAt        DateTime?
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  customer      Customer @relation(fields: [customerId], references: [id])
+  receipts      ReceiptAr[]
+}
+
+model ReceiptAr {
+  id            String   @id @default(cuid())
+  companyId     String
+  customerId    String
+  invoiceArId   String?
+  receiptNumber String
+  receiptDate   DateTime
+  paymentMethod String
+  bankAccountId String?
+  amount        Float
+  currency      String   @default("USD")
+  reference     String?
+  status        String   @default("draft")
+  notes         String?
+  postedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  invoiceAr     InvoiceAr?   @relation(fields: [invoiceArId], references: [id])
+  bankAccount   BankAccount? @relation(fields: [bankAccountId], references: [id])
+}
+
+model BankAccount {
+  id                String   @id @default(cuid())
+  companyId         String
+  accountName       String
+  accountNumber     String   @unique
+  bankName          String
+  accountType       String
+  currency          String   @default("USD")
+  balance           Float    @default(0)
+  availableBalance  Float    @default(0)
+  status            String   @default("active")
+  isDefault         Boolean  @default(false)
+  iban              String?
+  swiftCode         String?
+  lastReconciled    DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  company           Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  paymentsAp        PaymentAp[] @relation()
+  receiptsAr        ReceiptAr[] @relation()
+  transactions      BankTransaction[]
+}
+
+model BankTransaction {
+  id              String   @id @default(cuid())
+  bankAccountId   String
+  transactionDate DateTime
+  type            String
+  description     String
+  amount          Float
+  balance         Float    @default(0)
+  reference       String?
+  category        String?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now())
+  
+  bankAccount     BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+}
+
+model Currency {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  name          String
+  nameAr        String?
+  symbol        String
+  decimalPlaces Int      @default(2)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ExchangeRate {
+  id            String   @id @default(cuid())
+  fromCurrency  String
+  toCurrency    String
+  rate          Float
+  effectiveDate DateTime
+  source        String   @default("manual")
+  createdAt     DateTime @default(now())
+  
+  @@unique([fromCurrency, toCurrency, effectiveDate])
+}
+
+model Budget {
+  id            String   @id @default(cuid())
+  companyId     String
+  name          String
+  fiscalYear    Int
+  startDate     DateTime
+  endDate       DateTime
+  version       Int      @default(1)
+  status        String   @default("draft")
+  totalBudget   Float    @default(0)
+  actualAmount  Float    @default(0)
+  variance      Float    @default(0)
+  variancePct   Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  lines         BudgetLine[]
+}
+
+model BudgetLine {
+  id            String   @id @default(cuid())
+  budgetId      String
+  accountId     String
+  department    String?
+  period        Int
+  budgetedAmount Float
+  actualAmount  Float    @default(0)
+  variance      Float    @default(0)
+  variancePct   Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  budget        Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  account       Account  @relation(fields: [accountId], references: [id])
+}
+
+model FixedAsset {
+  id              String   @id @default(cuid())
+  companyId       String
+  assetCode       String   @unique
+  name            String
+  category        String
+  accountId       String
+  purchaseDate    DateTime
+  purchaseCost    Float
+  salvageValue    Float    @default(0)
+  usefulLife      Int
+  accumulatedDep  Float    @default(0)
+  currentValue    Float
+  location        String?
+  department      String?
+  status          String   @default("active")
+  depMethod       String   @default("straight_line")
+  lastDepDate     DateTime?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company         Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  account         Account   @relation(fields: [accountId], references: [id])
 }
