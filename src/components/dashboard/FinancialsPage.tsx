@@ -1218,7 +1218,8 @@ function ReportsSection() {
           </div>
         ))}
       </div>
-    </div  )
+    </div>
+  )
 }
 
 // Budget Placeholder
