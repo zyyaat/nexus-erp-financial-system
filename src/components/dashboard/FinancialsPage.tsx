@@ -472,30 +472,40 @@ function OverviewSection() {
               </div>
             </div>
 
-            {/* Transaction List */}
-            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2">
+            {/* Transaction List - Mobile Responsive */}
+            <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
               {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl hover:bg-slate-100/80 transition-colors group">
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className={`p-2.5 rounded-xl ${transaction.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'}`}>
-                      {transaction.type === 'income' ? <ArrowUpLeft size={18} className="text-emerald-600" /> : <ArrowDownRight size={18} className="text-red-600" />}
+                <div key={transaction.id} className="p-4 bg-slate-50/80 rounded-xl hover:bg-slate-100/80 transition-all group border border-slate-100 hover:border-slate-200 hover:shadow-md">
+                  {/* Main Row: Icon + Description + Amount */}
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg ${transaction.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'} flex-shrink-0 mt-0.5`}>
+                      {transaction.type === 'income' ? <ArrowUpLeft size={16} className="text-emerald-600" /> : <ArrowDownRight size={16} className="text-red-600" />}
                     </div>
+                    
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-slate-900 truncate group-hover:text-indigo-600 transition-colors">{transaction.description}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                      {/* Description - Full text, no truncate */}
+                      <p className="font-medium text-sm text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors line-clamp-2">
+                        {transaction.description}
+                      </p>
+                      
+                      {/* Meta Info Row */}
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2">
                         <TransactionStatusBadge status={transaction.status} />
-                        <span className="text-xs text-slate-400">{transaction.date}</span>
+                        <span className="text-xs text-slate-500 font-mono">{transaction.date}</span>
                         {transaction.invoice && (
-                          <span className="text-xs text-indigo-500 font-mono">{transaction.invoice}</span>
+                          <span className="text-xs text-indigo-600 font-mono bg-indigo-50 px-1.5 py-0.5 rounded">{transaction.invoice}</span>
                         )}
                         {transaction.currency && <CurrencyBadge code={transaction.currency} />}
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right ml-4">
-                    <p className={`font-bold text-lg ${transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                    </p>
+                    
+                    {/* Amount - Right side */}
+                    <div className="flex-shrink-0 text-right ml-2">
+                      <p className={`font-bold text-base whitespace-nowrap ${transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
+                      </p>
+                      <span className="text-[10px] text-slate-400 block mt-0.5">{transaction.category}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -684,33 +694,34 @@ function GLSection() {
         </div>
       </div>
 
-      {/* Accounts Table */}
+      {/* Accounts Table - Mobile Responsive */}
       <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Code / الرمز</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Account Name / اسم الحساب</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Type / النوع</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Debit / مدين</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Credit / دائن</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Balance / الرصيد</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Code</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Account Name</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Type</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Debit</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Credit</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Balance</th>
               </tr>
             </thead>
             <tbody>
               {filteredAccounts.map((account) => (
                 <tr key={account.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-4">
+                  <td className="px-4 py-3">
                     <span className="font-mono text-sm font-medium text-indigo-600">{account.code}</span>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-4 py-3">
                     <div>
                       <p className="font-medium text-sm text-slate-900">{account.name}</p>
                       {account.nameAr && <p className="text-xs text-slate-500">{account.nameAr}</p>}
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-center">
+                  <td className="px-4 py-3 text-center">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
                       account.type === 'asset' ? 'bg-blue-100 text-blue-700' :
                       account.type === 'liability' ? 'bg-orange-100 text-orange-700' :
@@ -721,13 +732,13 @@ function GLSection() {
                       {account.type}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-right font-mono text-sm text-slate-700">
+                  <td className="px-4 py-3 text-right font-mono text-sm text-slate-700">
                     {account.debit > 0 ? `$${account.debit.toLocaleString()}` : '-'}
                   </td>
-                  <td className="px-5 py-4 text-right font-mono text-sm text-slate-700">
+                  <td className="px-4 py-3 text-right font-mono text-sm text-slate-700">
                     {account.credit > 0 ? `$${account.credit.toLocaleString()}` : '-'}
                   </td>
-                  <td className={`px-5 py-4 text-right font-mono text-sm font-bold ${
+                  <td className={`px-4 py-3 text-right font-mono text-sm font-bold ${
                     account.balance >= 0 ? 'text-slate-900' : 'text-red-600'
                   }`}>
                     ${Math.abs(account.balance).toLocaleString()}
@@ -736,6 +747,39 @@ function GLSection() {
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {filteredAccounts.map((account) => (
+            <div key={account.id} className="p-4 hover:bg-slate-50/50 transition-colors">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-sm font-bold text-indigo-600">{account.code}</span>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium capitalize ${
+                    account.type === 'asset' ? 'bg-blue-100 text-blue-700' :
+                    account.type === 'liability' ? 'bg-orange-100 text-orange-700' :
+                    account.type === 'equity' ? 'bg-purple-100 text-purple-700' :
+                    account.type === 'revenue' ? 'bg-emerald-100 text-emerald-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {account.type}
+                  </span>
+                </div>
+                <span className={`font-mono text-sm font-bold ${
+                  account.balance >= 0 ? 'text-slate-900' : 'text-red-600'
+                }`}>
+                  ${Math.abs(account.balance).toLocaleString()}
+                </span>
+              </div>
+              <p className="font-medium text-sm text-slate-900 mb-1">{account.name}</p>
+              {account.nameAr && <p className="text-xs text-slate-500 mb-2">{account.nameAr}</p>}
+              <div className="flex items-center gap-4 text-xs text-slate-500">
+                <span>Dr: <strong className="text-slate-700">${account.debit.toLocaleString()}</strong></span>
+                <span>Cr: <strong className="text-slate-700">${account.credit.toLocaleString()}</strong></span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -818,32 +862,34 @@ function APSection() {
         </div>
       </div>
 
-      {/* Vendors Table */}
+      {/* Vendors Table - Mobile Responsive */}
       <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
-        <div className="p-5 border-b border-slate-200">
+        <div className="p-4 md:p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Building2 size={18} className="text-orange-500" />
             Vendors / الموردون
           </h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[500px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Vendor / المورد</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Amount Due / المستحق</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Currency / العملة</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Status / الحالة</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Vendor</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Due</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Currency</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Status</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
               {vendors.map((vendor) => (
                 <tr key={vendor.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-4">
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-xs">
                         {vendor.name.charAt(0)}
                       </div>
                       <div>
@@ -852,25 +898,25 @@ function APSection() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{vendor.email}</td>
-                  <td className="px-5 py-4 text-right font-bold text-slate-900">${vendor.totalDue.toLocaleString()}</td>
-                  <td className="px-5 py-4 text-center">
+                  <td className="px-4 py-3 text-sm text-slate-600 truncate max-w-[150px]">{vendor.email}</td>
+                  <td className="px-4 py-3 text-right font-bold text-slate-900">${vendor.totalDue.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-center">
                     <CurrencyBadge code={vendor.currency} />
                   </td>
-                  <td className="px-5 py-4 text-center">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  <td className="px-4 py-3 text-center">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       vendor.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
                     }`}>
                       {vendor.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-center">
+                  <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                        <Eye size={16} />
+                        <Eye size={14} />
                       </button>
                       <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                        <MoreHorizontal size={16} />
+                        <MoreHorizontal size={14} />
                       </button>
                     </div>
                   </td>
@@ -878,6 +924,37 @@ function APSection() {
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {vendors.map((vendor) => (
+            <div key={vendor.id} className="p-4 hover:bg-slate-50/50 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  {vendor.name.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-1">
+                    <div>
+                      <p className="font-medium text-sm text-slate-900">{vendor.name}</p>
+                      <p className="text-xs text-slate-500">{vendor.nameAr || vendor.code}</p>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ml-2 ${
+                      vendor.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {vendor.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 truncate mb-2">{vendor.email}</p>
+                  <div className="flex items-center justify-between">
+                    <CurrencyBadge code={vendor.currency} />
+                    <span className="font-bold text-sm text-slate-900">${vendor.totalDue.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -960,32 +1037,34 @@ function ARSection() {
         </div>
       </div>
 
-      {/* Customers Table */}
+      {/* Customers Table - Mobile Responsive */}
       <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
-        <div className="p-5 border-b border-slate-200">
+        <div className="p-4 md:p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Users size={18} className="text-blue-500" />
             Customers / العملاء
           </h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[500px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Customer / العميل</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Receivable / المستحق</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Currency / العملة</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Status / الحالة</th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Customer</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Email</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Receivable</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Currency</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Status</th>
+                <th className="text-center px-4 py-3 text-xs font-semibold text-slate-600 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
               {customers.map((customer) => (
                 <tr key={customer.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-4">
+                  <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">
                         {customer.name.charAt(0)}
                       </div>
                       <div>
@@ -994,25 +1073,25 @@ function ARSection() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{customer.email}</td>
-                  <td className="px-5 py-4 text-right font-bold text-slate-900">${customer.totalReceivable.toLocaleString()}</td>
-                  <td className="px-5 py-4 text-center">
+                  <td className="px-4 py-3 text-sm text-slate-600 truncate max-w-[150px]">{customer.email}</td>
+                  <td className="px-4 py-3 text-right font-bold text-slate-900">${customer.totalReceivable.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-center">
                     <CurrencyBadge code={customer.currency} />
                   </td>
-                  <td className="px-5 py-4 text-center">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  <td className="px-4 py-3 text-center">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       customer.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
                     }`}>
                       {customer.status}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-center">
+                  <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                        <Eye size={16} />
+                        <Eye size={14} />
                       </button>
                       <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                        <MoreHorizontal size={16} />
+                        <MoreHorizontal size={14} />
                       </button>
                     </div>
                   </td>
@@ -1020,6 +1099,37 @@ function ARSection() {
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Mobile Card View */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {customers.map((customer) => (
+            <div key={customer.id} className="p-4 hover:bg-slate-50/50 transition-colors">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  {customer.name.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-1">
+                    <div>
+                      <p className="font-medium text-sm text-slate-900">{customer.name}</p>
+                      <p className="text-xs text-slate-500">{customer.nameAr || customer.code}</p>
+                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ml-2 ${
+                      customer.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {customer.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 truncate mb-2">{customer.email}</p>
+                  <div className="flex items-center justify-between">
+                    <CurrencyBadge code={customer.currency} />
+                    <span className="font-bold text-sm text-slate-900">${customer.totalReceivable.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
