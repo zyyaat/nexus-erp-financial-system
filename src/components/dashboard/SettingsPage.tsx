@@ -688,6 +688,7 @@ function ToggleSwitch({ enabled, onToggle }: { enabled: boolean; onToggle: () =>
   return (
     <button
       onClick={onToggle}
+      dir="ltr"
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500/20 ${
         enabled ? 'bg-cyan-500' : 'bg-white/10'
       }`}
