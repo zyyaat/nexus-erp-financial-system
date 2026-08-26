@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Package, 
   AlertTriangle, 
@@ -11,12 +11,30 @@ import {
   Plus,
   Edit3,
   Eye,
-  ArrowUpDown,
   MoreVertical,
   Warehouse,
   Truck,
   BarChart3,
-  RefreshCw
+  RefreshCw,
+  // New icons for advanced features
+  MapPin,
+  QrCode,
+  Radio,
+  Brain,
+  Hash,
+  Clock,
+  Activity,
+  Zap,
+  Shield,
+  ArrowRightLeft,
+  ScanLine,
+  Layers,
+  Target,
+  LineChart,
+  CheckCircle2,
+  XCircle,
+  Wifi,
+  WifiOff
 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
@@ -32,6 +50,13 @@ interface Product {
   status: 'in-stock' | 'low-stock' | 'out-of-stock' | 'overstock'
   location: string
   lastUpdated: string
+  // New fields for advanced features
+  batchNumber?: string
+  serialNumber?: string
+  expiryDate?: string
+  warehouse?: string
+  zone?: string
+  bin?: string
 }
 
 interface CategoryData {
@@ -40,6 +65,21 @@ interface CategoryData {
   value: number
   percentage: number
   color: string
+}
+
+interface WarehouseLocation {
+  id: string
+  name: string
+  totalItems: number
+  capacity: number
+  status: 'active' | 'maintenance' | 'full'
+}
+
+interface ForecastData {
+  month: string
+  predicted: number
+  actual?: number
+  confidence: number
 }
 
 // ============ MOCK DATA ============
@@ -73,6 +113,7 @@ const inventoryKPIs = [
   }
 ]
 
+// Enhanced products with advanced tracking data
 const products: Product[] = [
   {
     id: 'PRD-001',
@@ -84,7 +125,12 @@ const products: Product[] = [
     totalValue: 11267.55,
     status: 'in-stock',
     location: 'Warehouse A - Shelf B2',
-    lastUpdated: '2026-08-26'
+    lastUpdated: '2026-08-26',
+    batchNumber: 'BTH-2026-0845',
+    serialNumber: 'SN-WKP-001-245',
+    warehouse: 'Warehouse A',
+    zone: 'Zone B',
+    bin: 'B2'
   },
   {
     id: 'PRD-002',
@@ -96,7 +142,12 @@ const products: Product[] = [
     totalValue: 359.88,
     status: 'low-stock',
     location: 'Warehouse A - Shelf C1',
-    lastUpdated: '2026-08-25'
+    lastUpdated: '2026-08-25',
+    batchNumber: 'BTH-2026-0789',
+    expiryDate: '2027-12-31',
+    warehouse: 'Warehouse A',
+    zone: 'Zone C',
+    bin: 'C1'
   },
   {
     id: 'PRD-003',
@@ -108,7 +159,10 @@ const products: Product[] = [
     totalValue: 0,
     status: 'out-of-stock',
     location: 'Warehouse B - Shelf A3',
-    lastUpdated: '2026-08-24'
+    lastUpdated: '2026-08-24',
+    warehouse: 'Warehouse B',
+    zone: 'Zone A',
+    bin: 'A3'
   },
   {
     id: 'PRD-004',
@@ -120,7 +174,11 @@ const products: Product[] = [
     totalValue: 5963.00,
     status: 'in-stock',
     location: 'Warehouse B - Shelf D1',
-    lastUpdated: '2026-08-26'
+    lastUpdated: '2026-08-26',
+    batchNumber: 'BTH-2026-0901',
+    warehouse: 'Warehouse B',
+    zone: 'Zone D',
+    bin: 'D1'
   },
   {
     id: 'PRD-005',
@@ -132,7 +190,12 @@ const products: Product[] = [
     totalValue: 8578.44,
     status: 'in-stock',
     location: 'Warehouse A - Shelf A2',
-    lastUpdated: '2026-08-25'
+    lastUpdated: '2026-08-25',
+    batchNumber: 'BTH-2026-0912',
+    serialNumber: 'SN-WCH-156',
+    warehouse: 'Warehouse A',
+    zone: 'Zone A',
+    bin: 'A2'
   },
   {
     id: 'PRD-006',
@@ -144,7 +207,11 @@ const products: Product[] = [
     totalValue: 4946.77,
     status: 'overstock',
     location: 'Warehouse C - Shelf B1',
-    lastUpdated: '2026-08-23'
+    lastUpdated: '2026-08-23',
+    batchNumber: 'BTH-2026-0678',
+    warehouse: 'Warehouse C',
+    zone: 'Zone B',
+    bin: 'B1'
   }
 ]
 
@@ -154,6 +221,23 @@ const categories: CategoryData[] = [
   { name: 'Furniture', count: 189, value: 678000, percentage: 28, color: 'bg-blue-500' },
   { name: 'Packaging', count: 223, value: 234000, percentage: 10, color: 'bg-emerald-500' },
   { name: 'Other', count: 100, value: 140000, percentage: 6, color: 'bg-slate-400' }
+]
+
+// Warehouse locations data
+const warehouseLocations: WarehouseLocation[] = [
+  { id: 'WH-A', name: 'Warehouse A', totalItems: 523, capacity: 800, status: 'active' },
+  { id: 'WH-B', name: 'Warehouse B', totalItems: 398, capacity: 600, status: 'active' },
+  { id: 'WH-C', name: 'Warehouse C', totalItems: 326, capacity: 400, status: 'full' }
+]
+
+// AI Forecast data
+const forecastData: ForecastData[] = [
+  { month: 'Sep', predicted: 145, actual: 142, confidence: 92 },
+  { month: 'Oct', predicted: 168, actual: null, confidence: 88 },
+  { month: 'Nov', predicted: 195, actual: null, confidence: 85 },
+  { month: 'Dec', predicted: 230, actual: null, confidence: 82 },
+  { month: 'Jan', predicted: 180, actual: null, confidence: 78 },
+  { month: 'Feb', predicted: 155, actual: null, confidence: 75 }
 ]
 
 // ============ SUB-COMPONENTS ============
@@ -247,6 +331,16 @@ function ProductRow({ product }: { product: Product }) {
       <td className="px-4 py-3">
         <StatusBadge status={product.status} />
       </td>
+      <td className="px-4 py-3 hidden lg:table-cell">
+        <div className="flex flex-col gap-1">
+          {product.batchNumber && (
+            <span className="text-xs font-mono text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">#{product.batchNumber}</span>
+          )}
+          {product.warehouse && (
+            <span className="text-xs text-slate-500"><MapPin size={10} className="inline mr-1" />{product.warehouse}</span>
+          )}
+        </div>
+      </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-1">
           <button className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors" title={t('common.view')}>
@@ -264,17 +358,406 @@ function ProductRow({ product }: { product: Product }) {
   )
 }
 
+// NEW: Multi-Location Tracker Component
+function MultiLocationTracker() {
+  const { t } = useI18n()
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string>('all')
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [lastSync, setLastSync] = useState(new Date())
+
+  const handleSync = () => {
+    setIsSyncing(true)
+    setTimeout(() => {
+      setIsSyncing(false)
+      setLastSync(new Date())
+    }, 2000)
+  }
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+          <MapPin size={18} className="text-emerald-500" />
+          {t('inv.multiLocation')}
+        </h3>
+        <button
+          onClick={handleSync}
+          disabled={isSyncing}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+            isSyncing 
+              ? 'bg-amber-100 text-amber-600 animate-pulse' 
+              : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
+          }`}
+        >
+          {isSyncing ? (
+            <>
+              <RefreshCw size={14} className="animate-spin" />
+              Syncing...
+            </>
+          ) : (
+            <>
+              <Wifi size={14} />
+              {t('inv.realTimeSync')}
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Warehouse Selector */}
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+        <button
+          onClick={() => setSelectedWarehouse('all')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+            selectedWarehouse === 'all'
+              ? 'bg-indigo-500 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          {t('inv.allLocations')}
+        </button>
+        {warehouseLocations.map((wh) => (
+          <button
+            key={wh.id}
+            onClick={() => setSelectedWarehouse(wh.id)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
+              selectedWarehouse === wh.id
+                ? 'bg-indigo-500 text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <Warehouse size={14} />
+            {wh.name}
+            <span className={`w-2 h-2 rounded-full ${
+              wh.status === 'active' ? 'bg-green-500' :
+              wh.status === 'full' ? 'bg-red-500' : 'bg-amber-500'
+            }`} />
+          </button>
+        ))}
+      </div>
+
+      {/* Location Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {warehouseLocations.map((wh) => (
+          <div key={wh.id} className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-4 border border-slate-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-slate-900 text-sm">{wh.name}</span>
+              <CheckCircle2 size={16} className="text-green-500" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-500">{t('inventory.items')}</span>
+                <span className="font-medium text-slate-900">{wh.totalItems}</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-1.5">
+                <div 
+                  className="bg-indigo-500 h-full rounded-full transition-all"
+                  style={{ width: `${(wh.totalItems / wh.capacity) * 100}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-slate-500">
+                <span>{Math.round((wh.totalItems / wh.capacity) * 100)}% full</span>
+                <span>{wh.capacity} capacity</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Last Sync Info */}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <span>{t('inv.lastUpdated')}: {lastSync.toLocaleTimeString()}</span>
+        <span className="flex items-center gap-1">
+          <Wifi size={12} className="text-green-500" />
+          Connected
+        </span>
+      </div>
+    </div>
+  )
+}
+
+// NEW: Barcode/RFID Scanner Component
+function BarcodeScanner() {
+  const { t } = useI18n()
+  const [scanningMode, setScanningMode] = useState<'barcode' | 'rfid'>('barcode')
+  const [lastScan, setLastScan] = useState<string>('')
+  const [scanHistory, setScanHistory] = useState<string[]>([])
+
+  const simulateScan = () => {
+    const randomProduct = products[Math.floor(Math.random() * products.length)]
+    setLastScan(randomProduct.sku)
+    setScanHistory(prev => [randomProduct.sku, ...prev.slice(0, 4)])
+  }
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+        <ScanLine size={18} className="text-violet-500" />
+        {t('inv.barcodeScan')} / {t('inv.rfidScan')}
+      </h3>
+
+      {/* Mode Toggle */}
+      <div className="flex bg-slate-100 rounded-lg p-1 mb-4">
+        <button
+          onClick={() => setScanningMode('barcode')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
+            scanningMode === 'barcode' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'
+          }`}
+        >
+          <QrCode size={16} />
+          Barcode
+        </button>
+        <button
+          onClick={() => setScanningMode('rfid')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
+            scanningMode === 'rfid' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500'
+          }`}
+        >
+          <Radio size={16} />
+          RFID
+        </button>
+      </div>
+
+      {/* Scanner Area */}
+      <div 
+        onClick={simulateScan}
+        className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-8 mb-4 cursor-pointer hover:from-slate-800 hover:to-slate-700 transition-all group"
+      >
+        <div className="absolute inset-4 border-2 border-dashed border-slate-600 rounded-lg flex items-center justify-center">
+          <div className="text-center">
+            <ScanLine size={48} className="mx-auto mb-3 text-indigo-400 group-hover:scale-110 transition-transform" />
+            <p className="text-slate-300 text-sm">{t('inv.scanItem')}</p>
+            <p className="text-slate-500 text-xs mt-1">Click to simulate scan</p>
+          </div>
+        </div>
+        
+        {/* Animated scan line */}
+        <div className="absolute left-4 right-4 h-0.5 bg-indigo-500 opacity-50 animate-pulse" style={{ top: '50%' }} />
+      </div>
+
+      {/* Last Result */}
+      {lastScan && (
+        <div className="mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+          <p className="text-xs text-indigo-600 font-medium mb-1">{t('inv.scanResult')}</p>
+          <p className="font-mono text-lg font-bold text-indigo-900">{lastScan}</p>
+        </div>
+      )}
+
+      {/* Scan History */}
+      {scanHistory.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs text-slate-500 font-medium">Recent Scans</p>
+          {scanHistory.map((sku, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <CheckCircle2 size={14} className="text-green-500" />
+              <code className="font-mono text-slate-700">{sku}</code>
+              <span className="text-xs text-slate-400 ml-auto">{i === 0 ? 'Just now' : `${i + 1}s ago`}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Generate Barcode Button */}
+      <button className="w-full mt-4 py-2.5 bg-violet-100 text-violet-700 rounded-lg text-sm font-medium hover:bg-violet-200 transition-all flex items-center justify-center gap-2">
+        <QrCode size={16} />
+        {t('inv.generateBarcode')}
+      </button>
+    </div>
+  )
+}
+
+// NEW: AI Forecast Dashboard Component
+function AIForecastDashboard() {
+  const { t } = useI18n()
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+          <Brain size={18} className="text-purple-500" />
+          {t('inv.aiForecast')}
+        </h3>
+        <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+          <Zap size={12} />
+          AI Powered
+        </span>
+      </div>
+
+      {/* Confidence Score */}
+      <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-slate-600">{t('inv.confidenceLevel')}</span>
+          <span className="text-lg font-bold text-purple-600">87%</span>
+        </div>
+        <div className="w-full bg-purple-200 rounded-full h-2">
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full" style={{ width: '87%' }} />
+        </div>
+      </div>
+
+      {/* Forecast Chart (Simplified) */}
+      <div className="space-y-3 mb-4">
+        {forecastData.map((data, i) => (
+          <div key={data.month} className="flex items-center gap-3">
+            <span className="w-8 text-xs font-medium text-slate-500">{data.month}</span>
+            <div className="flex-1 relative">
+              <div className="h-6 bg-slate-100 rounded overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 rounded flex items-center justify-end pr-2"
+                  style={{ width: `${(data.predicted / 250) * 100}%` }}
+                >
+                  <span className="text-xs font-medium text-white">{data.predicted}</span>
+                </div>
+              </div>
+              {data.actual && (
+                <div 
+                  className="absolute top-0 h-6 bg-green-500/30 rounded"
+                  style={{ width: `${(data.actual / 250) * 100}%` }}
+                />
+              )}
+            </div>
+            <span className="text-xs text-slate-400">{data.confidence}%</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Insights */}
+      <div className="space-y-2 pt-3 border-t border-slate-100">
+        <div className="flex items-start gap-2 text-sm">
+          <TrendingUp size={16} className="text-green-500 mt-0.5" />
+          <div>
+            <p className="font-medium text-slate-900">{t('inv.seasonalTrend')}: +23%</p>
+            <p className="text-xs text-slate-500">Expected peak in December</p>
+          </div>
+        </div>
+        <button className="w-full py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 transition-all flex items-center justify-center gap-2 mt-3">
+          <Target size={16} />
+          {t('inv.reorderSuggestion')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// NEW: Batch & Serial Tracking Component
+function BatchSerialTracker() {
+  const { t } = useI18n()
+
+  const trackedProducts = products.filter(p => p.batchNumber || p.serialNumber)
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg shadow-indigo-500/4">
+      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+        <Hash size={18} className="text-amber-500" />
+        {t('inv.traceability')}
+      </h3>
+
+      <div className="space-y-3">
+        {trackedProducts.slice(0, 4).map((product) => (
+          <div key={product.id} className="p-3 bg-amber-50/50 rounded-lg border border-amber-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium text-sm text-slate-900">{product.name}</span>
+              <StatusBadge status={product.status} />
+            </div>
+            
+            <div className="space-y-1 text-xs">
+              {product.batchNumber && (
+                <div className="flex items-center gap-2">
+                  <Layers size={12} className="text-amber-600" />
+                  <span className="text-slate-500">{t('inv.batchNumber')}:</span>
+                  <code className="font-mono text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">{product.batchNumber}</code>
+                </div>
+              )}
+              
+              {product.serialNumber && (
+                <div className="flex items-center gap-2">
+                  <Hash size={12} className="text-amber-600" />
+                  <span className="text-slate-500">{t('inv.serialNumber')}:</span>
+                  <code className="font-mono text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">{product.serialNumber}</code>
+                </div>
+              )}
+
+              {product.expiryDate && (
+                <div className="flex items-center gap-2">
+                  <Clock size={12} className="text-red-500" />
+                  <span className="text-slate-500">{t('inv.expiryDate')}:</span>
+                  <span className="text-red-600 font-medium">{product.expiryDate}</span>
+                </div>
+              )}
+
+              {product.zone && (
+                <div className="flex items-center gap-2">
+                  <MapPin size={12} className="text-slate-400" />
+                  <span className="text-slate-500">{t('inv.binLocation')}:</span>
+                  <span className="text-slate-700">{product.warehouse} → {product.zone} → {product.bin}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button className="w-full mt-4 py-2.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200 transition-all flex items-center justify-center gap-2">
+        <Shield size={16} />
+        View Full Traceability Report
+      </button>
+    </div>
+  )
+}
+
+// NEW: Quick Actions Toolbar
+function QuickActionsToolbar() {
+  const { t } = useI18n()
+  const [activeAction, setActiveAction] = useState<string | null>(null)
+
+  const actions = [
+    { id: 'transfer', icon: ArrowRightLeft, label: t('inv.transferStock'), color: 'blue' },
+    { id: 'cyclecount', icon: Activity, label: t('inv.cycleCount'), color: 'green' },
+    { id: 'picklist', icon: Target, label: t('inv.pickList'), color: 'purple' },
+    { id: 'pack', icon: Package, label: t('inv.packOrder'), color: 'orange' }
+  ]
+
+  return (
+    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        {actions.map((action) => (
+          <button
+            key={action.id}
+            onClick={() => setActiveAction(activeAction === action.id ? null : action.id)}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+              activeAction === action.id
+                ? `bg-${action.color}-500 text-white`
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            <action.icon size={16} />
+            {action.label}
+          </button>
+        ))}
+      </div>
+      
+      {activeAction && (
+        <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+          <p className="text-sm text-slate-600">
+            {actions.find(a => a.id === activeAction)?.label} panel is now active. 
+            Select items from the table to proceed.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ============ MAIN COMPONENT ============
 export default function InventoryPage() {
   const { t } = useI18n()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const [showAdvancedFeatures, setShowAdvancedFeatures] = useState(true)
 
   // Filter products based on search and status
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchQuery.toLowerCase())
+                       product.sku.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || product.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -317,6 +800,9 @@ export default function InventoryPage() {
         ))}
       </div>
 
+      {/* Quick Actions Toolbar */}
+      <QuickActionsToolbar />
+
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Products Table - Takes 2 columns on XL */}
@@ -345,6 +831,15 @@ export default function InventoryPage() {
                     <Warehouse size={16} />
                   </button>
                 </div>
+                
+                {/* Toggle Advanced Features */}
+                <button
+                  onClick={() => setShowAdvancedFeatures(!showAdvancedFeatures)}
+                  className={`p-1.5 rounded-md transition-colors ${showAdvancedFeatures ? 'bg-indigo-100 text-indigo-600' : 'text-slate-500'}`}
+                  title="Toggle advanced features"
+                >
+                  <Layers size={16} />
+                </button>
               </div>
             </div>
 
@@ -400,6 +895,9 @@ export default function InventoryPage() {
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       {t('table.status')}
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider hidden lg:table-cell">
+                      Tracking
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
                       {t('table.actions')}
@@ -478,25 +976,44 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          {/* Warehouse Locations */}
-          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-5 text-white shadow-xl">
-            <h4 className="font-semibold mb-3 flex items-center gap-2">
-              <Warehouse size={18} />
-              {t('inventory.warehouses')}
-            </h4>
-            
-            <div className="space-y-3">
-              {['Warehouse A', 'Warehouse B', 'Warehouse C'].map((warehouse, i) => (
-                <div key={warehouse} className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                  <div className="flex items-center gap-2">
-                    <Truck size={16} />
-                    <span className="text-sm font-medium">{warehouse}</span>
+          {/* ADVANCED FEATURES - Conditionally Rendered */}
+          {showAdvancedFeatures && (
+            <>
+              {/* Multi-Location Tracker */}
+              <MultiLocationTracker />
+
+              {/* AI Forecast Dashboard */}
+              <AIForecastDashboard />
+
+              {/* Barcode Scanner */}
+              <BarcodeScanner />
+
+              {/* Batch & Serial Tracking */}
+              <BatchSerialTracker />
+            </>
+          )}
+
+          {/* Warehouse Locations (Original - shown when advanced features off) */}
+          {!showAdvancedFeatures && (
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl p-5 text-white shadow-xl">
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <Warehouse size={18} />
+                {t('inventory.warehouses')}
+              </h4>
+              
+              <div className="space-y-3">
+                {warehouseLocations.map((warehouse, i) => (
+                  <div key={warehouse.id} className="flex items-center justify-between p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                      <Truck size={16} />
+                      <span className="text-sm font-medium">{warehouse.name}</span>
+                    </div>
+                    <span className="text-sm bg-white/30 px-2 py-0.5 rounded-full">{warehouse.totalItems} {t('inventory.items')}</span>
                   </div>
-                  <span className="text-sm bg-white/30 px-2 py-0.5 rounded-full">{[523, 398, 326][i]} {t('inventory.items')}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,0 +1,1324 @@
+     1→export type Language = 'ar' | 'en' | 'fr' | 'es'
+     2→
+     3→export interface Translations {
+     4→  [key: string]: {
+     5→    [key in Language]: string
+     6→  }
+     7→}
+     8→
+     9→export const translations: Translations = {
+    10→  // Navigation
+    11→  'nav.dashboard': {
+    12→    ar: 'لوحة التحكم',
+    13→    en: 'Dashboard',
+    14→    fr: 'Tableau de bord',
+    15→    es: 'Panel de control'
+    16→  },
+    17→  'nav.operations': {
+    18→    ar: 'العمليات',
+    19→    en: 'Operations',
+    20→    fr: 'Opérations',
+    21→    es: 'Operaciones'
+    22→  },
+    23→  'nav.inventory': {
+    24→    ar: 'المخزون',
+    25→    en: 'Inventory',
+    26→    fr: 'Inventaire',
+    27→    es: 'Inventario'
+    28→  },
+    29→  'nav.financials': {
+    30→    ar: 'المالية',
+    31→    en: 'Financials',
+    32→    fr: 'Finances',
+    33→    es: 'Finanzas'
+    34→  },
+    35→  'nav.analytics': {
+    36→    ar: 'التحليلات',
+    37→    en: 'Analytics',
+    38→    fr: 'Analytiques',
+    39→    es: 'Analíticas'
+    40→  },
+    41→  'nav.settings': {
+    42→    ar: 'الإعدادات',
+    43→    en: 'Settings',
+    44→    fr: 'Paramètres',
+    45→    es: 'Configuración'
+    46→  },
+    47→
+    48→  // Sidebar Bottom
+    49→  'nav.systemStatus': {
+    50→    ar: 'حالة النظام',
+    51→    en: 'System Status',
+    52→    fr: 'État du système',
+    53→    es: 'Estado del sistema'
+    54→  },
+    55→  'nav.support': {
+    56→    ar: 'الدعم الفني',
+    57→    en: 'Support',
+    58→    fr: 'Support',
+    59→    es: 'Soporte'
+    60→  },
+    61→  'nav.logout': {
+    62→    ar: 'تسجيل الخروج',
+    63→    en: 'Logout',
+    64→    fr: 'Déconnexion',
+    65→    es: 'Cerrar sesión'
+    66→  },
+    67→
+    68→  // TopNav
+    69→  'search.placeholder': {
+    70→    ar: 'بحث...',
+    71→    en: 'Search...',
+    72→    fr: 'Rechercher...',
+    73→    es: 'Buscar...'
+    74→  },
+    75→  'notifications.title': {
+    76→    ar: 'الإشعارات',
+    77→    en: 'Notifications',
+    78→    fr: 'Notifications',
+    79→    es: 'Notificaciones'
+    80→  },
+    81→
+    82→  // Dashboard KPIs
+    83→  'kpi.totalRevenue': {
+    84→    ar: 'إجمالي الإيرادات',
+    85→    en: 'Total Revenue',
+    86→    fr: 'Revenu total',
+    87→    es: 'Ingresos totales'
+    88→  },
+    89→  'kpi.netProfit': {
+    90→    ar: 'صافي الربح',
+    91→    en: 'Net Profit',
+    92→    fr: 'Bénéfice net',
+    93→    es: 'Beneficio neto'
+    94→  },
+    95→  'kpi.activeUsers': {
+    96→    ar: 'المستخدمين النشطين',
+    97→    en: 'Active Users',
+    98→    fr: 'Utilisateurs actifs',
+    99→    es: 'Usuarios activos'
+   100→  },
+   101→  'kpi.vsLastMonth': {
+   102→    ar: 'مقارنة بالشهر الماضي',
+   103→    en: 'vs last month',
+   104→    fr: 'vs le mois dernier',
+   105→    es: 'vs el mes pasado'
+   106→  },
+   107→
+   108→  // Charts
+   109→  'chart.revenueVsTarget': {
+   110→    ar: 'الإيرادات مقابل الهدف',
+   111→    en: 'Revenue vs Target',
+   112→    fr: 'Revenu vs Objectif',
+   113→    es: 'Ingresos vs Objetivo'
+   114→  },
+   115→  'chart.revenue': {
+   116→    ar: 'الإيرادات',
+   117→    en: 'Revenue',
+   118→    fr: 'Revenu',
+   119→    es: 'Ingresos'
+   120→  },
+   121→  'chart.target': {
+   122→    ar: 'الهدف',
+   123→    en: 'Target',
+   124→    fr: 'Objectif',
+   125→    es: 'Objetivo'
+   126→  },
+   127→  'chart.thisWeek': {
+   128→    ar: 'هذا الأسبوع',
+   129→    en: 'This Week',
+   130→    fr: 'Cette semaine',
+   131→    es: 'Esta semana'
+   132→  },
+   133→  'chart.thisMonth': {
+   134→    ar: 'هذا الشهر',
+   135→    en: 'This Month',
+   136→    fr: 'Ce mois',
+   137→    es: 'Este mes'
+   138→  },
+   139→  'chart.thisYear': {
+   140→    ar: 'هذا العام',
+   141→    en: 'This Year',
+   142→    fr: 'Cette année',
+   143→    es: 'Este año'
+   144→  },
+   145→
+   146→  // System Health
+   147→  'system.systemHealth': {
+   148→    ar: 'صحة النظام',
+   149→    en: 'System Health',
+   150→    fr: 'Santé du système',
+   151→    es: 'Salud del sistema'
+   152→  },
+   153→  'system.serverLoad': {
+   154→    ar: 'حمل الخادم',
+   155→    en: 'Server Load',
+   156→    fr: 'Charge du serveur',
+   157→    es: 'Carga del servidor'
+   158→  },
+   159→  'system.databaseStorage': {
+   160→    ar: 'تخزين قاعدة البيانات',
+   161→    en: 'Database Storage',
+   162→    fr: 'Stockage de la base de données',
+   163→    es: 'Almacenamiento de BD'
+   164→  },
+   165→  'system.apiLatency': {
+   166→    ar: 'تأخر API',
+   167→    en: 'API Latency',
+   168→    fr: 'Latence API',
+   169→    es: 'Latencia API'
+   170→  },
+   171→
+   172→  // ==================== OPERATIONS PAGE ====================
+   173→  'ops.title': {
+   174→    ar: 'مركز العمليات',
+   175→    en: 'Operations Center',
+   176→    fr: 'Centre des opérations',
+   177→    es: 'Centro de operaciones'
+   178→  },
+   179→  'ops.subtitle': {
+   180→    ar: 'إدارة وتتبع جميع العمليات اليومية',
+   181→    en: 'Monitor production, orders, and maintenance workflows.',
+   182→    fr: 'Gérer et suivre toutes les opérations quotidiennes',
+   183→    es: 'Gestionar y seguir todas las operaciones diarias'
+   184→  },
+   185→  
+   186→  // Operations KPIs
+   187→  'ops.activeProduction': {
+   188→    ar: 'الإنتاج النشط',
+   189→    en: 'Active Production',
+   190→    fr: 'Production active',
+   191→    es: 'Producción activa'
+   192→  },
+   193→  'ops.pendingOrders': {
+   194→    ar: 'طلبات معلقة',
+   195→    en: 'Pending Orders',
+   196→    fr: 'Commandes en attente',
+   197→    es: 'Pedidos pendientes'
+   198→  },
+   199→  'ops.maintenanceTasks': {
+   200→    ar: 'مهام الصيانة',
+   201→    en: 'Maintenance Tasks',
+   202→    fr: 'Tâches de maintenance',
+   203→    es: 'Tareas de mantenimiento'
+   204→  },
+   205→  
+   206→  // Operations Stats
+   207→  'ops.activeCount': {
+   208→    ar: 'نشط',
+   209→    en: 'Active',
+   210→    fr: 'Actif',
+   211→    es: 'Activo'
+   212→  },
+   213→  'ops.doneCount': {
+   214→    ar: 'مكتمل',
+   215→    en: 'Done',
+   216→    fr: 'Terminé',
+   217→    es: 'Completado'
+   218→  },
+   219→  'ops.pendingCount': {
+   220→    ar: 'معلق',
+   221→    en: 'Pending',
+   222→    fr: 'En attente',
+   223→    es: 'Pendiente'
+   224→  },
+   225→  
+   226→  // Operations Sections
+   227→  'ops.activeWorkflows': {
+   228→    ar: 'سير العمل النشط',
+   229→    en: 'Active Workflows',
+   230→    fr: 'Flux de travail actifs',
+   231→    es: 'Flujos de trabajo activos'
+   232→  },
+   233→  'ops.activityFeed': {
+   234→    ar: 'نشاط حديث',
+   235→    en: 'Recent Activity',
+   236→    fr: 'Activité récente',
+   237→    es: 'Actividad reciente'
+   238→  },
+   239→  'ops.quickActions': {
+   240→    ar: 'إجراءات سريعة',
+   241→    en: 'Quick Actions',
+   242→    fr: 'Actions rapides',
+   243→    es: 'Acciones rápidas'
+   244→  },
+   245→  'ops.commonTasks': {
+   246→    ar: 'مهام شائعة',
+   247→    en: 'Common operations tasks',
+   248→    fr: 'Tâches courantes',
+   249→    es: 'Tareas comunes'
+   250→  },
+   251→  
+   252→  // Quick Action Buttons
+   253→  'ops.newOrder': {
+   254→    ar: 'طلب جديد',
+   255→    en: 'New Order',
+   256→    fr: 'Nouvelle commande',
+   257→    es: 'Nuevo pedido'
+   258→  },
+   259→  'ops.startProduction': {
+   260→    ar: 'بدء الإنتاج',
+   261→    en: 'Start Production',
+   262→    fr: 'Démarrer la production',
+   263→    es: 'Iniciar producción'
+   264→  },
+   265→  'ops.scheduleMaintenance': {
+   266→    ar: 'جدولة صيانة',
+   267→    en: 'Schedule Maintenance',
+   268→    fr: 'Planifier la maintenance',
+   269→    es: 'Programar mantenimiento'
+   270→  },
+   271→  'ops.runReport': {
+   272→    ar: 'تشغيل تقرير',
+   273→    en: 'Run Report',
+   274→    fr: 'Générer un rapport',
+   275→    es: 'Generar informe'
+   276→  },
+   277→  'ops.viewLogs': {
+   278→    ar: 'عرض السجلات',
+   279→    en: 'View Logs',
+   280→    fr: 'Voir les journales',
+   281→    es: 'Ver registros'
+   282→  },
+   283→  'ops.viewAllActivity': {
+   284→    ar: 'عرض كل النشاطات',
+   285→    en: 'View All Activity →',
+   286→    fr: 'Voir toute l\'activité →',
+   287→    es: 'Ver toda la actividad →'
+   288→  },
+   289→  
+   290→  // Filter Options
+   291→  'ops.allStatuses': {
+   292→    ar: 'الكل',
+   293→    en: 'All',
+   294→    fr: 'Tous',
+   295→    es: 'Todos'
+   296→  },
+   297→  'ops.inProgressStatus': {
+   298→    ar: 'نشط',
+   299→    en: 'Active',
+   300→    fr: 'Actif',
+   301→    es: 'Activo'
+   302→  },
+   303→  'ops.onHoldStatus': {
+   304→    ar: 'مؤجل',
+   305→    en: 'On Hold',
+   306→    fr: 'En pause',
+   307→    es: 'Pausado'
+   308→  },
+   309→  
+   310→  // Workflow Card
+   311→  'ops.progress': {
+   312→    ar: 'التقدم',
+   313→    en: 'Progress',
+   314→    fr: 'Progression',
+   315→    es: 'Progreso'
+   316→  },
+   317→  'ops.due': {
+   318→    ar: 'استحقاق:',
+   319→    en: 'Due:',
+   320→    fr: 'Échéance:',
+   321→    es: 'Vencimiento:'
+   322→  },
+   323→  'ops.noWorkflows': {
+   324→    ar: 'لا توجد سير عمل لهذا الفلتر',
+   325→    en: 'No workflows found for this filter.',
+   326→    fr: 'Aucun flux de travail trouvé pour ce filtre.',
+   327→    es: 'No se encontraron flujos de trabajo para este filtro.'
+   328→  },
+   329→  
+   330→  // Status Badges (Operations)
+   331→  'status.inProgress': {
+   332→    ar: 'قيد التنفيذ',
+   333→    en: 'In Progress',
+   334→    fr: 'En cours',
+   335→    es: 'En progreso'
+   336→  },
+   337→  'status.pending': {
+   338→    ar: 'معلق',
+   339→    en: 'Pending',
+   340→    fr: 'En attente',
+   341→    es: 'Pendiente'
+   342→  },
+   343→  'status.completed': {
+   344→    ar: 'مكتمل',
+   345→    en: 'Completed',
+   346→    fr: 'Terminé',
+   347→    es: 'Completado'
+   348→  },
+   349→  'status.onHold': {
+   350→    ar: 'مؤجل',
+   351→    en: 'On Hold',
+   352→    fr: 'En pause',
+   353→    es: 'Pausado'
+   354→  },
+   355→  
+   356→  // Priority Badges
+   357→  'priority.critical': {
+   358→    ar: 'حرج',
+   359→    en: 'Critical',
+   360→    fr: 'Critique',
+   361→    es: 'Crítico'
+   362→  },
+   363→  'priority.urgent': {
+   364→    ar: 'عاجل',
+   365→    en: 'Urgent',
+   366→    fr: 'Urgent',
+   367→    es: 'Urgente'
+   368→  },
+   369→  'priority.high': {
+   370→    ar: 'مرتفع',
+   371→    en: 'High',
+   372→    fr: 'Élevé',
+   373→    es: 'Alto'
+   374→  },
+   375→  'priority.medium': {
+   376→    ar: 'متوسط',
+   377→    en: 'Medium',
+   378→    fr: 'Moyen',
+   379→    es: 'Medio'
+   380→  },
+   381→  'priority.low': {
+   382→    ar: 'منخفض',
+   383→    en: 'Low',
+   384→    fr: 'Faible',
+   385→    es: 'Bajo'
+   386→  },
+   387→  
+   388→  // Activity Messages
+   389→  'activity.shipmentCompleted': {
+   390→    ar: 'تم إكمال الشحنة #999 وإرسالها',
+   391→    en: 'Shipment #999 completed and dispatched',
+   392→    fr: 'Expédition #999 terminée et expédiée',
+   393→    env: 'Envío #999 completado y despachado'
+   394→  },
+   395→  'activity.inventoryAlert': {
+   396→    ar: 'تنبيه المخزون: المنتج #42 منخفض (12 وحدة متبقية)',
+   397→    en: 'Inventory alert: Item #42 running low (12 units left)',
+   398→    fr: 'Alerte stock: Article #42 faible (12 unités restantes)',
+   399→    es: 'Alerta de inventario: Artículo #42 bajo (12 unidades restantes)'
+   400→  },
+   401→  'activity.newOrder': {
+   402→    ar: 'طلب جديد من Acme Corp ($45,000)',
+   403→    en: 'New order received from Acme Corp ($45,000)',
+   404→    fr: 'Nouvelle commande reçue d\'Acme Corp ($45 000)',
+   405→    es: 'Nuevo pedido recibido de Acme Corp ($45,000)'
+   406→  },
+   407→  'activity.qualityCheck': {
+   408→    ar: 'نجح فحص الجودة للإنتاج #909',
+   409→    en: 'Quality check passed for Production #909',
+   410→    fr: 'Contrôle qualité réussi pour la Production #909',
+   411→    es: 'Control de calidad aprobado para Producción #909'
+   412→  },
+   413→  'activity.maintenanceOverdue': {
+   414→    ar: 'صيانة الآلة B متأخرة بيومين',
+   415→    en: 'Machine B maintenance overdue by 2 days',
+   416→    fr: 'Maintenance Machine B en retard de 2 jours',
+   417→    es: 'Mantenimiento Máquina B retrasado por 2 días'
+   418→  },
+   419→  
+   420→  // Time expressions
+   421→  'time.minutesAgo': {
+   422→    ar: 'دقائق مضت',
+   423→    en: 'minutes ago',
+   424→    fr: 'minutes il y a',
+   425→    es: 'minutos atrás'
+   426→  },
+   427→  'time.hoursAgo': {
+   428→    ar: 'ساعات مضت',
+   429→    en: 'hours ago',
+   430→    fr: 'heures il y a',
+   431→    es: 'horas atrás'
+   432→  },
+   433→  'time.justNow': {
+   434→    ar: 'الآن',
+   435→    en: 'Just now',
+   436→    fr: 'À l\'instant',
+   437→    es: 'Ahora mismo'
+   438→  },
+   439→
+   440→  // ==================== INVENTORY PAGE ====================
+   441→  'inventory.title': {
+   442→    ar: 'إدارة المخزون',
+   443→    en: 'Inventory Management',
+   444→    fr: 'Gestion des stocks',
+   445→    es: 'Gestión de inventario'
+   446→  },
+   447→  'inventory.subtitle': {
+   448→    ar: 'تتبع وإدارة جميع المنتجات والمواد',
+   449→    en: 'Track stock levels, manage products, and monitor inventory across all warehouses.',
+   450→    fr: 'Suivre et gérer tous les produits et matériaux',
+   451→    es: 'Rastrear y gestionar todos los productos y materiales'
+   452→  },
+   453→  
+   454→  // Inventory KPIs
+   455→  'inventory.totalProducts': {
+   456→    ar: 'إجمالي المنتجات',
+   457→    en: 'Total Products',
+   458→    fr: 'Total des produits',
+   459→    es: 'Total de productos'
+   460→  },
+   461→  'inventory.lowStockItems': {
+   462→    ar: 'منتجات منخفضة',
+   463→    en: 'Low Stock Items',
+   464→    fr: 'Articles en stock faible',
+   465→    es: 'Artículos con stock bajo'
+   466→  },
+   467→  'inventory.totalValue': {
+   468→    ar: 'القيمة الإجمالية',
+   469→    en: 'Total Value',
+   470→    fr: 'Valeur totale',
+   471→    es: 'Valor total'
+   472→  },
+   473→  
+   474→  // Inventory Buttons
+   475→  'inventory.sync': {
+   476→    ar: 'مزامنة',
+   477→    en: 'Sync',
+   478→    fr: 'Synchroniser',
+   479→    es: 'Sincronizar'
+   480→  },
+   481→  'inventory.addProduct': {
+   482→    ar: 'إضافة منتج',
+   483→    en: 'Add Product',
+   484→    fr: 'Ajouter un produit',
+   485→    es: 'Agregar producto'
+   486→  },
+   487→  
+   488→  // Inventory Sections
+   489→  'inventory.products': {
+   490→    ar: 'المنتجات',
+   491→    en: 'Products',
+   492→    fr: 'Produits',
+   493→    es: 'Productos'
+   494→  },
+   495→  'inventory.lowStockAlerts': {
+   496→    ar: 'تنبيهات المخزون المنخفض',
+   497→    en: 'Low Stock Alerts',
+   498→    fr: 'Alertes de stock faible',
+   499→    es: 'Alertas de stock bajo'
+   500→  },
+   501→  'inventory.viewAllAlerts': {
+   502→    ar: 'عرض جميع التنبيهات',
+   503→    en: 'View All Alerts →',
+   504→    fr: 'Voir toutes les alertes →',
+   505→    es: 'Ver todas las alertas →'
+   506→  },
+   507→  'inventory.categories': {
+   508→    ar: 'الفئات',
+   509→    en: 'Categories',
+   510→    fr: 'Catégories',
+   511→    es: 'Categorías'
+   512→  },
+   513→  'inventory.warehouses': {
+   514→    ar: 'المستودعات',
+   515→    en: 'Warehouses',
+   516→    fr: 'Entrepôts',
+   517→    es: 'Almacenes'
+   518→  },
+   519→  'inventory.items': {
+   520→    ar: 'عنصر',
+   521→    en: 'items',
+   522→    fr: 'articles',
+   523→    es: 'artículos'
+   524→  },
+   525→  
+   526→  // Table Headers
+   527→  'table.product': {
+   528→    ar: 'المنتج',
+   529→    en: 'Product',
+   530→    fr: 'Produit',
+   531→    es: 'Producto'
+   532→  },
+   533→  'table.category': {
+   534→    ar: 'الفئة',
+   535→    en: 'Category',
+   536→    fr: 'Catégorie',
+   537→    es: 'Categoría'
+   538→  },
+   539→  'table.quantity': {
+   540→    ar: 'الكمية',
+   541→    en: 'Qty',
+   542→    fr: 'Qté',
+   543→    es: 'Cant.'
+   544→  },
+   545→  'table.cost': {
+   546→    ar: 'التكلفة',
+   547→    en: 'Cost',
+   548→    fr: 'Coût',
+   549→    es: 'Costo'
+   550→  },
+   551→  'table.value': {
+   552→    ar: 'القيمة',
+   553→    en: 'Value',
+   554→    fr: 'Valeur',
+   555→    es: 'Valor'
+   556→  },
+   557→  'table.status': {
+   558→    ar: 'الحالة',
+   559→    en: 'Status',
+   560→    fr: 'Statut',
+   561→    es: 'Estado'
+   562→  },
+   563→  'table.actions': {
+   564→    ar: 'إجراءات',
+   565→    en: 'Actions',
+   566→    fr: 'Actions',
+   567→    es: 'Acciones'
+   568→  },
+   569→  
+   570→  // Status Badges (Inventory)
+   571→  'invStatus.inStock': {
+   572→    ar: 'متوفر',
+   573→    en: 'In Stock',
+   574→    fr: 'En stock',
+   575→    es: 'Disponible'
+   576→  },
+   577→  'invStatus.lowStock': {
+   578→    ar: 'مخزون منخفض',
+   579→    en: 'Low Stock',
+   580→    fr: 'Stock faible',
+   581→    es: 'Stock bajo'
+   582→  },
+   583→  'invStatus.outOfStock': {
+   584→    ar: 'نفذ المخزون',
+   585→    en: 'Out of Stock',
+   586→    fr: 'Rupture de stock',
+   587→    es: 'Agotado'
+   588→  },
+   589→  'invStatus.overstock': {
+   590→    ar: 'مخزون زائد',
+   591→    en: 'Overstock',
+   592→    fr: 'Surstock',
+   593→    es: 'Sobrestock'
+   594→  },
+   595→  
+   596→  // Filter Options (Inventory)
+   597→  'filter.allStatus': {
+   598→    ar: 'كل الحالات',
+   599→    en: 'All Status',
+   600→    fr: 'Tous les statuts',
+   601→    es: 'Todos los estados'
+   602→  },
+   603→  
+   604→  // Search & Messages
+   605→  'inventory.searchPlaceholder': {
+   606→    ar: 'بحث بالاسم أو SKU...',
+   607→    en: 'Search by name or SKU...',
+   608→    fr: 'Rechercher par nom ou SKU...',
+   609→    es: 'Buscar por nombre o SKU...'
+   610→  },
+   611→  'inventory.noProducts': {
+   612→    ar: 'لا توجد منتجات تطابق معايرك',
+   613→    en: 'No products found matching your criteria.',
+   614→    fr: 'Aucun produit trouvé correspondant à vos critères.',
+   615→    es: 'No se encontraron productos que coincidan con sus criterios.'
+   616→  },
+   617→  'inventory.outOfStockMsg': {
+   618→    ar: 'نفذ المخزون!',
+   619→    en: 'Out of stock!',
+   620→    fr: 'Rupture de stock!',
+   621→    env: '¡Agotado!'
+   622→  },
+   623→  'inventory.onlyLeft': {
+   624→    ar: 'متبقي {count} فقط',
+   625→    en: 'Only {count} left',
+   626→    fr: 'Il ne reste que {count}',
+   627→    env: 'Solo quedan {count}'
+   628→  },
+   629→
+   630→  // ==================== FINANCIALS PAGE ====================
+   631→  'financials.title': {
+   632→    ar: 'المركز المالي',
+   633→    en: 'Financial Center',
+   634→    fr: 'Centre financier',
+   635→    es: 'Centro financiero'
+   636→  },
+   637→  'financials.subtitle': {
+   638→    ar: 'مراقبة الإيرادات والمصروفات والفواتير والصحة المالية',
+   639→    en: 'Monitor revenue, expenses, invoices, and financial health.',
+   640→    fr: 'Surveiller les revenus, dépenses, factures et santé financière.',
+   641→    es: 'Monitorear ingresos, gastos, facturas y salud financiera.'
+   642→  },
+   643→  
+   644→  // Financials KPIs
+   645→  'financials.totalRevenue': {
+   646→    ar: 'إجمالي الإيرادات',
+   647→    en: 'Total Revenue',
+   648→    fr: 'Revenu total',
+   649→    es: 'Ingresos totales'
+   650→  },
+   651→  'financials.totalExpenses': {
+   652→    ar: 'إجمالي المصروفات',
+   653→    en: 'Total Expenses',
+   654→    fr: 'Dépenses totales',
+   655→    es: 'Gastos totales'
+   656→  },
+   657→  'financials.netProfit': {
+   658→    ar: 'صافي الربح',
+   659→    en: 'Net Profit',
+   660→    fr: 'Bénéfice net',
+   661→    es: 'Beneficio neto'
+   662→  },
+   663→  'financials.pendingInvoices': {
+   664→    ar: 'فواتير معلقة',
+   665→    en: 'Pending Invoices',
+   666→    fr: 'Factures en attente',
+   667→    es: 'Facturas pendientes'
+   668→  },
+   669→  
+   670→  // Financials Buttons
+   671→  'financials.exportReport': {
+   672→    ar: 'تصدير تقرير',
+   673→    en: 'Export Report',
+   674→    fr: 'Exporter un rapport',
+   675→    es: 'Exportar informe'
+   676→  },
+   677→  'financials.createInvoice': {
+   678→    ar: 'إنشاء فاتورة',
+   679→    en: 'Create Invoice',
+   680→    fr: 'Créer une facture',
+   681→    es: 'Crear factura'
+   682→  },
+   683→  
+   684→  // Tabs
+   685→  'tab.transactions': {
+   686→    ar: 'المعاملات',
+   687→    en: 'Transactions',
+   688→    fr: 'Transactions',
+   689→    es: 'Transacciones'
+   690→  },
+   691→  'tab.invoices': {
+   692→    ar: 'الفواتير',
+   693→    en: 'Invoices',
+   694→    fr: 'Factures',
+   695→    es: 'Facturas'
+   696→  },
+   697→  
+   698→  // Transaction Types
+   699→  'txn.type.income': {
+   700→    ar: 'إيراد',
+   701→    en: 'Income',
+   702→    fr: 'Revenu',
+   703→    es: 'Ingreso'
+   704→  },
+   705→  'txn.type.expense': {
+   706→    ar: 'مصروف',
+   707→    en: 'Expense',
+   708→    fr: 'Dépense',
+   709→    es: 'Gasto'
+   710→  },
+   711→  
+   712→  // Transaction Status
+   713→  'txnStatus.completed': {
+   714→    ar: 'مكتمل',
+   715→    en: 'Completed',
+   716→    fr: 'Terminée',
+   717→    es: 'Completada'
+   718→  },
+   719→  'txnStatus.pending': {
+   720→    ar: 'معلق',
+   721→    en: 'Pending',
+   722→    fr: 'En attente',
+   723→    es: 'Pendiente'
+   724→  },
+   725→  'txnStatus.failed': {
+   726→    ar: 'فشل',
+   727→    en: 'Failed',
+   728→    fr: 'Échouée',
+   729→    es: 'Fallida'
+   730→  },
+   731→  
+   732→  // Invoice Status
+   733→  'invStatus.paid': {
+   734→    ar: 'مدفوعة',
+   735→    en: 'Paid',
+   736→    fr: 'Payée',
+   737→    es: 'Pagada'
+   738→  },
+   739→  'invStatus.pending': {
+   740→    ar: 'معلقة',
+   741→    en: 'Pending',
+   742→    fr: 'En attente',
+   743→    es: 'Pendiente'
+   744→  },
+   745→  'invStatus.overdue': {
+   746→    ar: 'متأخرة',
+   747→    en: 'Overdue',
+   748→    fr: 'En retard',
+   749→    es: 'Vencida'
+   750→  },
+   751→  'invStatus.draft': {
+   752→    ar: 'مسودة',
+   753→    en: 'Draft',
+   754→    fr: 'Brouillon',
+   755→    es: 'Borrador'
+   756→  },
+   757→  
+   758→  // Sidebar Sections
+   759→  'financials.expenseBreakdown': {
+   760→    ar: 'تفصيل المصروفات',
+   761→    en: 'Expense Breakdown',
+   762→    fr: 'Répartition des dépenses',
+   763→    es: 'Desglose de gastos'
+   764→  },
+   765→  'financials.totalExpensesLabel': {
+   766→    ar: 'إجمالي المصروفات',
+   767→    en: 'Total Expenses',
+   768→    fr: 'Dépenses totales',
+   769→    es: 'Gastos totales'
+   770→  },
+   771→  'financials.cashFlowSummary': {
+   772→    ar: 'ملخص التدفقات النقدية',
+   773→    en: 'Cash Flow Summary',
+   774→    fr: 'Résumé des flux de trésorerie',
+   775→    res: 'Resumen de flujo de caja'
+   776→  },
+   777→  'financials.upcomingPayments': {
+   778→    ar: 'المدفوعات القادمة',
+   779→    en: 'Upcoming Payments',
+   780→    fr: 'Paiements à venir',
+   781→    es: 'Próximos pagos'
+   782→  },
+   783→  
+   784→  // Time Periods
+   785→  'time.thisMonth': {
+   786→    ar: 'هذا الشهر',
+   787→    en: 'This Month',
+   788→    fr: 'Ce mois',
+   789→    es: 'Este mes'
+   790→  },
+   791→  'time.lastMonth': {
+   792→    ar: 'الشهر الماضي',
+   793→    en: 'Last Month',
+   794→    fr: 'Le mois dernier',
+   795→    es: 'El mes pasado'
+   796→  },
+   797→  'time.growth': {
+   798→    ar: 'نمو',
+   799→    en: 'Growth',
+   800→    fr: 'Croissance',
+   801→    es: 'Crecimiento'
+   802→  },
+   803→  'time.dueInDays': {
+   804→    ar: 'استحقاق خلال {days} أيام',
+   805→    en: 'Due in {days} days',
+   806→    fr: 'Échéance dans {days} jours',
+   807→    es: 'Vence en {days} días'
+   808→  },
+   809→  
+   810→  // Table Headers (Financials)
+   811→  'table.invoice': {
+   812→    ar: 'فاتورة',
+   813→    en: 'Invoice',
+   814→    fr: 'Facture',
+   815→    es: 'Factura'
+   816→  },
+   817→  'table.client': {
+   818→    ar: 'عميل',
+   819→    en: 'Client',
+   820→    fr: 'Client',
+   821→    es: 'Cliente'
+   822→  },
+   823→  'table.amount': {
+   824→    ar: 'المبلغ',
+   825→    en: 'Amount',
+   826→    fr: 'Montant',
+   827→    es: 'Monto'
+   828→  },
+   829→  'table.dueDate': {
+   830→    ar: 'تاريخ الاستحقاق',
+   831→    en: 'Due Date',
+   832→    fr: 'Date d\'échéance',
+   833→    es: 'Fecha de vencimiento'
+   834→  },
+   835→
+   836→  // ==================== ANALYTICS PAGE ====================
+   837→  'analytics.title': {
+   838→    ar: 'مركز التحليلات',
+   839→    en: 'Analytics Hub',
+   840→    fr: 'Centre d\'analytique',
+   841→    es: 'Centro de analíticas'
+   842→  },
+   843→  'analytics.subtitle': {
+   844→    ar: 'غوص عميق في البيانات مع رسوم متقدمة وذكاء أعمال',
+   845→    en: 'Deep dive into data with advanced charts and business intelligence.',
+   846→    fr: 'Plongez dans les données avec des graphiques avancés et BI.',
+   847→    es: 'Profundiza en datos con gráficos avanzados e inteligencia de negocios.'
+   848→  },
+   849→  
+   850→  // Analytics KPIs
+   851→  'analytics.pageViews': {
+   852→    ar: 'مشاهدات الصفحة',
+   853→    en: 'Page Views',
+   854→    fr: 'Vues de page',
+   855→    es: 'Vistas de página'
+   856→  },
+   857→  'analytics.conversionRate': {
+   858→    ar: 'معدل التحويل',
+   859→    en: 'Conversion Rate',
+   860→    fr: 'Taux de conversion',
+   861→    es: 'Tasa de conversión'
+   862→  },
+   863→  'analytics.activeUsers': {
+   864→    ar: 'المستخدمين النشطين',
+   865→    en: 'Active Users',
+   866→    fr: 'Utilisateurs actifs',
+   867→    es: 'Usuarios activos'
+   868→  },
+   869→  'analytics.revenuePerUser': {
+   870→    ar: 'الإيراد لكل مستخدم',
+   871→    en: 'Revenue/User',
+   872→    fr: 'Revenu/utilisateur',
+   873→    es: 'Ingresos/usuario'
+   874→  },
+   875→  
+   876→  // Time Range Options
+   877→  'range.today': {
+   878→    ar: 'اليوم',
+   879→    en: 'Today',
+   880→    fr: 'Aujourd\'hui',
+   881→    es: 'Hoy'
+   882→  },
+   883→  'range.thisWeek': {
+   884→    ar: 'هذا الأسبوع',
+   885→    en: 'This Week',
+   886→    fr: 'Cette semaine',
+   887→    es: 'Esta semana'
+   888→  },
+   889→  'range.thisMonth': {
+   890→    ar: 'هذا الشهر',
+   891→    en: 'This Month',
+   892→    fr: 'Ce mois',
+   893→    es: 'Este mes'
+   894→  },
+   895→  'range.thisQuarter': {
+   896→    ar: 'هذا الربع',
+   897→    en: 'This Quarter',
+   898→    fr: 'Ce trimestre',
+   899→    es: 'Este trimestre'
+   900→  },
+   901→  'range.thisYear': {
+   902→    ar: 'هذا العام',
+   903→    en: 'This Year',
+   904→    fr: 'Cette année',
+   905→    es: 'Este año'
+   906→  },
+   907→  
+   908→  // Analytics Sections
+   909→  'analytics.trafficOverview': {
+   910→    ar: 'نظرة عامة على الزيارات',
+   911→    en: 'Traffic Overview',
+   912→    fr: 'Aperçu du trafic',
+   913→    es: 'Resumen del tráfico'
+   914→  },
+   915→  'analytics.weeklyTrends': {
+   916→    ar: 'اتجاهات الزيارات الأسبوعية',
+   917→    en: 'Weekly visitor trends',
+   918→    fr: 'Tendances hebdomadaires',
+   919→    es: 'Tendencias semanales de visitantes'
+   920→  },
+   921→  'analytics.thisWeek': {
+   922→    ar: 'هذا الأسبوع',
+   923→    en: 'This Week',
+   924→    fr: 'Cette semaine',
+   925→    es: 'Esta semana'
+   926→  },
+   927→  'analytics.lastWeek': {
+   928→    ar: 'الأسبوع الماضي',
+   929→    en: 'Last Week',
+   930→    fr: 'La semaine dernière',
+   931→    es: 'La semana pasada'
+   932→  },
+   933→  'analytics.topPages': {
+   934→    ar: 'الصفحات الأكثر زيارة',
+   935→    en: 'Top Pages',
+   936→    fr: 'Pages populaires',
+   937→    es: 'Páginas principales'
+   938→  },
+   939→  'analytics.trafficSources': {
+   940→    ar: 'مصادر الزيارات',
+   941→    en: 'Traffic Sources',
+   942→    fr: 'Sources de trafic',
+   943→    es: 'Fuentes de tráfico'
+   944→  },
+   945→  'analytics.deviceBreakdown': {
+   946→    ar: 'توزيع الأجهزة',
+   947→    en: 'Device Breakdown',
+   948→    fr: 'Répartition des appareils',
+   949→    es: 'Desglose de dispositivos'
+   950→  },
+   951→  'analytics.liveActivity': {
+   952→    ar: 'نشاط مباشر',
+   953→    en: 'Live Activity',
+   954→    fr: 'Activité en direct',
+   955→    es: 'Actividad en vivo'
+   956→  },
+   957→  
+   958→  // Stats
+   959→  'stats.totalVisits': {
+   960→    ar: 'إجمالي الزيارات',
+   961→    en: 'Total Visits',
+   962→    fr: 'Visites totales',
+   963→    es: 'Visitas totales'
+   964→  },
+   965→  'stats.vsLastWeek': {
+   966→    ar: 'مقارنة بالأسبوع الماضي',
+   967→    en: 'vs Last Week',
+   968→    fr: 'vs Semaine dernière',
+   969→    es: 'vs Semana pasada'
+   970→  },
+   971→  'stats.avgDuration': {
+   972→    ar: 'متوسط المدة',
+   973→    en: 'Avg. Duration',
+   974→    fr: 'Durée moy.',
+   975→    es: 'Duración prom.'
+   976→  },
+   977→  
+   978→  // Table Headers (Analytics)
+   979→  'table.page': {
+   980→    ar: 'صفحة',
+   981→    en: 'Page',
+   982→    fr: 'Page',
+   983→    es: 'Página'
+   984→  },
+   985→  'table.views': {
+   986→    ar: 'مشاهدات',
+   987→    en: 'Views',
+   988→    fr: 'Vues',
+   989→    es: 'Vistas'
+   990→  },
+   991→  'table.bounceRate': {
+   992→    ar: 'معدل الارتداد %',
+   993→    en: 'Bounce %',
+   994→    fr: 'Taux de rebond %',
+   995→    es: 'Tasa de rebote %'
+   996→  },
+   997→  'table.avgTime': {
+   998→    ar: 'متوسط الوقت',
+   999→    en: 'Avg Time',
+  1000→    fr: 'Temps moy.',
+  1001→    es: 'Tiempo prom.'
+  1002→  },
+  1003→  
+  1004→  // Activity Types
+  1005→  'activity.pageView': {
+  1006→    ar: 'مشاهدة صفحة',
+  1007→    en: 'Page View',
+  1008→    fr: 'Vue de page',
+  1009→    es: 'Vista de página'
+  1010→  },
+  1011→  'activity.signUp': {
+  1012→    ar: 'تسجيل جديد',
+  1013→    en: 'Sign Up',
+  1014→    fr: 'Inscription',
+  1015→    es: 'Registro'
+  1016→  },
+  1017→  'activity.purchase': {
+  1018→    ar: 'شراء',
+  1019→    en: 'Purchase',
+  1020→    fr: 'Achat',
+  1021→    es: 'Compra'
+  1022→  },
+  1023→  'activity.download': {
+  1024→    ar: 'تحميل',
+  1025→    en: 'Download',
+  1026→    fr: 'Téléchargement',
+  1027→    desc: 'Descarga'
+  1028→  },
+  1029→  
+  1030→  // Device Types
+  1031→  'device.desktop': {
+  1032→    ar: 'كمبيوتر',
+  1033→    en: 'Desktop',
+  1034→    fr: 'Ordinateur',
+  1035→    es: 'Escritorio'
+  1036→  },
+  1037→  'device.mobile': {
+  1038→    ar: 'موبايل',
+  1039→    en: 'Mobile',
+  1040→    fr: 'Mobile',
+  1041→    es: 'Móvil'
+  1042→  },
+  1043→  'device.tablet': {
+  1044→    ar: 'تابلت',
+  1045→    en: 'Tablet',
+  1046→    fr: 'Tablette',
+  1047→    es: 'Tableta'
+  1048→  },
+  1049→  'device.users': {
+  1050→    ar: 'مستخدمين',
+  1051→    en: 'users',
+  1052→    fr: 'utilisateurs',
+  1053→    es: 'usuarios'
+  1054→  },
+  1055→  
+  1056→  // Traffic Sources
+  1057→  'source.organicSearch': {
+  1058→    ar: 'بحث عضوي',
+  1059→    en: 'Organic Search',
+  1060→    fr: 'Recherche organique',
+  1061→    es: 'Búsqueda orgánica'
+  1062→  },
+  1063→  'source.direct': {
+  1064→    ar: 'مباشر',
+  1065→    en: 'Direct',
+  1066→    fr: 'Direct',
+  1067→    es: 'Directo'
+  1068→  },
+  1069→  'source.socialMedia': {
+  1070→    ar: 'وسائل التواصل',
+  1071→    en: 'Social Media',
+  1072→    fr: 'Réseaux sociaux',
+  1073→    es: 'Redes sociales'
+  1074→  },
+  1075→  'source.referral': {
+  1076→    ar: 'إحالات',
+  1077→    en: 'Referral',
+  1078→    fr: 'Parrainage',
+  1079→    es: 'Referidos'
+  1080→  },
+  1081→  'source.email': {
+  1082→    ar: 'بريد إلكتروني',
+  1083→    en: 'Email',
+  1084→    fr: 'E-mail',
+  1085→    es: 'Correo electrónico'
+  1086→  },
+  1087→
+  1088→  // ==================== SETTINGS PAGE ====================
+  1089→  'settings.title': {
+  1090→    ar: 'الإعدادات',
+  1091→    en: 'Settings',
+  1092→    fr: 'Paramètres',
+  1093→    es: 'Configuración'
+  1094→  },
+  1095→  'settings.subtitle': {
+  1096→    ar: 'إدارة تفضيلات النظام والحساب',
+  1097→    en: 'Manage system preferences and account',
+  1098→    fr: 'Gérer les préférences système et le compte',
+  1099→    es: 'Gestionar preferencias del sistema y cuenta'
+  1100→  },
+  1101→  'settings.general': {
+  1102→    ar: 'عام',
+  1103→    en: 'General',
+  1104→    fr: 'Général',
+  1105→    es: 'General'
+  1106→  },
+  1107→  'settings.language': {
+  1108→    ar: 'اللغة',
+  1109→    en: 'Language',
+  1110→    fr: 'Langue',
+  1111→    es: 'Idioma'
+  1112→  },
+  1113→  'settings.languageDesc': {
+  1114→    ar: 'اختر لغة الواجهة المفضلة',
+  1115→    en: 'Choose your preferred interface language',
+  1116→    fr: 'Choisissez votre langue d\'interface préférée',
+  1117→    es: 'Elige tu idioma de interfaz preferido'
+  1118→  },
+  1119→  'settings.appearance': {
+  1120→    ar: 'المظهر',
+  1121→    en: 'Appearance',
+  1122→    fr: 'Apparence',
+  1123→    es: 'Apariencia'
+  1124→  },
+  1125→  'settings.theme': {
+  1126→    ar: 'السمة',
+  1127→    en: 'Theme',
+  1128→    fr: 'Thème',
+  1129→    es: 'Tema'
+  1130→  },
+  1131→  'settings.themeDesc': {
+  1132→    ar: 'تخصيص مظهر التطبيق',
+  1133→    en: 'Customize the app appearance',
+  1134→    fr: 'Personnaliser l\'apparence de l\'application',
+  1135→    es: 'Personalizar la apariencia de la aplicación'
+  1136→  },
+  1137→  'settings.notifications': {
+  1138→    ar: 'الإشعارات',
+  1139→    en: 'Notifications',
+  1140→    fr: 'Notifications',
+  1141→    es: 'Notificaciones'
+  1142→  },
+  1143→  'settings.notificationsDesc': {
+  1144→    ar: 'تكوين كيفية استلام الإشعارات',
+  1145→    en: 'Configure how you receive notifications',
+  1146→    fr: 'Configurer comment vous recevez les notifications',
+  1147→    es: 'Configurar cómo recibes notificaciones'
+  1148→  },
+  1149→  'settings.security': {
+  1150→    ar: 'الأمان',
+  1151→    en: 'Security',
+  1152→    fr: 'Sécurité',
+  1153→    es: 'Seguridad'
+  1154→  },
+  1155→  'settings.securityDesc': {
+  1156→    ar: 'إدارة كلمة المرور والجلسات النشطة',
+  1157→    en: 'Manage password and active sessions',
+  1158→    fr: 'Gérer le mot de passe et les sessions actives',
+  1159→    es: 'Gestionar contraseñas y sesiones activas'
+  1160→  },
+  1161→  'settings.darkMode': {
+  1162→    ar: 'الوضع الداكن',
+  1163→    en: 'Dark Mode',
+  1164→    fr: 'Mode sombre',
+  1165→    es: 'Modo oscuro'
+  1166→  },
+  1167→  'settings.compactView': {
+  1168→    ar: 'عرض مضغوط',
+  1169→    en: 'Compact View',
+  1170→    fr: 'Vue compacte',
+  1171→    es: 'Vista compacta'
+  1172→  },
+  1173→  'settings.emailNotifications': {
+  1174→    ar: 'إشعارات البريد الإلكتروني',
+  1175→    en: 'Email Notifications',
+  1176→    fr: 'Notifications par email',
+  1177→    es: 'Notificaciones por correo'
+  1178→  },
+  1179→  'settings.pushNotifications': {
+  1180→    ar: 'إشعارات الدفع',
+  1181→    en: 'Push Notifications',
+  1182→    fr: 'Notifications push',
+  1183→    es: 'Notificaciones push'
+  1184→  },
+  1185→  'settings.twoFactor': {
+  1186→    ar: 'المصادقة الثنائية',
+  1187→    en: 'Two-Factor Auth',
+  1188→    fr: 'Authentification à deux facteurs',
+  1189→    es: 'Autenticación de dos factores'
+  1190→  },
+  1191→  'settings.changePassword': {
+  1192→    ar: 'تغيير كلمة المرور',
+  1193→    en: 'Change Password',
+  1194→    fr: 'Changer le mot de passe',
+  1195→    es: 'Cambiar contraseña'
+  1196→  },
+  1197→  'settings.activeSessions': {
+  1198→    ar: 'الجلسات النشطة',
+  1199→    en: 'Active Sessions',
+  1200→    fr: 'Sessions actives',
+  1201→    es: 'Sesiones activas'
+  1202→  },
+  1203→  'settings.saveChanges': {
+  1204→    ar: 'حفظ التغييرات',
+  1205→    en: 'Save Changes',
+  1206→    fr: 'Enregistrer les modifications',
+  1207→    es: 'Guardar cambios'
+  1208→  },
+  1209→
+  1210→  // Common
+  1211→  'common.welcome': {
+  1212→    ar: 'مرحباً',
+  1213→    en: 'Welcome',
+  1214→    fr: 'Bienvenue',
+  1215→    es: 'Bienvenido'
+  1216→  },
+  1217→  'common.loading': {
+  1218→    ar: 'جاري التحميل...',
+  1219→    en: 'Loading...',
+  1220→    fr: 'Chargement...',
+  1221→    es: 'Cargando...'
+  1222→  },
+  1223→  'common.error': {
+  1224→    ar: 'حدث خطأ',
+  1225→    en: 'An error occurred',
+  1226→    fr: 'Une erreur est survenue',
+  1227→    es: 'Ocurrió un error'
+  1228→  },
+  1229→  'common.save': {
+  1230→    ar: 'حفظ',
+  1231→    en: 'Save',
+  1232→    fr: 'Enregistrer',
+  1233→    es: 'Guardar'
+  1234→  },
+  1235→  'common.cancel': {
+  1236→    ar: 'إلغاء',
+  1237→    en: 'Cancel',
+  1238→    fr: 'Annuler',
+  1239→    es: 'Cancelar'
+  1240→  },
+  1241→  'common.confirm': {
+  1242→    ar: 'تأكيد',
+  1243→    en: 'Confirm',
+  1244→    fr: 'Confirmer',
+  1245→    es: 'Confirmar'
+  1246→  },
+  1247→  'common.delete': {
+  1248→    ar: 'حذف',
+  1249→    en: 'Delete',
+  1250→    fr: 'Supprimer',
+  1251→    es: 'Eliminar'
+  1252→  },
+  1253→  'common.edit': {
+  1254→    ar: 'تعديل',
+  1255→    en: 'Edit',
+  1256→    fr: 'Modifier',
+  1257→    es: 'Editar'
+  1258→  },
+  1259→  'common.add': {
+  1260→    ar: 'إضافة',
+  1261→    en: 'Add',
+  1262→    fr: 'Ajouter',
+  1263→    es: 'Agregar'
+  1264→  },
+  1265→  'common.search': {
+  1266→    ar: 'بحث',
+  1267→    en: 'Search',
+  1268→    fr: 'Rechercher',
+  1269→    es: 'Buscar'
+  1270→  },
+  1271→  'common.filter': {
+  1272→    ar: 'تصفية',
+  1273→    en: 'Filter',
+  1274→    fr: 'Filtrer',
+  1275→    es: 'Filtrar'
+  1276→  },
+  1277→  'common.export': {
+  1278→    ar: 'تصدير',
+  1279→    en: 'Export',
+  1280→    fr: 'Exporter',
+  1281→    es: 'Exportar'
+  1282→  },
+  1283→  'common.import': {
+  1284→    ar: 'استيراد',
+  1285→    en: 'Import',
+  1286→    fr: 'Importer',
+  1287→    es: 'Importar'
+  1288→  },
+  1289→  'common.refresh': {
+  1290→    ar: 'تحديث',
+  1291→    en: 'Refresh',
+  1292→    fr: 'Actualiser',
+  1293→    es: 'Actualizar'
+  1294→  },
+  1295→  'common.noData': {
+  1296→    ar: 'لا توجد بيانات',
+  1297→    en: 'No data available',
+  1298→    fr: 'Aucune donnée disponible',
+  1299→    es: 'Sin datos disponibles'
+  1300→  },
+  1301→  'common.comingSoon': {
+  1302→    ar: 'قريباً...',
+  1303→    en: 'Coming Soon...',
+  1304→    fr: 'Bientôt disponible...',
+  1305→    es: 'Próximamente...'
+  1306→  }
+  1307→}
+  1308→
+  1309→export const languageNames: Record<Language, string> = {
+  1310→  ar: 'العربية',
+  1311→  en: 'English',
+  1312→  fr: 'Français',
+  1313→  es: 'Español'
+  1314→}
+  1315→
+  1316→export const languageFlags: Record<Language, string> = {
+  1317→  ar: '🇸🇦',
+  1318→  en: '🇺🇸',
+  1319→  fr: '🇫🇷',
+  1320→  es: '🇪🇸'
+  1321→}
+  1322→
+  1323→export const isRTL = (lang: Language): boolean => lang === 'ar'
+  1324→

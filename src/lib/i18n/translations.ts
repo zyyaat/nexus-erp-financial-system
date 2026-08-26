@@ -1303,6 +1303,232 @@ export const translations: Translations = {
     en: 'Coming Soon...',
     fr: 'Bientôt disponible...',
     es: 'Próximamente...'
+  },
+
+  // ==================== ADVANCED INVENTORY FEATURES ====================
+  
+  // Multi-Location Tracking
+  'inv.multiLocation': {
+    ar: 'تتبع متعدد المواقع',
+    en: 'Multi-Location Tracking',
+    fr: 'Suivi multi-site',
+    es: 'Seguimiento multiubicación'
+  },
+  'inv.selectWarehouse': {
+    ar: 'اختر المستودع',
+    en: 'Select Warehouse',
+    fr: 'Sélectionner l\'entrepôt',
+    es: 'Seleccionar almacén'
+  },
+  'inv.allLocations': {
+    ar: 'جميع المواقع',
+    en: 'All Locations',
+    fr: 'Tous les sites',
+    es: 'Todas las ubicaciones'
+  },
+  'inv.transferStock': {
+    ar: 'نقل المخزون',
+    en: 'Transfer Stock',
+    fr: 'Transférer le stock',
+    es: 'Transferir stock'
+  },
+  'inv.stockMovement': {
+    ar: 'حركة المخزون',
+    en: 'Stock Movement',
+    fr: 'Mouvement de stock',
+    es: 'Movimiento de stock'
+  },
+
+  // Barcode & RFID
+  'inv.barcodeScan': {
+    ar: 'مسح الباركود',
+    en: 'Barcode Scan',
+    fr: 'Scanner code-barres',
+    esc: 'Escanear código de barras'
+  },
+  'inv.rfidScan': {
+    ar: 'مسح RFID',
+    en: 'RFID Scan',
+    fr: 'Scanner RFID',
+    es: 'Escanear RFID'
+  },
+  'inv.scanItem': {
+    ar: 'مسح صنف',
+    en: 'Scan Item',
+    fr: 'Scanner l\'article',
+    esc: 'Escanear artículo'
+  },
+  'inv.scanResult': {
+    ar: 'نتيجة المسح',
+    en: 'Scan Result',
+    fr: 'Résultat du scan',
+    es: 'Resultado del escaneo'
+  },
+  'inv.generateBarcode': {
+    ar: 'إنشاء باركود',
+    en: 'Generate Barcode',
+    fr: 'Générer un code-barres',
+    es: 'Generar código de barras'
+  },
+
+  // AI Forecasting
+  'inv.aiForecast': {
+    ar: 'التنبؤ بالذكاء الاصطناعي',
+    en: 'AI Demand Forecast',
+    fr: 'Prévision par IA',
+    es: 'Pronóstico IA'
+  },
+  'inv.predictedDemand': {
+    ar: 'الطلب المتوقع',
+    en: 'Predicted Demand',
+    fr: 'Demande prévue',
+    es: 'Demanda prevista'
+  },
+  'inv.confidenceLevel': {
+    ar: 'مستوى الثقة',
+    en: 'Confidence Level',
+    fr: 'Niveau de confiance',
+    es: 'Nivel de confianza'
+  },
+  'inv.reorderSuggestion': {
+    ar: 'اقتراح إعادة الطلب',
+    en: 'Reorder Suggestion',
+    fr: 'Suggestion de réapprovisionnement',
+    es: 'Sugerencia de reorden'
+  },
+  'inv.seasonalTrend': {
+    ar: 'الاتجاه الموسمي',
+    en: 'Seasonal Trend',
+    fr: 'Tendance saisonnière',
+    es: 'Tendencia estacional'
+  },
+
+  // Batch & Serial Tracking
+  'inv.batchTracking': {
+    ar: 'تتبع الدفعات',
+    en: 'Batch Tracking',
+    fr: 'Suivi des lots',
+    es: 'Seguimiento de lotes'
+  },
+  'inv.serialTracking': {
+    ar: 'تتبع الأرقام التسلسلية',
+    en: 'Serial Tracking',
+    fr: 'Suivi des numéros de série',
+    es: 'Seguimiento de series'
+  },
+  'inv.batchNumber': {
+    ar: 'رقم الدفعة',
+    en: 'Batch Number',
+    fr: 'Numéro de lot',
+    es: 'Número de lote'
+  },
+  'inv.serialNumber': {
+    ar: 'الرقم التسلسلي',
+    en: 'Serial Number',
+    fr: 'Numéro de série',
+    es: 'Número de serie'
+  },
+  'inv.expiryDate': {
+    ar: 'تاريخ الانتهاء',
+    en: 'Expiry Date',
+    fr: 'Date d\'expiration',
+    es: 'Fecha de vencimiento'
+  },
+  'inv.traceability': {
+    ar: 'إمكانية التتبع',
+    en: 'Traceability',
+    fr: 'Traçabilité',
+    es: 'Trazabilidad'
+  },
+
+  // Advanced Analytics
+  'inv.inventoryTurnover': {
+    ar: 'دوران المخزون',
+    en: 'Inventory Turnover',
+    fr: 'Rotation des stocks',
+    es: 'Rotación de inventario'
+  },
+  'inv.daysOfSupply': {
+    ar: 'أيام الإمداد',
+    en: 'Days of Supply',
+    fr: 'Jours d\'approvisionnement',
+    es: 'Días de suministro'
+  },
+  'inv.fillRate': {
+    ar: 'معدل التعبئة',
+    en: 'Fill Rate',
+    fr: 'Taux de service',
+    es: 'Tasa de cumplimiento'
+  },
+  'inv.abcAnalysis': {
+    ar: 'تحليل ABC',
+    en: 'ABC Analysis',
+    fr: 'Analyse ABC',
+    es: 'Análisis ABC'
+  },
+  'inv.valuationReport': {
+    ar: 'تقرير التقييم',
+    en: 'Valuation Report',
+    fr: 'Rapport d\'évaluation',
+    es: 'Informe de valoración'
+  },
+
+  // Warehouse Management
+  'inv.zoneManagement': {
+    ar: 'إدارة المناطق',
+    en: 'Zone Management',
+    fr: 'Gestion des zones',
+    es: 'Gestión de zonas'
+  },
+  'inv.binLocation': {
+    ar: 'الموقع الدقيق',
+    en: 'Bin Location',
+    fr: 'Emplacement casier',
+    es: 'Ubicación de casillero'
+  },
+  'inv.pickList': {
+    ar: 'قائمة الانتقاء',
+    en: 'Pick List',
+    fr: 'Liste de prélèvement',
+    es: 'Lista de picking'
+  },
+  'inv.packOrder': {
+    ar: 'تعبئة الطلب',
+    en: 'Pack Order',
+    fr: 'Préparer la commande',
+    empacar: 'Empaquetar pedido'
+  },
+  'inv.cycleCount': {
+    ar: 'جرد دوري',
+    en: 'Cycle Count',
+    fr: 'Inventaire tournant',
+    es: 'Recuento cíclico'
+  },
+
+  // Real-time Features
+  'inv.realTimeSync': {
+    ar: 'مزامنة فورية',
+    en: 'Real-Time Sync',
+    fr: 'Synchronisation temps réel',
+    es: 'Sincronización en tiempo real'
+  },
+  'inv.lastUpdated': {
+    ar: 'آخر تحديث',
+    en: 'Last Updated',
+    fr: 'Dernière mise à jour',
+    es: 'Última actualización'
+  },
+  'inv.liveInventory': {
+    ar: 'مخزون مباشر',
+    en: 'Live Inventory',
+    fr: 'Inventaire en direct',
+    es: 'Inventario en vivo'
+  },
+  'inv.syncStatus': {
+    ar: 'حالة المزامنة',
+    en: 'Sync Status',
+    fr: 'État de synchronisation',
+    es: 'Estado de sincronización'
   }
 }
 
