@@ -123,11 +123,11 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f9ff] text-slate-900 antialiased overflow-x-hidden selection:bg-indigo-500/20 selection:text-indigo-600">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden selection:bg-indigo-500/20 selection:text-indigo-600 transition-colors duration-300">
       {/* Ambient Background Effects */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-indigo-100/40 blur-[120px] opacity-60 mix-blend-multiply"></div>
-        <div className="absolute -bottom-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-blue-100/30 blur-[100px] opacity-50 mix-blend-multiply"></div>
+        <div className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-indigo-100/40 dark:bg-indigo-900/20 blur-[120px] opacity-60 mix-blend-multiply"></div>
+        <div className="absolute -bottom-[20%] -left-[10%] w-[60vw] h-[60vw] rounded-full bg-blue-100/30 dark:bg-blue-900/20 blur-[100px] opacity-50 mix-blend-multiply"></div>
       </div>
 
       {/* Sidebar (Mobile Responsive) */}

@@ -58,6 +58,7 @@ import {
 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import FinancialCharts from './FinancialCharts'
+import FinancialReports from './FinancialReports'
 
 // ============ TYPES ============
 interface Transaction {
@@ -1466,7 +1467,7 @@ export default function FinancialsPage() {
       case 'charts':
         return <FinancialCharts />
       case 'reports':
-        return <ReportsSection />
+        return <FinancialReports />
       case 'budget':
         return <BudgetSection />
       default:
