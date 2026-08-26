@@ -744,3 +744,106 @@ svg,
 .shimmer {
   transition: none !important;
 }
+
+/* ============================================
+   CRITICAL DARK MODE FIXES
+   Safe overrides for common issues
+   ============================================ */
+
+/* Fix light-colored cards in dark mode */
+.dark .bg-white\/70 {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+}
+
+.dark .bg-white {
+  background-color: #1e293b !important;
+}
+
+/* Fix text contrast */
+.dark .text-slate-900 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-800 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+/* Fix borders visibility */
+.dark .border-white\/40 {
+  border-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+.dark .border-slate-200 {
+  border-color: #334155 !important;
+}
+
+/* Fix buttons */
+.dark button.bg-white\/70 {
+  background-color: rgba(30, 41, 59, 0.7) !important;
+}
+
+/* Fix badges for better visibility */
+.dark .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.dark .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+.dark .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.dark .text-red-700 {
+  color: #f87171 !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark .text-blue-700 {
+  color: #60a5fa !important;
+}
+
+.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+.dark .text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+/* Fix subtle backgrounds */
+.dark .bg-slate-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #263348 !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #263348 !important;
+}
