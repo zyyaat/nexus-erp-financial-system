@@ -62,7 +62,7 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+          className="md:hidden fixed inset-0 bg-black/50  z-40 transition-opacity"
           onClick={onClose}
         />
       )}
@@ -70,14 +70,14 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
       {/* Sidebar */}
       <aside className={`
         fixed ${isRTL ? 'right-0' : 'left-0'} top-0 h-screen w-64 
-        bg-white/95 dark:bg-slate-900/95 
-        backdrop-blur-xl 
+        bg-white/95 dark:bg-[#0F1117] 
+         
         ${isRTL ? 'border-l' : 'border-r'} border-white/40 
         shadow-xl shadow-indigo-500/10 
         z-50 flex-col h-full p-6 space-y-4
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}
-        md:translate-x-0 md:z-40 md:bg-white/70 md:dark:bg-slate-900/80
+        md:translate-x-0 md:z-40 md:bg-white/70 md:dark:bg-[#0F1117]
       `}>
         {/* Close Button (Mobile Only) */}
         <div className={`md:hidden flex ${isRTL ? 'justify-start' : 'justify-end'} mb-4`}>

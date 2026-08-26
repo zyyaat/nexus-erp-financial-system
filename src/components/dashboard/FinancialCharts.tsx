@@ -52,7 +52,7 @@ function BarChart({ data, type = 'revenue' }: { data: typeof monthlyData, type?:
         return (
           <div key={item.month} className="flex items-center gap-3 group">
             <span className="text-xs font-medium text-slate-500 w-8">{item.month}</span>
-            <div className="flex-1 h-8 bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden relative">
+            <div className="flex-1 h-8 bg-slate-100 dark:bg-white/[0.03] rounded-lg overflow-hidden relative">
               <div 
                 className={`h-full rounded-lg transition-all duration-500 ease-out ${
                   type === 'revenue' 
@@ -252,13 +252,13 @@ export default function FinancialCharts() {
         </div>
         
         {/* Chart Controls */}
-        <div className="flex items-center gap-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl rounded-xl p-1 border border-slate-200/50">
+        <div className="flex items-center gap-2 bg-white dark:bg-[#1A1D26] rounded-xl p-1 border border-white/10">
           <button
             onClick={() => setChartType('bar')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               chartType === 'bar' 
                 ? 'bg-indigo-500 text-white shadow-md' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-white/[0.05]'
             }`}
           >
             Bar Chart
@@ -268,7 +268,7 @@ export default function FinancialCharts() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               chartType === 'line' 
                 ? 'bg-indigo-500 text-white shadow-md' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-white/[0.05]'
             }`}
           >
             Line Chart
@@ -318,7 +318,7 @@ export default function FinancialCharts() {
       {/* Main Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Primary Chart */}
-        <div className="lg:col-span-2 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl p-6 shadow-lg">
+        <div className="lg:col-span-2 bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-semibold text-slate-900 dark:text-white">
               Monthly Performance / الأداء الشهري
@@ -355,7 +355,7 @@ export default function FinancialCharts() {
           )}
           
           {/* Legend */}
-          <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-slate-200 dark:border-white/10">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-indigo-500"></div>
               <span className="text-sm text-slate-600 dark:text-slate-400">Revenue</span>
@@ -368,7 +368,7 @@ export default function FinancialCharts() {
         </div>
 
         {/* Donut Chart - Category Breakdown */}
-        <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl p-6 shadow-lg">
+        <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
           <h3 className="font-semibold text-slate-900 dark:text-white mb-4 text-center">
             Expense Breakdown / توزيع المصروفات
           </h3>
@@ -394,7 +394,7 @@ export default function FinancialCharts() {
       </div>
 
       {/* Cash Flow Section */}
-      <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 rounded-xl p-6 shadow-lg">
+      <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
         <h3 className="font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
           <ArrowUpRight size={20} className="text-emerald-500" />
           Weekly Cash Flow / التدفق النقدي الأسبوعي
@@ -437,7 +437,7 @@ export default function FinancialCharts() {
               </div>
               
               {/* Mini bar visualization */}
-              <div className="mt-3 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
+              <div className="mt-3 h-2 bg-slate-200 dark:bg-white/[0.08] rounded-full overflow-hidden flex">
                 <div 
                   className="bg-emerald-500"
                   style={{ width: `${(week.inflow / (week.inflow + week.outflow)) * 100}%` }}

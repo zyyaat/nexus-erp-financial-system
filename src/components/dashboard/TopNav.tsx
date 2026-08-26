@@ -28,10 +28,9 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
     <header
       className={`
         fixed top-0 left-0 right-0 
-        bg-white/90 dark:bg-slate-900/95 
-        backdrop-blur-lg 
+        bg-white/95 dark:bg-[#0F1117]
         transition-all duration-300 z-30
-        ${isScrolled ? 'border-b border-slate-200/50 dark:border-slate-700/50 shadow-sm' : ''}
+        ${isScrolled ? 'border-b border-slate-200 dark:border-white/10 shadow-sm' : ''}
       `}
       id="top-nav"
     >
@@ -44,10 +43,10 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             className="
               flex-shrink-0 p-2 
               rounded-xl text-slate-600 dark:text-slate-300 
-              hover:bg-slate-100 dark:hover:bg-slate-800 
-              active:bg-slate-200 dark:active:bg-slate-700
+              hover:bg-slate-100 dark:hover:bg-white/[0.05] 
+              active:bg-slate-200 dark:active:bg-white/[0.08]
               transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+              focus:outline-none focus:ring-2 focus:ring-blue-500/30
             "
             aria-label="Open menu"
           >
@@ -58,13 +57,13 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
           <div className={`hidden sm:flex flex-1 max-w-md transition-all duration-300 ${searchFocused ? 'max-w-lg' : ''}`}>
             <div className={`
               relative w-full group 
-              focus-within:ring-2 focus-within:ring-indigo-500/30 
+              focus-within:ring-2 focus-within:ring-blue-500/30 
               rounded-xl transition-all duration-200
-              ${searchFocused ? 'bg-white dark:bg-slate-800 shadow-sm' : ''}
+              ${searchFocused ? 'bg-white dark:bg-[#1A1D26] shadow-sm border border-blue-500/20' : ''}
             `}>
               <span className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
                 <Search 
-                  className={`transition-colors ${searchFocused ? 'text-indigo-500' : 'text-slate-400 dark:text-slate-500'}`} 
+                  className={`transition-colors ${searchFocused ? 'text-blue-500' : 'text-slate-400 dark:text-slate-500'}`} 
                   size={18} 
                 />
               </span>
@@ -77,10 +76,10 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
                   block w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 
                   border border-transparent rounded-xl 
                   leading-5 
-                  bg-slate-100/80 dark:bg-slate-800/80 
-                  text-slate-900 dark:text-slate-100 text-sm 
+                  bg-slate-100/80 dark:bg-white/[0.05]
+                  text-slate-900 dark:text-white text-sm 
                   placeholder-slate-400 dark:placeholder-slate-500 
-                  focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500/30 
+                  focus:outline-none focus:bg-white dark:focus:bg-[#1A1D26] focus:border-blue-500/30 
                   transition-all duration-200
                 `}
               />
@@ -95,16 +94,16 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             className="
               relative p-2.5 rounded-xl 
               text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 
-              hover:bg-slate-100 dark:hover:bg-slate-800 
-              active:bg-slate-200 dark:active:bg-slate-700
+              hover:bg-slate-100 dark:hover:bg-white/[0.05] 
+              active:bg-slate-200 dark:active:bg-white/[0.08]
               transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+              focus:outline-none focus:ring-2 focus:ring-blue-500/30
             "
             aria-label={t('notifications.title')}
           >
             <Bell size={20} strokeWidth={2} />
             {/* Notification Badge */}
-            <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-900`}></span>
+            <span className={`absolute top-1.5 ${isRTL ? 'left-1.5' : 'right-1.5'} w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#0F1117]`}></span>
           </button>
 
           {/* Dark Mode Toggle */}
@@ -113,10 +112,10 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             className="
               p-2.5 rounded-xl 
               text-slate-500 dark:text-yellow-400 hover:text-slate-700 dark:hover:text-yellow-300 
-              hover:bg-slate-100 dark:hover:bg-slate-800 
-              active:bg-slate-200 dark:active:bg-slate-700
+              hover:bg-slate-100 dark:hover:bg-white/[0.05] 
+              active:bg-slate-200 dark:active:bg-white/[0.08]
               transition-all duration-300 
-              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+              focus:outline-none focus:ring-2 focus:ring-blue-500/30
             "
             aria-label="Toggle theme"
           >
@@ -133,11 +132,11 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               flex items-center gap-2 
               pl-3 pr-2 py-1.5 
               rounded-full 
-              text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 
-              hover:bg-slate-100 dark:hover:bg-slate-800 
-              active:bg-slate-200 dark:active:bg-slate-700
+              text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white 
+              hover:bg-slate-100 dark:hover:bg-white/[0.05] 
+              active:bg-slate-200 dark:active:bg-white/[0.08]
               transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+              focus:outline-none focus:ring-2 focus:ring-blue-500/30
             "
             aria-label="User menu"
           >
@@ -147,7 +146,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoUjdl6JxQ7xr6TtNXNe5yuWpE6JyXvtJdGu5cl3Kgm8IwbLHIqEYhZLg3NzLswZcOlLnobLxo3Yg7JPZLA018Bj05yk3jkudcWtUR_n6scAEQ2NMqU7ew3yCT7_MDdQjp1kNWjGuqCkA0tISPAvTS48joKg2R5yWnI8-AQVfnHc2FVsZoL0-3dZ0UG68X4sSPe-Z5NkSAiWfWulj5eyGYClHXJ1hkm-FxfBr2Dm9ZH9-tTen8NiFi"
               className="
                 w-8 h-8 rounded-full object-cover 
-                ring-2 ring-white dark:ring-slate-700 
+                ring-2 ring-white dark:ring-white/10 
                 shadow-sm
               "
             />
@@ -170,12 +169,12 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             placeholder={`${t('search.placeholder')} ${t('nav.operations').toLowerCase()}, ${t('nav.analytics').toLowerCase()}, ${t('nav.settings').toLowerCase()}...`}
             className={`
               block w-full ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} py-2.5 
-              border border-slate-200/50 dark:border-slate-700/50 rounded-xl 
+              border border-slate-200/50 dark:border-white/10 rounded-xl 
               leading-5 
-              bg-slate-50/80 dark:bg-slate-800/80 
-              text-slate-900 dark:text-slate-100 text-sm 
+              bg-slate-50/80 dark:bg-white/[0.05]
+              text-slate-900 dark:text-white text-sm 
               placeholder-slate-400 dark:placeholder-slate-500 
-              focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500/30 focus:ring-2 focus:ring-indigo-500/20
+              focus:outline-none focus:bg-white dark:focus:bg-[#1A1D26] focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20
               transition-all duration-200
             `}
           />

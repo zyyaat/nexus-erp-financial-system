@@ -146,7 +146,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar Navigation - Takes 1 column */}
         <div className="lg:col-span-1">
-          <nav className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-4 shadow-lg shadow-indigo-500/4 sticky top-24">
+          <nav className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-4 shadow-md sticky top-24">
             <ul className="space-y-1">
               {settingsSections.map((section) => {
                 const Icon = section.icon
@@ -179,7 +179,7 @@ export default function SettingsPage() {
           {activeSection === 'language' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
               {/* Language Selector Card */}
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Languages size={20} className="text-blue-500" />
                   {t('settings.language')}
@@ -271,19 +271,19 @@ export default function SettingsPage() {
                 </h4>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="bg-white/[0.05] rounded-lg p-4">
                     <p className="text-white/60 text-xs mb-1">{t('nav.dashboard')}</p>
                     <p className="font-semibold">{t('kpi.totalRevenue')}</p>
                   </div>
-                  <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="bg-white/[0.05] rounded-lg p-4">
                     <p className="text-white/60 text-xs mb-1">{t('nav.operations')}</p>
                     <p className="font-semibold">{t('ops.activeWorkflows')}</p>
                   </div>
-                  <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="bg-white/[0.05] rounded-lg p-4">
                     <p className="text-white/60 text-xs mb-1">{t('nav.inventory')}</p>
                     <p className="font-semibold">{t('inventory.title')}</p>
                   </div>
-                  <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+                  <div className="bg-white/[0.05] rounded-lg p-4">
                     <p className="text-white/60 text-xs mb-1">{t('nav.financials')}</p>
                     <p className="font-semibold">{t('financials.title')}</p>
                   </div>
@@ -295,7 +295,7 @@ export default function SettingsPage() {
           {/* Profile Section */}
           {activeSection === 'profile' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
                   <User size={20} className="text-indigo-500" />
                   {t('settings.general')}
@@ -414,7 +414,7 @@ export default function SettingsPage() {
           {/* Notifications Section */}
           {activeSection === 'notifications' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Bell size={20} className="text-amber-500" />
                   {t('settings.notifications')}
@@ -458,7 +458,7 @@ export default function SettingsPage() {
                       {language === 'ar' ? 'هذا هو شكل الإشعارات الخاصة بك' : language === 'fr' ? 'Voici à quoi ressembleront vos notifications' : language === 'es' ? 'Así se verán tus notificaciones' : 'This is how your notifications will look'}
                     </p>
                     
-                    <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+                    <div className="bg-white/[0.05] rounded-lg p-4">
                       <p className="font-medium text-sm">📦 {t('ops.newOrder')}</p>
                       <p className="text-xs text-white/70 mt-1">Order #1234 from TechCorp Industries - $4,500.00</p>
                       <p className="text-xs text-white/60 mt-2">
@@ -474,7 +474,7 @@ export default function SettingsPage() {
           {/* Appearance Section */}
           {activeSection === 'appearance' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Palette size={20} className="text-purple-500" />
                   {t('settings.appearance')}
@@ -542,7 +542,7 @@ export default function SettingsPage() {
           {/* Security Section */}
           {activeSection === 'security' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <h3 className="text-lg font-semibold text-slate-900 mb-2 flex items-center gap-2">
                   <Shield size={20} className="text-red-500" />
                   {t('settings.security')}
@@ -590,7 +590,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Two-Factor Auth */}
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-slate-900">{t('settings.twoFactor')}</h4>
                   <ToggleSwitch enabled={true} onToggle={() => {}} />
@@ -610,7 +610,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Active Sessions */}
-              <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg shadow-indigo-500/4">
+              <div className="bg-white dark:bg-[#1A1D26] border border-white/10 rounded-xl p-6 shadow-md">
                 <h4 className="font-semibold text-slate-900 mb-4">{t('settings.activeSessions')}</h4>
                 
                 <div className="space-y-3">

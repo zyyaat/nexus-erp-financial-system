@@ -384,8 +384,8 @@ export default function FinancialReports() {
             onClick={() => setShowPreview(!showPreview)}
             className="
               flex items-center gap-2 px-4 py-2.5 
-              bg-white dark:bg-slate-800 
-              border border-slate-200 dark:border-slate-700 
+              bg-white dark:bg-[#1A1D26] 
+              border border-slate-200 dark:border-white/10 
               rounded-xl text-slate-700 dark:text-slate-300 
               hover:bg-slate-50 dark:hover:bg-slate-700 
               transition-colors duration-200
@@ -400,8 +400,8 @@ export default function FinancialReports() {
             onClick={handlePrint}
             className="
               flex items-center gap-2 px-4 py-2.5 
-              bg-white dark:bg-slate-800 
-              border border-slate-200 dark:border-slate-700 
+              bg-white dark:bg-[#1A1D26] 
+              border border-slate-200 dark:border-white/10 
               rounded-xl text-slate-700 dark:text-slate-300 
               hover:bg-slate-50 dark:hover:bg-slate-700 
               transition-colors duration-200
@@ -442,7 +442,7 @@ export default function FinancialReports() {
       </div>
 
       {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+      <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white dark:bg-[#1A1D26] rounded-2xl border border-slate-200 dark:border-white/10
         {/* Report Type Selector */}
         <div className="flex-1">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -459,7 +459,7 @@ export default function FinancialReports() {
                   transition-all duration-200 font-medium text-sm
                   ${selectedReport === config.id
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                    : 'bg-slate-100 dark:bg-[#232732] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }
                 `}
               >
@@ -481,8 +481,8 @@ export default function FinancialReports() {
             onChange={(e) => setDateRange(e.target.value as typeof dateRange)}
             className="
               w-full px-4 py-2.5 
-              bg-white dark:bg-slate-700 
-              border border-slate-200 dark:border-slate-600 
+              bg-white dark:bg-[#232732] 
+              border border-slate-200 dark:border-white/10 
               rounded-xl text-slate-900 dark:text-slate-100 
               focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500
               transition-colors duration-200
@@ -517,10 +517,10 @@ export default function FinancialReports() {
       {showPreview && (
         <div 
           ref={reportRef}
-          className="bg-white dark:bg-slate-800/70 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-xl overflow-hidden"
+          className="bg-white dark:bg-[#1A1D26] rounded-2xl border border-slate-200 dark:border-white/10 shadow-xl overflow-hidden"
         >
           {/* Report Header */}
-          <div className="p-6 md:p-8 border-b border-slate-200 dark:border-slate-700/50 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-800 dark:to-slate-800/50 print:bg-white">
+          <div className="p-6 md:p-8 border-b border-slate-200 dark:border-white/10 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-[#1A1D26] dark:to-[#1A1D26] print:bg-white">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -568,7 +568,7 @@ export default function FinancialReports() {
           </div>
 
           {/* Report Footer */}
-          <div className="px-6 md:px-8 py-4 border-t border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30">
+          <div className="px-6 md:px-8 py-4 border-t border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#1A1D26]
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-slate-500 dark:text-slate-400">
               <p>
                 © {new Date().getFullYear()} Nexus ERP Solutions — {locale === 'ar' ? 'تقرير سري' : 'Confidential Report'}
@@ -607,14 +607,14 @@ function BalanceSheetReport({ data, isRTL, locale }: { data: BalanceSheetData; i
               <table className="w-full">
                 <tbody>
                   {category.items.map((item) => (
-                    <tr key={item.name} className="border-b border-slate-100 dark:border-slate-700/50">
+                    <tr key={item.name} className="border-b border-slate-100 dark:border-white/10
                       <td className="py-2.5 pr-2 text-slate-700 dark:text-slate-300">{item.name}</td>
                       <td className={`py-2.5 text-right font-mono ${item.amount < 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-100'}`}>
                         {formatCurrency(item.amount)}
                       </td>
                     </tr>
                   ))}
-                  <tr className="border-t-2 border-slate-300 dark:border-slate-600">
+                  <tr className="border-t-2 border-slate-300 dark:border-white/10
                     <td className="py-3 pr-2 font-bold text-slate-900 dark:text-slate-100">
                       Total {category.category.split(' ')[0]}
                     </td>
@@ -658,14 +658,14 @@ function BalanceSheetReport({ data, isRTL, locale }: { data: BalanceSheetData; i
                 <table className="w-full">
                   <tbody>
                     {category.items.map((item) => (
-                      <tr key={item.name} className="border-b border-slate-100 dark:border-slate-700/50">
+                      <tr key={item.name} className="border-b border-slate-100 dark:border-white/10
                         <td className="py-2.5 pr-2 text-slate-700 dark:text-slate-300">{item.name}</td>
                         <td className="py-2.5 text-right font-mono text-slate-900 dark:text-slate-100">
                           {formatCurrency(item.amount)}
                         </td>
                       </tr>
                     ))}
-                    <tr className="border-t-2 border-slate-300 dark:border-slate-600">
+                    <tr className="border-t-2 border-slate-300 dark:border-white/10
                       <td className="py-3 pr-2 font-bold text-slate-900 dark:text-slate-100">
                         Total {category.category.split(' ')[0]}
                       </td>
@@ -702,7 +702,7 @@ function BalanceSheetReport({ data, isRTL, locale }: { data: BalanceSheetData; i
             <table className="w-full mb-4">
               <tbody>
                 {data.equity.map((item) => (
-                  <tr key={item.name} className="border-b border-slate-100 dark:border-slate-700/50">
+                  <tr key={item.name} className="border-b border-slate-100 dark:border-white/10
                     <td className="py-2.5 pr-2 text-slate-700 dark:text-slate-300">{item.name}</td>
                     <td className="py-2.5 text-right font-mono text-slate-900 dark:text-slate-100">
                       {formatCurrency(item.amount)}
@@ -727,7 +727,7 @@ function BalanceSheetReport({ data, isRTL, locale }: { data: BalanceSheetData; i
       </div>
 
       {/* Verification */}
-      <div className="mt-8 p-6 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-800/50 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
+      <div className="mt-8 p-6 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-[#1A1D26] dark:to-[#1A1D26] rounded-2xl border-2 border-slate-200 dark:border-white/10
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-around gap-4 text-center">
           <div>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Assets</p>
@@ -773,7 +773,7 @@ function IncomeStatementReport({ data, isRTL, locale }: { data: IncomeStatementD
         <table className="w-full">
           <tbody>
             {data.revenue.map((item) => (
-              <tr key={item.category} className="border-b border-slate-100 dark:border-slate-700/50">
+              <tr key={item.category} className="border-b border-slate-100 dark:border-white/10
                 <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.category}</td>
                 <td className="py-3 pl-4 text-right font-mono text-green-600 dark:text-green-400 font-semibold">
                   {formatCurrency(item.amount)}
@@ -793,7 +793,7 @@ function IncomeStatementReport({ data, isRTL, locale }: { data: IncomeStatementD
       </div>
 
       {/* Cost of Goods Sold */}
-      <div className="pl-4 md:pl-8 border-l-4 border-slate-300 dark:border-slate-600">
+      <div className="pl-4 md:pl-8 border-l-4 border-slate-300 dark:border-white/10
         <table className="w-full">
           <tbody>
             <tr>
@@ -831,7 +831,7 @@ function IncomeStatementReport({ data, isRTL, locale }: { data: IncomeStatementD
         <table className="w-full">
           <tbody>
             {data.expenses.slice(1, 5).map((item) => (
-              <tr key={item.category} className="border-b border-slate-100 dark:border-slate-700/50">
+              <tr key={item.category} className="border-b border-slate-100 dark:border-white/10
                 <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.category}</td>
                 <td className="py-3 pl-4 text-right font-mono text-red-600 dark:text-red-400">
                   ({formatCurrency(item.amount)})
@@ -862,7 +862,7 @@ function IncomeStatementReport({ data, isRTL, locale }: { data: IncomeStatementD
         <table className="w-full">
           <tbody>
             {data.expenses.slice(5).map((item) => (
-              <tr key={item.category} className="border-b border-slate-100 dark:border-slate-700/50">
+              <tr key={item.category} className="border-b border-slate-100 dark:border-white/10
                 <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.category}</td>
                 <td className="py-3 pl-4 text-right font-mono text-red-600 dark:text-red-400">
                   ({formatCurrency(item.amount)})
@@ -914,7 +914,7 @@ function CashFlowReport({ data, isRTL, locale }: { data: CashFlowData; isRTL: bo
         <table className="w-full">
           <tbody>
             {data.operatingActivities.map((item) => (
-              <tr key={item.description} className="border-b border-slate-100 dark:border-slate-700/50">
+              <tr key={item.description} className="border-b border-slate-100 dark:border-white/10
                 <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.description}</td>
                 <td className={`py-3 pl-4 text-right font-mono font-semibold ${
                   item.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
@@ -950,7 +950,7 @@ function CashFlowReport({ data, isRTL, locale }: { data: CashFlowData; isRTL: bo
         <table className="w-full">
           <tbody>
             {data.investingActivities.map((item) => (
-              <tr key={item.description} className="border-b border-slate-100 dark:border-slate-700/50">
+              <tr key={item.description} className="border-b border-slate-100 dark:border-white/10
                 <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.description}</td>
                 <td className={`py-3 pl-4 text-right font-mono font-semibold ${
                   item.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
@@ -986,7 +986,7 @@ function CashFlowReport({ data, isRTL, locale }: { data: CashFlowData; isRTL: bo
         <table className="w-full">
           <tbody>
             {data.financingActivities.map((item) => (
-              <tr key={item.description} className="border-b border-slate-100 dark:border-slate-700/50">
+              <tr key={item.description} className="border-b border-slate-100 dark:border-white/10
                 <td className="py-3 pr-4 text-slate-700 dark:text-slate-300">{item.description}</td>
                 <td className={`py-3 pl-4 text-right font-mono font-semibold ${
                   item.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
@@ -1011,9 +1011,9 @@ function CashFlowReport({ data, isRTL, locale }: { data: CashFlowData; isRTL: bo
       </div>
 
       {/* Summary */}
-      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
+      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10
         <table className="w-full">
-          <thead className="bg-slate-100 dark:bg-slate-700/50">
+          <thead className="bg-slate-100 dark:bg-[#232732]
             <tr>
               <th className="py-4 px-6 text-left font-bold text-slate-900 dark:text-slate-100">
                 {locale === 'ar' ? 'ملخص النقدية' : 'CASH SUMMARY'}
@@ -1022,7 +1022,7 @@ function CashFlowReport({ data, isRTL, locale }: { data: CashFlowData; isRTL: bo
             </tr>
           </thead>
           <tbody>
-            <tr className="border-t border-slate-200 dark:border-slate-700">
+            <tr className="border-t border-slate-200 dark:border-white/10
               <td className="py-4 px-6 text-slate-700 dark:text-slate-300">
                 {locale === 'ar' ? 'رصيد النقدية في بداية الفترة' : 'Beginning Cash Balance'}
               </td>
@@ -1075,17 +1075,17 @@ function TrialBalanceReport({ data, isRTL, locale }: { data: TrialBalanceItem[];
       
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-slate-100 dark:bg-slate-700/50">
-            <th className={`py-3 px-4 text-left font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+          <tr className="bg-slate-100 dark:bg-[#232732]
+            <th className={`py-3 px-4 text-left font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-white/10
               {locale === 'ar' ? 'رمز الحساب' : 'Account Code'}
             </th>
-            <th className={`py-3 px-4 text-left font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+            <th className={`py-3 px-4 text-left font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-white/10
               {locale === 'ar' ? 'اسم الحساب' : 'Account Name'}
             </th>
-            <th className={`py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+            <th className={`py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-white/10
               {locale === 'ar' ? 'مدين' : 'Debit ($)'}
             </th>
-            <th className={`py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-slate-600`}>
+            <th className={`py-3 px-4 text-right font-bold text-slate-900 dark:text-slate-100 border-b-2 border-slate-300 dark:border-white/10
               {locale === 'ar' ? 'دائن' : 'Credit ($)'}
             </th>
           </tr>
@@ -1095,8 +1095,8 @@ function TrialBalanceReport({ data, isRTL, locale }: { data: TrialBalanceItem[];
             <tr 
               key={item.accountCode}
               className={`
-                border-b border-slate-100 dark:border-slate-700/50
-                ${index % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50/50 dark:bg-slate-800/30'}
+                border-b border-slate-100 dark:border-white/10
+                ${index % 2 === 0 ? 'bg-white dark:bg-transparent' : 'bg-slate-50/50 dark:bg-[#1A1D26]
                 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-colors
               `}
             >
@@ -1116,7 +1116,7 @@ function TrialBalanceReport({ data, isRTL, locale }: { data: TrialBalanceItem[];
           ))}
         </tbody>
         <tfoot>
-          <tr className="bg-gradient-to-r from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-800">
+          <tr className="bg-gradient-to-r from-slate-800 to-slate-900 dark:from-slate-700 dark:to-[#1A1D26]
             <td colSpan={2} className="py-4 px-4 font-bold text-white text-lg">
               {locale === 'ar' ? 'المجموع' : 'TOTALS'}
             </td>

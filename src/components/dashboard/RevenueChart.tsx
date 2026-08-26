@@ -22,11 +22,11 @@ export default function RevenueChart() {
   }
 
   return (
-    <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
+    <div className="bg-white dark:bg-[#1A1D26] border border-white/40 rounded-xl p-6 flex flex-col h-[400px] shadow-lg shadow-indigo-500/4">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-slate-900">{t('chart.revenueVsTarget')}</h3>
-        <select className="bg-slate-100/30 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 backdrop-blur-sm">
+        <select className="bg-slate-100/30 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 ">
           {timeOptions[language]?.map((option, i) => (
             <option key={i}>{option}</option>
           ))}
