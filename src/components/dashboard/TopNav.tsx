@@ -1,9 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Bell, Grid3X3 } from 'lucide-react'
+import { Search, Bell, Menu } from 'lucide-react'
 
-export default function TopNav() {
+interface TopNavProps {
+  onMenuClick: () => void
+}
+
+export default function TopNav({ onMenuClick }: TopNavProps) {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -16,40 +20,50 @@ export default function TopNav() {
 
   return (
     <header
-      className={`hidden md:flex fixed top-0 right-0 w-[calc(100%-16rem)] bg-white/70 dark:bg-slate-900/70 backdrop-blur-md transition-all duration-300 z-30 justify-between items-center h-16 px-8 ml-64 ${
+      className={`fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] bg-white/70 dark:bg-slate-900/70 backdrop-blur-md transition-all duration-300 z-30 justify-between items-center h-16 px-4 md:px-8 ${
         isScrolled ? 'border-b border-white/40 shadow-sm' : 'border-b border-transparent'
-      }`}
+      } ${'md:ml-64'}`}
       id="top-nav"
     >
-      {/* Search Bar */}
-      <div className="flex-1 max-w-xl">
-        <div className="relative group focus-within:ring-2 focus-within:ring-indigo-500/30 rounded-xl transition-all duration-300">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" fontSize="small" />
-          </span>
-          <input
-            type="text"
-            placeholder="Search operations, analytics, settings..."
-            className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-xl leading-5 bg-slate-100/30 text-slate-900 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-indigo-500/50 sm:text-sm transition-all duration-300"
-          />
+      <div className="flex items-center space-x-4">
+        {/* Hamburger Menu (Mobile Only) */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Search Bar */}
+        <div className="flex-1 max-w-xl">
+          <div className="relative group focus-within:ring-2 focus-within:ring-indigo-500/30 rounded-xl transition-all duration-300">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            </span>
+            <input
+              type="text"
+              placeholder="Search operations, analytics, settings..."
+              className="block w-full pl-10 pr-3 py-2.5 md:py-2 border border-transparent rounded-xl leading-5 bg-slate-100/30 text-slate-900 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-indigo-500/50 sm:text-sm transition-all duration-300"
+            />
+          </div>
         </div>
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center space-x-2 ml-4">
+      <div className="flex items-center space-x-1 md:space-x-2 ml-4">
         {/* Notifications */}
         <button className="p-2 rounded-xl text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30 relative">
-          <Bell fontSize="small" />
+          <Bell size={20} />
           <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
         </button>
 
-        {/* Apps */}
-        <button className="p-2 rounded-xl text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-          <Grid3X3 fontSize="small" />
+        {/* Apps (Hidden on small mobile) */}
+        <button className="hidden sm:block p-2 rounded-xl text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+          <Menu size={20} />
         </button>
 
-        {/* Divider */}
-        <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
+        {/* Divider (Hidden on small mobile) */}
+        <div className="hidden lg:block h-8 w-[1px] bg-slate-200 mx-2"></div>
 
         {/* User Profile */}
         <button className="flex items-center space-x-2 p-1 pl-2 pr-1 rounded-full text-slate-500 hover:bg-indigo-50 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
