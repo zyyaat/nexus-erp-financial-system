@@ -322,19 +322,32 @@ function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
   const Icon = kpi.icon
   const isPositive = kpi.change >= 0
 
-  return (
-    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-5 flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-slate-900/30">
-      <div className={`absolute top-0 right-0 w-28 h-28 ${kpi.bgColor} dark:opacity-30 rounded-full blur-2xl -mr-10 -mt-10 opacity-60 pointer-events-none`}></div>
+  // Enterprise-style solid borders, no gradients or blur
+  const borderColors = {
+    emerald: 'border-l-4 border-l-emerald-500',
+    red: 'border-l-4 border-l-red-500',
+    blue: 'border-l-4 border-l-blue-500',
+    violet: 'border-l-4 border-l-violet-500'
+  }
 
-      <div className="flex justify-between items-start mb-3 relative z-10">
-        <div className={`p-2.5 ${kpi.bgColor} dark:bg-opacity-20 rounded-xl ${kpi.textColor} dark:text-opacity-80`}>
+  const iconBgColors = {
+    emerald: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
+    red: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400',
+    blue: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
+    violet: 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400'
+  }
+
+  return (
+    <div className={`bg-white dark:bg-slate-800 border ${borderColors[kpi.color as keyof typeof borderColors]} border-slate-200 dark:border-slate-700 rounded-lg p-5 flex flex-col justify-between group hover:shadow-md transition-all duration-200`}>
+      <div className="flex justify-between items-start mb-3">
+        <div className={`p-2.5 rounded-lg ${iconBgColors[kpi.color as keyof typeof iconBgColors]}`}>
           <Icon size={20} />
         </div>
         {kpi.change !== 0 && (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${
             isPositive 
-              ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
-              : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
+              ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' 
+              : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
           }`}>
             {isPositive ? <TrendingUp size={12} className="mr-1" /> : <TrendingDown size={12} className="mr-1" />}
             {Math.abs(kpi.change)}%
@@ -342,9 +355,9 @@ function KPICard({ kpi }: { kpi: typeof financialKPIs[0] }) {
         )}
       </div>
 
-      <div className="relative z-10">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{kpi.titleAr || kpi.titleKey}</p>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{kpi.value}</h3>
+      <div>
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{kpi.titleAr || kpi.titleKey}</p>
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">{kpi.value}</h3>
       </div>
     </div>
   )
@@ -366,15 +379,15 @@ function TabNavigation({ activeTab, setActiveTab }: { activeTab: FinanceTab; set
   ]
 
   return (
-    <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-xl p-1.5 shadow-lg flex gap-1 overflow-x-auto">
+    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1 shadow-sm flex gap-1 overflow-x-auto">
       {tabs.map((tab) => (
         <button 
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium text-sm transition-all whitespace-nowrap ${
             activeTab === tab.id 
-              ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm' 
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/70'
+              ? 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 border-b-2 border-indigo-600 dark:border-indigo-400' 
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
           }`}
         >
           <tab.icon size={16} />
@@ -403,7 +416,7 @@ function OverviewSection() {
       {/* Secondary KPIs Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Liquidity Metrics */}
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Activity size={18} className="text-blue-500" />
             Liquidity Metrics / مؤشرات السيولة
@@ -424,7 +437,7 @@ function OverviewSection() {
         </div>
 
         {/* Profitability Metrics */}
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <h3 className="text-base font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <TrendingUpIcon size={18} className="text-emerald-500" />
             Profitability Metrics / مؤشرات الربحية
@@ -447,7 +460,7 @@ function OverviewSection() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Transactions */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
                 <Receipt size={18} className="text-indigo-500" />
@@ -519,7 +532,7 @@ function OverviewSection() {
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Expense Breakdown */}
-          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <PieChart size={18} className="text-violet-500" />
               Expense Breakdown / توزيع المصروفات
@@ -558,17 +571,17 @@ function OverviewSection() {
             </h4>
             
             <div className="space-y-3">
-              <div className="flex justify-between items-center p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <span className="text-sm">This Month</span>
                 <span className="text-lg font-bold">$124,110</span>
               </div>
               
-              <div className="flex justify-between items-center p-3 bg-white/20 rounded-lg backdrop-blur-sm">
+              <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                 <span className="text-sm">Last Month</span>
                 <span className="text-lg font-bold">$98,430</span>
               </div>
               
-              <div className="flex justify-between items-center p-3 bg-white/30 rounded-lg backdrop-blur-sm mt-2">
+              <div className="flex justify-between items-center p-3 bg-slate-100 dark:bg-slate-800/70 rounded-lg mt-2">
                 <span className="text-sm font-medium">Growth / النمو</span>
                 <span className="text-lg font-bold flex items-center gap-1">
                   <TrendingUp size={18} />
@@ -579,7 +592,7 @@ function OverviewSection() {
           </div>
 
           {/* Currencies */}
-          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-4">
               <Globe size={18} className="text-cyan-500" />
               Multi-Currency / تعدد العملات
@@ -635,7 +648,7 @@ function GLSection() {
           <p className="text-slate-500 mt-1">Chart of accounts with balances and activity</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600">
             <Plus size={16} />
             New Entry
           </button>
@@ -647,7 +660,7 @@ function GLSection() {
       </div>
 
       {/* Search and Filter */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-4 shadow-lg flex flex-col sm:flex-row gap-4">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-sm">
         <div className="relative flex-1">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -698,7 +711,7 @@ function GLSection() {
       </div>
 
       {/* Accounts Table - Mobile Responsive */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm overflow-hidden">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full min-w-[600px]">
@@ -807,7 +820,7 @@ function APSection() {
           <p className="text-slate-500 mt-1">Manage vendor invoices and payments</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600">
             <Upload size={16} />
             Import Invoice
           </button>
@@ -820,7 +833,7 @@ function APSection() {
 
       {/* AP Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-orange-100 rounded-lg text-orange-600">
               <FileText size={20} />
@@ -831,7 +844,7 @@ function APSection() {
           <p className="text-xs text-emerald-600 mt-1">↓ 8% from last month</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-red-100 rounded-lg text-red-600">
               <AlertTriangle size={20} />
@@ -842,7 +855,7 @@ function APSection() {
           <p className="text-xs text-slate-500 mt-1">Requires attention</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <Wallet size={20} />
@@ -853,7 +866,7 @@ function APSection() {
           <p className="text-xs text-slate-500 mt-1">Across {vendors.length} vendors</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <CheckCircle2 size={20} />
@@ -866,7 +879,7 @@ function APSection() {
       </div>
 
       {/* Vendors Table - Mobile Responsive */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm overflow-hidden">
         <div className="p-4 md:p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Building2 size={18} className="text-orange-500" />
@@ -982,7 +995,7 @@ function ARSection() {
           <p className="text-slate-500 mt-1">Manage customer invoices and collections</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600">
             <RefreshCw size={16} />
             Send Reminders
           </button>
@@ -995,7 +1008,7 @@ function ARSection() {
 
       {/* AR Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <FileText size={20} />
@@ -1006,7 +1019,7 @@ function ARSection() {
           <p className="text-xs text-slate-500 mt-1">Active invoices</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-red-100 rounded-lg text-red-600">
               <AlertTriangle size={20} />
@@ -1017,7 +1030,7 @@ function ARSection() {
           <p className="text-xs text-slate-500 mt-1">1 invoice overdue</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
               <Coins size={20} />
@@ -1028,7 +1041,7 @@ function ARSection() {
           <p className="text-xs text-slate-500 mt-1">Across {customers.length} customers</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <PiggyBank size={20} />
@@ -1041,7 +1054,7 @@ function ARSection() {
       </div>
 
       {/* Customers Table - Mobile Responsive */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm overflow-hidden">
         <div className="p-4 md:p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Users size={18} className="text-blue-500" />
@@ -1157,7 +1170,7 @@ function TreasurySection() {
           <p className="text-slate-500 mt-1">Monitor cash positions and bank accounts</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600">
             <RefreshCw size={16} />
             Reconcile
           </button>
@@ -1176,7 +1189,7 @@ function TreasurySection() {
               <h4 className="font-semibold text-lg opacity-90">Total Cash Position</h4>
               <p className="text-sm opacity-75">Combined balance across all accounts</p>
             </div>
-            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
               <Banknote size={24} />
             </div>
           </div>
@@ -1209,7 +1222,7 @@ function TreasurySection() {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
             <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
               <TrendingUp size={18} className="text-emerald-500" />
               Cash Flow (MTD)
@@ -1241,7 +1254,7 @@ function TreasurySection() {
       </div>
 
       {/* Bank Accounts */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm overflow-hidden">
         <div className="p-5 border-b border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
             <Banknote size={18} className="text-emerald-500" />
@@ -1321,7 +1334,7 @@ function ReportsSection() {
           { title: 'Aging Report', titleAr: 'تقرير الاستحقاق', desc: 'AR/AP aging by period', icon: Clock, color: 'orange' },
           { title: 'Tax Summary', titleAr: 'ملخص ضريبي', desc: 'Tax liabilities and obligations', icon: Shield, color: 'red' }
         ].map((report) => (
-          <div key={report.title} className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg hover:-translate-y-1 transition-all cursor-pointer group">
+          <div key={report.title} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm hover:shadow-md transition-all cursor-pointer group">
             <div className={`p-3 rounded-xl bg-${report.color}-100 text-${report.color}-600 w-fit mb-3 group-hover:scale-110 transition-transform`}>
               <report.icon size={24} />
             </div>
@@ -1349,7 +1362,7 @@ function BudgetSection() {
           <p className="text-slate-500 mt-1">Plan, monitor, and analyze budget performance</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white/70 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-all flex items-center gap-2">
+          <button className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600">
             <Upload size={16} />
             Import
           </button>
@@ -1362,7 +1375,7 @@ function BudgetSection() {
 
       {/* Budget Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-teal-100 rounded-lg text-teal-600">
               <Calculator size={20} />
@@ -1373,7 +1386,7 @@ function BudgetSection() {
           <p className="text-xs text-slate-500 mt-1">FY 2026</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
               <Activity size={20} />
@@ -1384,7 +1397,7 @@ function BudgetSection() {
           <p className="text-xs text-emerald-600 mt-1">78% of budget</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
               <TrendingUp size={20} />
@@ -1395,7 +1408,7 @@ function BudgetSection() {
           <p className="text-xs text-slate-500 mt-1">Under budget ✓</p>
         </div>
         
-        <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-5 shadow-lg">
+        <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
               <Percent size={20} />
@@ -1408,7 +1421,7 @@ function BudgetSection() {
       </div>
 
       {/* Budget by Department Chart Placeholder */}
-      <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg">
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6 shadow-sm">
         <h3 className="text-base font-semibold text-slate-900 mb-6">Budget vs Actual by Department</h3>
         <div className="space-y-4">
           {[
@@ -1492,7 +1505,7 @@ export default function FinancialsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2 backdrop-blur-md shadow-sm">
+          <button className="px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-2 shadow-sm">
             <Download size={16} />
             Export
           </button>
