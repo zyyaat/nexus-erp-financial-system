@@ -4,6 +4,10 @@ import { useState } from 'react'
 import Sidebar from '@/components/dashboard/Sidebar'
 import TopNav from '@/components/dashboard/TopNav'
 import OperationsPage from '@/components/dashboard/OperationsPage'
+import InventoryPage from '@/components/dashboard/InventoryPage'
+import FinancialsPage from '@/components/dashboard/FinancialsPage'
+import AnalyticsPage from '@/components/dashboard/AnalyticsPage'
+import SettingsPage from '@/components/dashboard/SettingsPage'
 import KPICard from '@/components/dashboard/KPICard'
 import RevenueChart from '@/components/dashboard/RevenueChart'
 import SystemHealth from '@/components/dashboard/SystemHealth'
@@ -117,33 +121,13 @@ export default function Home() {
       case 'operations':
         return <OperationsPage />
       case 'inventory':
-        return (
-          <PlaceholderPage 
-            title="Inventory Management" 
-            description="Track stock levels, manage products, and monitor inventory across all warehouses."
-          />
-        )
+        return <InventoryPage />
       case 'financials':
-        return (
-          <PlaceholderPage 
-            title="Financial Center" 
-            description="View financial reports, manage invoices, and track revenue and expenses."
-          />
-        )
+        return <FinancialsPage />
       case 'analytics':
-        return (
-          <PlaceholderPage 
-            title="Analytics Hub" 
-            description="Deep dive into data with advanced charts, reports, and business intelligence."
-          />
-        )
+        return <AnalyticsPage />
       case 'settings':
-        return (
-          <PlaceholderPage 
-            title="Settings" 
-            description="Configure system preferences, user accounts, and application settings."
-          />
-        )
+        return <SettingsPage />
       default:
         return <DashboardPage />
     }
