@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { 
   LayoutDashboard, 
   Cog, 
@@ -13,13 +13,16 @@ import {
   X
 } from 'lucide-react'
 
+// Page type
+type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings'
+
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', active: true },
-  { icon: Cog, label: 'Operations', active: false },
-  { icon: Package, label: 'Inventory', active: false },
-  { icon: CreditCard, label: 'Financials', active: false },
-  { icon: BarChart3, label: 'Analytics', active: false },
-  { icon: Settings, label: 'Settings', active: false },
+  { icon: LayoutDashboard, label: 'Dashboard', page: 'dashboard' as PageType },
+  { icon: Cog, label: 'Operations', page: 'operations' as PageType },
+  { icon: Package, label: 'Inventory', page: 'inventory' as PageType },
+  { icon: CreditCard, label: 'Financials', page: 'financials' as PageType },
+  { icon: BarChart3, label: 'Analytics', page: 'analytics' as PageType },
+  { icon: Settings, label: 'Settings', page: 'settings' as PageType },
 ]
 
 const bottomNavItems = [
@@ -30,11 +33,11 @@ const bottomNavItems = [
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  currentPage: PageType
+  onNavigate: (page: PageType) => void
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const [activeItem, setActiveItem] = useState('Dashboard')
-
+export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: SidebarProps) {
   // Close sidebar on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -97,16 +100,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <nav className="flex-1 space-y-2 w-full">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = activeItem === item.label
+            const isActive = currentPage === item.page
             return (
               <a
                 key={item.label}
                 href="#"
                 onClick={(e) => { 
                   e.preventDefault() 
-                  setActiveItem(item.label)
-                  // Close sidebar on mobile after click
-                  if (window.innerWidth < 768) onClose()
+                  onNavigate(item.page)
                 }}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 group ${
                   isActive
