@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Bell, Menu, Sun, Moon } from 'lucide-react'
+import { Search, Bell, Menu, Sun, Moon, User } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { useTheme } from '@/lib/ThemeProvider'
+import { useProfilePicture } from './ProfilePictureUploader'
 
 interface TopNavProps {
   onMenuClick: () => void
@@ -15,6 +16,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
   const isRTL = dir === 'rtl'
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchFocused, setSearchFocused] = useState(false)
+  const { imageUrl: profileImageUrl, isLoading: profileLoading } = useProfilePicture()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -150,7 +152,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             <span className={`absolute top-1.5 ${isRTL ? 'right-1.5' : 'left-1.5'} w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white dark:ring-[#000000]`}></span>
           </button>
 
-          {/* User Profile / Avatar */}
+          {/* User Profile / Avatar - Dynamic from IndexedDB */}
           <button 
             className="
               relative p-1 rounded-xl 
@@ -161,17 +163,30 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
             "
             aria-label="User menu"
           >
-            {/* User Avatar - Fixed Size & Properly Styled */}
-            <img
-              src="https://lh3.googleusercontent.com/a/default-user"
-              alt="User Profile"
-              className="
+            {/* User Avatar - Shows uploaded image or default placeholder */}
+            {profileImageUrl ? (
+              <img
+                src={profileImageUrl}
+                alt="User Profile"
+                className="
+                  w-9 h-9 rounded-xl object-cover 
+                  ring-2 ring-slate-200 dark:ring-white/10
+                  hover:ring-blue-400 dark:hover:ring-cyan-400
+                  transition-all duration-200
+                "
+              />
+            ) : (
+              <div className="
                 w-9 h-9 rounded-xl object-cover 
+                bg-gradient-to-br from-cyan-500 to-blue-600
+                flex items-center justify-center
                 ring-2 ring-slate-200 dark:ring-white/10
                 hover:ring-blue-400 dark:hover:ring-cyan-400
                 transition-all duration-200
-              "
-            />
+              ">
+                <User size={18} className="text-white" strokeWidth={2.5} />
+              </div>
+            )}
           </button>
         </div>
       </div>

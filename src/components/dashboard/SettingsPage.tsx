@@ -25,6 +25,8 @@ import {
   ChevronDown
 } from 'lucide-react'
 import { useI18n, languageNames, languageFlags, Language } from '@/lib/i18n'
+import ProfilePictureUploader from './ProfilePictureUploader'
+import { useProfilePicture } from './ProfilePictureUploader'
 
 // ============ TYPES ============
 interface SettingsSection {
@@ -35,10 +37,12 @@ interface SettingsSection {
 
 // ============ MAIN COMPONENT ============
 export default function SettingsPage() {
-  const { t, language, setLanguage } = useI18n()
+  const { t, language, setLanguage, dir } = useI18n()
+  const isRTL = dir === 'rtl'
   const [activeSection, setActiveSection] = useState('language')
   const [saved, setSaved] = useState(false)
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
+  const { imageUrl: profileImageUrl } = useProfilePicture()
 
   // Profile state
   const [profile, setProfile] = useState({
@@ -298,23 +302,27 @@ export default function SettingsPage() {
                   {t('settings.general')}
                 </h3>
 
-                {/* Avatar Section */}
-                <div className="flex items-center gap-6 mb-8 pb-8 border-b border-white/10">
-                  <div className="relative group">
-                    <img
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoUjdl6JxQ7xr6TtNXNe5yuWpE6JyXvtJdGu5cl3Kgm8IwbLHIqEYhZLg3NzLswZcOlLnobLxo3Yg7JPZLA018Bj05yk3jkudcWtUR_n6scAEQ2NMqU7ew3yCT7_MDdQjp1kNWjGuqCkA0tISPAvTS48joKg2R5yWnI8-AQVfnHc2FVsZoL0-3dZ0UG68X4sSPe-Z5NkSAiWfWulj5eyGYClHXJ1hkm-FxfBr2Dm9ZH9-tTen8NiFi"
-                      alt={profile.name}
-                      className="w-24 h-24 rounded-2xl object-cover ring-4 ring-white shadow-lg"
-                    />
-                    <button className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
-                      <Camera size={24} className="text-white" />
-                    </button>
-                  </div>
+                {/* Avatar Section - With Real Upload Functionality */}
+                <div className={`flex items-center gap-6 mb-8 pb-8 border-b border-white/10 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <ProfilePictureUploader 
+                    size="large" 
+                    onImageChange={(url) => {
+                      // Image changed - could trigger save button enable
+                      console.log('Profile image updated:', url ? 'has image' : 'no image')
+                    }}
+                  />
 
-                  <div>
+                  <div className={isRTL ? 'text-right' : ''}>
                     <h4 className="text-xl font-bold text-white">{profile.name}</h4>
                     <p className="text-gray-400">{profile.role}</p>
-                    <p className="text-sm text-cyan-400 mt-1">Member since Jan 2024</p>
+                    <p className="text-sm text-cyan-400 mt-1">
+                      {language === 'ar' ? 'عضو منذ يناير 2024' : 'Member since Jan 2024'}
+                    </p>
+                    {profileImageUrl && (
+                      <p className="text-xs text-green-400 mt-2 flex items-center gap-1">
+                        ✓ {language === 'ar' ? 'صورة شخصية محفوظة' : 'Profile picture saved'}
+                      </p>
+                    )}
                   </div>
                 </div>
 
