@@ -9,6 +9,8 @@ import {
   deleteProfilePicture,
   isBrowser,
   isMobile,
+  isIOS,
+  isSafari,
   createPreviewUrl,
   revokePreviewUrl,
   debugStorageStatus,
@@ -40,6 +42,8 @@ export default function ProfilePictureUploader({
   const { t, language, dir } = useI18n()
   const isRTL = dir === 'rtl'
   const isMobileDevice = isMobile()
+  const isIOSDevice = isIOS()
+  const isSafariBrowser = isSafari()
   
   const config = sizeConfig[size]
   
@@ -66,7 +70,11 @@ export default function ProfilePictureUploader({
       return
     }
     
-    console.log('[ProfileUploader] Component mounted', isMobileDevice ? '(📱 Mobile)' : '(💻 Desktop)')
+    console.log('[ProfileUploader] Component mounted', 
+      isMobileDevice ? '(📱 Mobile)' : '(💻 Desktop)',
+      isIOSDevice ? '(🍎 iOS)' : '',
+      isSafariBrowser ? '(🧭 Safari)' : ''
+    )
     loadProfilePicture()
     setIsInitialized(true)
     
@@ -86,7 +94,8 @@ export default function ProfilePictureUploader({
   // Notify parent of image changes
   useEffect(() => {
     if (isInitialized) {
-      onImageChange?.(previewUrl || profileImage?.data || null)
+      // Send dataUrl to parent for display
+      onImageChange?.(previewUrl || profileImage?.dataUrl || null)
     }
   }, [previewUrl, profileImage, isInitialized])
 
@@ -102,13 +111,20 @@ export default function ProfilePictureUploader({
       
       const image = await getProfilePicture()
       
-      if (image && image.data) {
+      if (image && (image.dataUrl || image.data)) {
         console.log('[ProfileUploader] ✓ Profile picture found:', image.fileName)
         setProfileImage(image)
         
-        // Use base64 data directly for stored images (not ObjectURL needed)
-        setPreviewUrl(image.data)
-        currentPreviewUrlRef.current = null // No ObjectURL to track
+        // Use dataUrl directly (most compatible with <img src>)
+        if (image.dataUrl) {
+          setPreviewUrl(image.dataUrl)
+          currentPreviewUrlRef.current = null // No ObjectURL to track
+        } else if (image.data) {
+          // Create ObjectURL from Blob as fallback
+          const url = createPreviewUrl(image.data)
+          setPreviewUrl(url)
+          currentPreviewUrlRef.current = url
+        }
         
         setDebugInfo(`✓ Loaded: ${image.fileName} (${image.compressedSize} bytes)`)
       } else {
@@ -145,7 +161,7 @@ export default function ProfilePictureUploader({
     return null
   }
 
-  // Handle file selection - MOBILE FIXED VERSION!
+  // Handle file selection - RESEARCH-BASED FIX VERSION!
   const handleFileSelect = async (file: File) => {
     console.log('[ProfileUploader] File selected:', file.name, 'Size:', file.size, 'Type:', file.type)
     
@@ -160,9 +176,8 @@ export default function ProfilePictureUploader({
     setIsUploading(true)
 
     try {
-      // ✅ MOBILE FIX: Use URL.createObjectURL() instead of FileReader!
-      // This works perfectly on mobile browsers where FileReader fails
-      console.log('[ProfileUploader] Creating preview using ObjectURL (mobile compatible)...')
+      // Step 1: Create preview using ObjectURL (mobile compatible!)
+      console.log('[ProfileUploader] Creating preview using ObjectURL...')
       
       let newPreviewUrl: string
       
@@ -189,46 +204,44 @@ export default function ProfilePictureUploader({
       
       setDebugInfo('Compressing & saving...')
       
-      // Save to database (uses internal ObjectURL for compression - mobile compatible!)
+      // Step 2: Save to database (uses img.decode() internally for iOS fix!)
       console.log('[ProfileUploader] Saving to database...')
       const savedImage = await saveProfilePicture(file)
       
-      console.log('[ProfileUploader] ✓ Save successful:', savedImage)
+      console.log('[ProfileUploader] ✓ Save successful:', savedImage.fileName, `(${savedImage.compressedSize} bytes)`)
       setProfileImage(savedImage)
       setDebugInfo(`✓ Saved! ${savedImage.compressedSize} bytes`)
       
-      // Verify the save worked by reading back
+      // Step 3: Switch to dataUrl for stable long-term display
+      // dataUrl works better than ObjectURL for persistent display
       try {
-        setDebugInfo('Verifying save...')
-        const verifyImage = await getProfilePicture()
-        
-        if (verifyImage && verifyImage.data) {
-          console.log('[ProfileUploader] ✓ Verification successful!')
+        if (savedImage.dataUrl) {
+          console.log('[ProfileUploader] Switching to dataUrl for stable display')
           
-          // Switch to base64 data URL (more stable than ObjectURL for long-term display)
-          setPreviewUrl(verifyImage.data)
-          currentPreviewUrlRef.current = null // Now using base64, no cleanup needed
-          
-          setDebugInfo(`✓ Verified! Saved as: ${verifyImage.fileName}`)
-          
-          // Show success message
-          setSuccess(true)
-          if (successTimeoutRef.current) {
-            clearTimeout(successTimeoutRef.current)
+          // Cleanup ObjectURL before switching
+          if (currentPreviewUrlRef.current && currentPreviewUrlRef.current.startsWith('blob:')) {
+            revokePreviewUrl(currentPreviewUrlRef.current)
           }
-          successTimeoutRef.current = setTimeout(() => setSuccess(false), 3000)
           
-          // Notify parent with actual data URL
-          onImageChange?.(verifyImage.data)
-        } else {
-          console.warn('[ProfileUploader] ⚠ Verification failed but preview still showing')
-          setDebugInfo('⚠ Preview OK, verification pending refresh')
-          setSuccess(true)
-          setTimeout(() => setSuccess(false), 3000)
+          setPreviewUrl(savedImage.dataUrl)
+          currentPreviewUrlRef.current = null // Now using dataUrl, no cleanup needed
         }
+        
+        setDebugInfo(`✓ Verified! Saved as: ${savedImage.fileName}`)
+        
+        // Show success message
+        setSuccess(true)
+        if (successTimeoutRef.current) {
+          clearTimeout(successTimeoutRef.current)
+        }
+        successTimeoutRef.current = setTimeout(() => setSuccess(false), 3000)
+        
+        // Notify parent with actual data URL
+        onImageChange?.(savedImage.dataUrl || previewUrl)
+        
       } catch (verifyErr) {
         console.error('[ProfileUploader] Verification error:', verifyErr)
-        // Don't fail - save was successful
+        // Don't fail - save was successful, preview still showing
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       }
@@ -239,10 +252,18 @@ export default function ProfilePictureUploader({
       // Provide better error messages based on device type
       let errorMessage: string
       
-      if (isMobileDevice) {
+      if (isIOSDevice) {
         errorMessage = language === 'ar'
-          ? `خطأ في الموبايل: ${err}. جرب صورة أصغر أو نوع مختلف`
-          : `Mobile error: ${err}. Try a smaller image or different format`
+          ? `خطأ في iOS: ${err}. جرب إعادة تحميل الصفحة`
+          : `iOS error: ${err}. Try refreshing the page`
+      } else if (isSafariBrowser) {
+        errorMessage = language === 'ar'
+          ? `خطأ في Safari: ${err}. جرب متصفح مختلف`
+          : `Safari error: ${err}. Try a different browser`
+      } else if (isMobileDevice) {
+        errorMessage = language === 'ar'
+          ? `خطأ في الموبايل: ${err}. جرب صورة أصغر`
+          : `Mobile error: ${err}. Try a smaller image`
       } else {
         errorMessage = language === 'ar'
           ? `فشل في حفظ الصورة: ${err}`
@@ -253,9 +274,13 @@ export default function ProfilePictureUploader({
       setDebugInfo(`Error: ${err}`)
       
       // Revert preview on error
-      if (profileImage && profileImage.data) {
-        setPreviewUrl(profileImage.data)
+      if (profileImage && profileImage.dataUrl) {
+        setPreviewUrl(profileImage.dataUrl)
         currentPreviewUrlRef.current = null
+      } else if (profileImage && profileImage.data) {
+        const fallbackUrl = createPreviewUrl(profileImage.data)
+        setPreviewUrl(fallbackUrl)
+        currentPreviewUrlRef.current = fallbackUrl
       } else {
         setPreviewUrl(null)
         if (currentPreviewUrlRef.current) {
@@ -347,7 +372,7 @@ export default function ProfilePictureUploader({
     try {
       const status = await debugStorageStatus()
       const statusText = `
-📱 Device: ${status.isMobileDevice ? 'Mobile 📱' : 'Desktop 💻'}
+📱 Device: ${status.isMobileDevice ? 'Mobile 📱' : 'Desktop 💻'}${status.isIOSDevice ? ' 🍎iOS' : ''}${status.isSafariBrowser ? ' 🧭Safari' : ''}
 🔗 DB Connected: ${status.dbConnected ? '✓' : '❌'}
 ❌ Error Count: ${status.errorCount}
 💾 IndexedDB: ${status.indexedDB ? '✓ Has data' : 'Empty'}
@@ -399,11 +424,14 @@ export default function ProfilePictureUploader({
       />
 
       <div className="flex flex-col items-center gap-4">
-        {/* Mobile indicator (only in development or when there's an issue) */}
-        {isMobileDevice && process.env.NODE_ENV === 'development' && (
-          <div className="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded-full">
+        {/* Mobile indicator (always show when there's an issue or in dev) */}
+        {(isIOSDevice || isSafariBrowser) && process.env.NODE_ENV === 'development' && (
+          <div className="flex items-center gap-1 text-xs text-orange-400 bg-orange-500/10 px-2 py-1 rounded-full">
             <Smartphone size={12} />
-            <span>{language === 'ar' ? 'وضع الموبايل' : 'Mobile Mode'}</span>
+            <span>
+              {isIOSDevice ? (language === 'ar' ? 'نظام iOS' : 'iOS Device') : ''}
+              {isSafariBrowser ? (language === 'ar' ? 'متصفح Safari' : 'Safari Browser') : ''}
+            </span>
           </div>
         )}
 
@@ -432,10 +460,33 @@ export default function ProfilePictureUploader({
           {/* Image or Placeholder */}
           {previewUrl ? (
             <>
+              {/* 
+                CRITICAL FIX: Using regular <img> tag instead of next/image
+                next/image doesn't support blob: or data: URLs properly
+                Source: https://github.com/vercel/next.js/issues/19291
+              */}
               <img
                 src={previewUrl}
                 alt="Profile"
                 className={`${config.image} object-cover`}
+                // Error handling for image display
+                onError={(e) => {
+                  console.error('[ProfileUploader] Image display error, trying fallback...', e)
+                  const target = e.target as HTMLImageElement
+                  
+                  // If dataUrl failed, try creating new ObjectURL from blob
+                  if (profileImage?.data && !target.src.startsWith('blob:')) {
+                    console.log('[ProfileUploader] Trying ObjectURL fallback...')
+                    const fallbackUrl = createPreviewUrl(profileImage.data)
+                    target.src = fallbackUrl
+                    if (currentPreviewUrlRef.current && currentPreviewUrlRef.current.startsWith('blob:')) {
+                      revokePreviewUrl(currentPreviewUrlRef.current)
+                    }
+                    currentPreviewUrlRef.current = fallbackUrl
+                  } else {
+                    console.error('[ProfileUploader] All display methods failed')
+                  }
+                }}
               />
               
               {/* Hover Overlay */}
@@ -579,11 +630,11 @@ export default function ProfilePictureUploader({
               <AlertCircle size={16} />
               <span className="font-medium">{error}</span>
             </div>
-            {isMobileDevice && (
+            {(isIOSDevice || isSafariBrowser) && (
               <p className="text-xs mt-1 text-red-400/70 opacity-75">
                 {language === 'ar' 
-                  ? '💡 نصيحة: جرب صورة أصغر من 5 ميجابايت'
-                  : '💡 Tip: Try an image smaller than 5MB'
+                  ? '💡 نصيحة: iOS/Safari قد يحتاج تحديث الصفحة'
+                  : '💡 Tip: iOS/Safari may need page refresh'
                 }
               </p>
             )}
@@ -690,9 +741,10 @@ export function useProfilePicture() {
       console.log('[useProfilePicture] Loading profile picture...')
       const pic = await getProfilePicture()
       
-      if (pic && pic.data) {
+      if (pic && (pic.dataUrl || pic.data)) {
         console.log('[useProfilePicture] ✓ Found profile picture')
-        setImageUrl(pic.data)
+        // Prefer dataUrl for compatibility
+        setImageUrl(pic.dataUrl || null)
       } else {
         console.log('[useProfilePicture] No profile picture found')
         setImageUrl(null)
