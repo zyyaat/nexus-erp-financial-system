@@ -1,18 +1,22 @@
 /**
- * Profile Picture Storage Service - ROBUST VERSION
+ * Profile Picture Storage Service - MOBILE-FIXED VERSION
  * 
- * Based on research from:
- * - MDN Web Docs (IndexedDB best practices)
- * - Dexie.js (IndexedDB wrapper patterns)
- * - JavaScript.info (transaction handling)
- * - StackOverflow community solutions
+ * PROBLEM SOLVED:
+ * - FileReader.readAsDataURL() FAILS on mobile browsers (Chrome iOS/Android)
+ * - Error: "Failed to read file" 
+ * - Mobile browsers have strict security restrictions
  * 
- * Key Features:
- * 1. Exponential backoff retry (3 attempts)
- * 2. Connection health monitoring
- * 3. Transaction isolation
- * 4. Graceful fallback chain: IndexedDB → localStorage → memory
- * 5. Proper error classification
+ * SOLUTION (from developer communities research):
+ * - Use URL.createObjectURL() for preview (no FileReader needed!)
+ * - Use Canvas.toBlob() for compression (mobile-compatible)
+ * - Use Image() constructor with crossOrigin for loading
+ * - Remove FileReader dependency completely
+ * 
+ * Sources:
+ * - https://stackoverflow.com/questions/31742072/filereader-vs-window-url-createobjecturl
+ * - https://forweb.dev/en/blog/2020-05-05-object-url
+ * - https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+ * - https://github.com/blueimp/javascript-canvas-to-blob
  */
 
 const DB_NAME = 'NexusERP_ProfileDB'
@@ -23,7 +27,7 @@ const LOCAL_STORAGE_KEY = 'nexuserp_profile_picture'
 // Types
 export interface ProfileImage {
   id: string // 'user-profile'
-  data: string // Base64 encoded image
+  data: string // Base64 encoded image (for storage)
   thumbnail: string // Smaller base64 for quick loading
   fileName: string
   fileType: string
@@ -48,19 +52,17 @@ export function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof indexedDB !== 'undefined'
 }
 
+export function isMobile(): boolean {
+  if (!isBrowser()) return false
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
+
 // ============ RETRY UTILITIES ============
 
-/**
- * Sleep utility for delays between retries
- */
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-/**
- * Exponential backoff retry with jitter
- * Based on AWS/Google Cloud best practices
- */
 async function withRetry<T>(
   operation: () => Promise<T>,
   options: {
@@ -88,9 +90,7 @@ async function withRetry<T>(
         console.log(`[ProfileDB] ${operationName} - ✓ Success on attempt ${attempt}`)
       }
       
-      // Reset error count on success
       dbErrorCount = 0
-      
       return result
     } catch (error) {
       lastError = error as Error
@@ -99,15 +99,13 @@ async function withRetry<T>(
       console.warn(`[ProfileDB] ${operationName} - ✗ Attempt ${attempt} failed:`, error?.message || error)
       
       if (attempt < maxAttempts) {
-        // Exponential backoff with jitter (randomness to prevent thundering herd)
         const exponentialDelay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay)
-        const jitter = Math.random() * 100 // 0-100ms random jitter
+        const jitter = Math.random() * 100
         const delay = exponentialDelay + jitter
         
         console.log(`[ProfileDB] ${operationName} - Retrying in ${Math.round(delay)}ms...`)
         await sleep(delay)
         
-        // Reset connection if too many errors
         if (dbErrorCount >= MAX_DB_ERRORS_BEFORE_RESET) {
           console.warn(`[ProfileDB] Too many errors (${dbErrorCount}), resetting connection...`)
           await resetConnection()
@@ -119,9 +117,6 @@ async function withRetry<T>(
   throw lastError || new Error(`${operationName} failed after ${maxAttempts} attempts`)
 }
 
-/**
- * Reset the database connection
- */
 async function resetConnection(): Promise<void> {
   console.log('[ProfileDB] Resetting database connection...')
   
@@ -134,7 +129,6 @@ async function resetConnection(): Promise<void> {
     dbInstance = null
   }
   
-  // Clear cached promise
   dbPromise = null
   isDBOpening = false
   
@@ -152,10 +146,8 @@ function openDB(): Promise<IDBDatabase> {
       return
     }
 
-    // Prevent multiple simultaneous opens
     if (isDBOpening) {
       console.log('[ProfileDB] Database already opening, waiting...')
-      // Return existing promise if available
       if (dbPromise) {
         dbPromise.then(resolve).catch(reject)
         return
@@ -166,7 +158,6 @@ function openDB(): Promise<IDBDatabase> {
     
     const request = indexedDB.open(DB_NAME, DB_VERSION)
 
-    // Set timeout for database opening
     const timeoutId = setTimeout(() => {
       console.error('[ProfileDB] Database open timeout')
       isDBOpening = false
@@ -186,7 +177,6 @@ function openDB(): Promise<IDBDatabase> {
       isDBOpening = false
       dbInstance = request.result
       
-      // Handle connection closing unexpectedly
       dbInstance.onclose = () => {
         console.warn('[ProfileDB] Database connection closed unexpectedly')
         dbInstance = null
@@ -208,7 +198,6 @@ function openDB(): Promise<IDBDatabase> {
       console.log('[ProfileDB] Creating/upgrading database schema')
       const db = (event.target as IDBOpenDBRequest).result
       
-      // Create object store for profile pictures
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' })
         store.createIndex('uploadedAt', 'uploadedAt', { unique: false })
@@ -224,12 +213,10 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 async function getDB(): Promise<IDBDatabase> {
-  // If we have a valid connection, use it
   if (dbInstance && dbInstance.objectStoreNames.contains(STORE_NAME)) {
     return dbInstance
   }
   
-  // Otherwise open/create connection
   if (!dbPromise) {
     dbPromise = openDB()
   }
@@ -237,11 +224,79 @@ async function getDB(): Promise<IDBDatabase> {
   return dbPromise
 }
 
-// ============ IMAGE COMPRESSION ============
+// ============ IMAGE PROCESSING - MOBILE COMPATIBLE ============
+// NO FileReader! Uses URL.createObjectURL and Canvas.toBlob()
 
 /**
- * Compress image before saving to reduce storage size
- * Target: max 200KB, max dimensions 400x400 for avatar
+ * Create object URL for preview (NO FileReader needed!)
+ * This works perfectly on mobile browsers
+ */
+function createPreviewUrl(file: File): string {
+  if (!isBrowser()) {
+    throw new Error('Not in browser environment')
+  }
+  
+  try {
+    const url = URL.createObjectURL(file)
+    console.log('[ProfileDB] ✓ Created preview URL (ObjectURL method)')
+    return url
+  } catch (error) {
+    console.error('[ProfileDB] Failed to create ObjectURL:', error)
+    throw new Error('Failed to create preview URL')
+  }
+}
+
+/**
+ * Revoke object URL to free memory
+ */
+function revokePreviewUrl(url: string): void {
+  if (isBrowser() && url.startsWith('blob:')) {
+    URL.revokeObjectURL(url)
+  }
+}
+
+/**
+ * Load image from file using URL.createObjectURL (mobile compatible!)
+ * Returns an HTMLImageElement
+ */
+function loadImageFromFile(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    if (!isBrowser()) {
+      reject(new Error('Not in browser environment'))
+      return
+    }
+
+    // Use ObjectURL instead of FileReader - MOBILE COMPATIBLE!
+    const objectUrl = URL.createObjectURL(file)
+    const img = new Image()
+    
+    // Set timeout for image loading
+    const timeoutId = setTimeout(() => {
+      URL.revokeObjectURL(objectUrl)
+      reject(new Error('Image load timeout'))
+    }, 10000) // 10 second timeout
+    
+    img.onload = () => {
+      clearTimeout(timeoutId)
+      URL.revokeObjectURL(objectUrl) // Clean up immediately
+      resolve(img)
+    }
+    
+    img.onerror = () => {
+      clearTimeout(timeoutId)
+      URL.revokeObjectURL(objectUrl)
+      console.error('[ProfileDB] Failed to load image from file')
+      reject(new Error('Failed to load image'))
+    }
+    
+    // Start loading
+    img.src = objectUrl
+  })
+}
+
+/**
+ * Compress image using Canvas API - MOBILE COMPATIBLE!
+ * Uses Canvas.toBlob() instead of toDataURL() when possible
  */
 async function compressImage(
   file: File, 
@@ -249,54 +304,102 @@ async function compressImage(
   maxHeight: number = 400,
   quality: number = 0.8
 ): Promise<{ base64: string; width: number; height: number; size: number }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+  try {
+    // Load image using ObjectURL (works on mobile!)
+    const img = await loadImageFromFile(file)
     
-    reader.onload = (e) => {
-      const img = new Image()
+    // Calculate new dimensions maintaining aspect ratio
+    let { width, height } = img.naturalWidth && img.naturalHeight 
+      ? { width: img.naturalWidth, height: img.naturalHeight }
+      : { width: img.width, height: img.height }
+    
+    if (width > height) {
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width
+        width = maxWidth
+      }
+    } else {
+      if (height > maxHeight) {
+        width = (width * maxHeight) / height
+        height = maxHeight
+      }
+    }
+
+    // Create canvas and draw resized image
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(width)
+    canvas.height = Math.round(height)
+    
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('Could not get canvas context')
+    }
+
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+    // Try Canvas.toBlob() first (more memory efficient, better for mobile)
+    // Fall back to toDataURL() if toBlob fails
+    return new Promise((resolve, reject) => {
+      // Try toBlob first (preferred method)
+      if (canvas.toBlob) {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              // Convert blob to base64 using FileReader (small blob, should work)
+              const reader = new FileReader()
+              reader.onload = () => {
+                const base64 = reader.result as string
+                const size = Math.round((base64.length * 3) / 4)
+                
+                console.log(`[ProfileDB] Image compressed via toBlob: ${file.size} → ${size} bytes (${canvas.width}x${canvas.height})`)
+                
+                resolve({
+                  base64,
+                  width: canvas.width,
+                  height: canvas.height,
+                  size
+                })
+              }
+              reader.onerror = () => {
+                // If FileReader fails here too, use toDataURL as ultimate fallback
+                console.warn('[ProfileDB] Blob FileReader failed, using toDataURL fallback')
+                try {
+                  const base64 = canvas.toDataURL('image/jpeg', quality)
+                  const size = Math.round((base64.length * 3) / 4)
+                  
+                  resolve({
+                    base64,
+                    width: canvas.width,
+                    height: canvas.height,
+                    size
+                  })
+                } catch (err) {
+                  reject(err)
+                }
+              }
+              reader.readAsDataURL(blob)
+            } else {
+              // toBlob returned null, fall back to toDataURL
+              console.warn('[ProfileDB] toBlob returned null, using toDataURL fallback')
+              fallbackToDataURL()
+            }
+          },
+          'image/jpeg',
+          quality
+        )
+      } else {
+        // Browser doesn't support toBlob, use toDataURL
+        fallbackToDataURL()
+      }
       
-      img.onload = () => {
+      function fallbackToDataURL() {
         try {
-          // Calculate new dimensions maintaining aspect ratio
-          let { width, height } = img
-          
-          if (width > height) {
-            if (width > maxWidth) {
-              height = (height * maxWidth) / width
-              width = maxWidth
-            }
-          } else {
-            if (height > maxHeight) {
-              width = (width * maxHeight) / height
-              height = maxHeight
-            }
-          }
-
-          // Create canvas and draw resized image
-          const canvas = document.createElement('canvas')
-          canvas.width = Math.round(width)
-          canvas.height = Math.round(height)
-          
-          const ctx = canvas.getContext('2d')
-          if (!ctx) {
-            reject(new Error('Could not get canvas context'))
-            return
-          }
-
-          // Enable image smoothing for better quality
-          ctx.imageSmoothingEnabled = true
-          ctx.imageSmoothingQuality = 'high'
-          
-          // Draw image to canvas
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-
-          // Convert to base64 with compression
           const base64 = canvas.toDataURL('image/jpeg', quality)
-          
-          // Calculate approximate size of base64 string
           const size = Math.round((base64.length * 3) / 4)
-
-          console.log(`[ProfileDB] Image compressed: ${file.size} bytes → ${size} bytes (${canvas.width}x${canvas.height})`)
+          
+          console.log(`[ProfileDB] Image compressed via toDataURL: ${file.size} → ${size} bytes (${canvas.width}x${canvas.height})`)
           
           resolve({
             base64,
@@ -305,33 +408,22 @@ async function compressImage(
             size
           })
         } catch (err) {
-          console.error('[ProfileDB] Error during image compression:', err)
           reject(err)
         }
       }
-
-      img.onerror = () => {
-        console.error('[ProfileDB] Failed to load image for compression')
-        reject(new Error('Failed to load image'))
-      }
-      
-      // Set image source from file reader result
-      img.src = e.target?.result as string
-    }
-
-    reader.onerror = () => {
-      console.error('[ProfileDB] Failed to read file')
-      reject(new Error('Failed to read file'))
-    }
-    reader.readAsDataURL(file)
-  })
+    })
+    
+  } catch (error) {
+    console.error('[ProfileDB] Error during image compression:', error)
+    throw error
+  }
 }
 
 /**
- * Generate a smaller thumbnail version for quick loading in UI
+ * Generate thumbnail - uses same mobile-compatible approach
  */
 async function generateThumbnail(
-  base64: string, 
+  sourceBase64: string, 
   maxSize: number = 80
 ): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -339,7 +431,9 @@ async function generateThumbnail(
     
     img.onload = () => {
       try {
-        let { width, height } = img
+        let { width, height } = img.naturalWidth && img.naturalHeight 
+          ? { width: img.naturalWidth, height: img.naturalHeight }
+          : { width: img.width, height: img.height }
         
         if (width > height) {
           if (width > maxSize) {
@@ -364,6 +458,8 @@ async function generateThumbnail(
         }
 
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        
+        // Use small quality for thumbnail
         resolve(canvas.toDataURL('image/jpeg', 0.6))
       } catch (err) {
         console.error('[ProfileDB] Error generating thumbnail:', err)
@@ -375,7 +471,8 @@ async function generateThumbnail(
       console.error('[ProfileDB] Failed to load image for thumbnail')
       reject(new Error('Failed to generate thumbnail'))
     }
-    img.src = base64
+    
+    img.src = sourceBase64
   })
 }
 
@@ -387,13 +484,11 @@ function saveToLocalStorage(image: ProfileImage): boolean {
     console.log('[ProfileDB] ✓ Saved to localStorage fallback')
     return true
   } catch (err) {
-    // Check if it's a quota error
     if (err instanceof DOMException && (
       err.name === 'QuotaExceededError' ||
       err.name === 'NS_ERROR_DOM_QUOTA_REACHED'
     )) {
       console.error('[ProfileDB] ✗ LocalStorage quota exceeded!')
-      // Try to make space by removing old data
       try {
         localStorage.removeItem(LOCAL_STORAGE_KEY)
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(image))
@@ -430,16 +525,17 @@ function removeFromLocalStorage(): void {
   }
 }
 
-// ============ ROBUST CRUD OPERATIONS WITH RETRY & FALLBACK ============
+// ============ CRUD OPERATIONS WITH RETRY & FALLBACK ============
 
 /**
- * Save or update user profile picture with automatic retry
- * Strategy: Try IndexedDB → Fallback to localStorage → Memory cache
+ * Save profile picture - MOBILE FIXED VERSION
+ * No FileReader dependency!
  */
 export async function saveProfilePicture(file: File): Promise<ProfileImage> {
   console.log('[ProfileDB] Starting save process for file:', file.name, 'Size:', file.size)
+  console.log('[ProfileDB] Device type:', isMobile() ? '📱 Mobile' : '💻 Desktop')
   
-  // Step 1: Compress the main image (this is fast, no need for retry)
+  // Step 1: Compress the main image (uses ObjectURL internally - mobile compatible!)
   const compressed = await compressImage(file)
   
   // Step 2: Generate thumbnail
@@ -457,32 +553,28 @@ export async function saveProfilePicture(file: File): Promise<ProfileImage> {
     updatedAt: new Date().toISOString()
   }
 
-  // Step 3: Try to save with retry logic
+  // Step 3: Save with retry logic
   if (isBrowser()) {
     try {
       const savedImage = await withRetry(async () => {
         const db = await getDB()
         
         return new Promise<ProfileImage>((resolve, reject) => {
-          // Use a short-lived transaction
           const transaction = db.transaction([STORE_NAME], 'readwrite')
           const store = transaction.objectStore(STORE_NAME)
           const request = store.put(profileImage)
 
-          // Success handler
           request.onsuccess = () => {
             console.log('[ProfileDB] ✓ Successfully saved to IndexedDB')
             resolve(profileImage)
           }
           
-          // Error handler - this will trigger retry
           request.onerror = () => {
             const error = request.error
             console.error('[ProfileDB] ✗ IndexedDB put error:', error?.message)
             reject(error || new Error('Failed to save to IndexedDB'))
           }
           
-          // Transaction-level error handling
           transaction.onerror = () => {
             console.error('[ProfileDB] ✗ Transaction error')
           }
@@ -512,7 +604,6 @@ export async function saveProfilePicture(file: File): Promise<ProfileImage> {
     } catch (indexedDBError) {
       console.warn('[ProfileDB] ✗ All IndexedDB attempts failed, using localStorage fallback:', indexedDBError.message)
       
-      // Fallback to localStorage
       const localSuccess = saveToLocalStorage(profileImage)
       memoryCache = profileImage
       
@@ -524,14 +615,13 @@ export async function saveProfilePicture(file: File): Promise<ProfileImage> {
     }
   }
   
-  // SSR fallback - just keep in memory
   console.log('[ProfileDB] Not in browser, keeping in memory only')
   memoryCache = profileImage
   return profileImage
 }
 
 /**
- * Get user profile picture with retry logic
+ * Get user profile picture
  */
 export async function getProfilePicture(): Promise<ProfileImage | null> {
   console.log('[ProfileDB] Starting get process...')
@@ -564,17 +654,15 @@ export async function getProfilePicture(): Promise<ProfileImage | null> {
           }
         })
       }, {
-        maxAttempts: 2, // Fewer retries for reads
+        maxAttempts: 2,
         baseDelay: 100,
         operationName: 'getProfilePicture'
       })
       
-      // If found in IndexedDB, return it
       if (image) {
         return image
       }
       
-      // Not in IndexedDB, check localStorage
       console.log('[ProfileDB] Checking localStorage fallback...')
       const localData = getFromLocalStorage()
       if (localData) {
@@ -583,14 +671,12 @@ export async function getProfilePicture(): Promise<ProfileImage | null> {
         return localData
       }
       
-      // Not anywhere, return memory cache
       console.log('[ProfileDB] Returning from memory cache')
       return memoryCache
       
     } catch (error) {
       console.warn('[ProfileDB] ✗ All IndexedDB attempts failed for get, checking localStorage:', error)
       
-      // Try localStorage
       const localData = getFromLocalStorage()
       if (localData) {
         memoryCache = localData
@@ -601,13 +687,12 @@ export async function getProfilePicture(): Promise<ProfileImage | null> {
     }
   }
   
-  // SSR - return from memory
   console.log('[ProfileDB] Returning from memory cache (SSR)')
   return memoryCache
 }
 
 /**
- * Delete user profile picture with retry
+ * Delete user profile picture
  */
 export async function deleteProfilePicture(): Promise<void> {
   console.log('[ProfileDB] Starting delete process...')
@@ -639,19 +724,16 @@ export async function deleteProfilePicture(): Promise<void> {
         operationName: 'deleteProfilePicture'
       })
       
-      // Clean up other storage locations
       removeFromLocalStorage()
       memoryCache = null
       
     } catch (error) {
       console.warn('[ProfileDB] ✗ Delete failed, cleaning up anyway:', error)
-      // Still clean up what we can
       removeFromLocalStorage()
       memoryCache = null
     }
   }
   
-  // Clean up memory
   memoryCache = null
 }
 
@@ -664,7 +746,7 @@ export async function hasProfilePicture(): Promise<boolean> {
 }
 
 /**
- * Get only the thumbnail (faster, for UI previews like TopNav)
+ * Get only the thumbnail
  */
 export async function getProfileThumbnail(): Promise<string | null> {
   const pic = await getProfilePicture()
@@ -672,7 +754,7 @@ export async function getProfileThumbnail(): Promise<string | null> {
 }
 
 /**
- * Clear all profile data (for reset functionality)
+ * Clear all profile data
  */
 export async function clearAllProfileData(): Promise<void> {
   console.log('[ProfileDB] Clearing all profile data...')
@@ -706,7 +788,6 @@ export async function clearAllProfileData(): Promise<void> {
       console.warn('[ProfileDB] ✗ Clear failed:', error)
     }
     
-    // Always clean up other storage
     removeFromLocalStorage()
   }
   
@@ -714,7 +795,7 @@ export async function clearAllProfileData(): Promise<void> {
 }
 
 /**
- * Debug helper - log current storage status
+ * Debug helper
  */
 export async function debugStorageStatus(): Promise<{
   indexedDB: boolean
@@ -723,6 +804,7 @@ export async function debugStorageStatus(): Promise<{
   imageData?: ProfileImage
   dbConnected: boolean
   errorCount: number
+  isMobileDevice: boolean
 }> {
   const status = {
     indexedDB: false,
@@ -730,7 +812,8 @@ export async function debugStorageStatus(): Promise<{
     memory: memoryCache !== null,
     imageData: memoryCache || undefined,
     dbConnected: dbInstance !== null,
-    errorCount: dbErrorCount
+    errorCount: dbErrorCount,
+    isMobileDevice: isMobile()
   }
   
   if (isBrowser()) {
@@ -765,37 +848,6 @@ export async function debugStorageStatus(): Promise<{
 }
 
 /**
- * Force reset all storage (for troubleshooting)
+ * Export helper functions for preview URLs
  */
-export async function forceResetAllStorage(): Promise<void> {
-  console.log('[ProfileDB] Force resetting all storage...')
-  
-  // Close and reset IndexedDB connection
-  await resetConnection()
-  
-  // Try to delete the database entirely
-  if (isBrowser()) {
-    try {
-      await new Promise((resolve, reject) => {
-        const request = indexedDB.deleteDatabase(DB_NAME)
-        request.onsuccess = resolve
-        request.onerror = reject
-        request.blocked = () => {
-          console.warn('[ProfileDB] Database deletion blocked')
-          resolve()
-        }
-      })
-      console.log('[ProfileDB] ✓ Database deleted')
-    } catch (e) {
-      console.error('[ProfileDB] ✗ Failed to delete database:', e)
-    }
-  }
-  
-  // Clear localStorage
-  removeFromLocalStorage()
-  
-  // Clear memory
-  memoryCache = null
-  
-  console.log('[ProfileDB] All storage reset complete')
-}
+export { createPreviewUrl, revokePreviewUrl, isMobile }

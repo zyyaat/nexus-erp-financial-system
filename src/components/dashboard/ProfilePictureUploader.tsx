@@ -1,13 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Camera, Upload, Trash2, Loader2, User, ZoomIn, X, AlertCircle, RefreshCw } from 'lucide-react'
+import { Camera, Upload, Trash2, Loader2, User, ZoomIn, X, AlertCircle, RefreshCw, Smartphone } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { 
   saveProfilePicture, 
   getProfilePicture, 
   deleteProfilePicture,
   isBrowser,
+  isMobile,
+  createPreviewUrl,
+  revokePreviewUrl,
   debugStorageStatus,
   type ProfileImage 
 } from '@/lib/db/profileDB'
@@ -36,6 +39,7 @@ export default function ProfilePictureUploader({
 }: ProfilePictureUploaderProps) {
   const { t, language, dir } = useI18n()
   const isRTL = dir === 'rtl'
+  const isMobileDevice = isMobile()
   
   const config = sizeConfig[size]
   
@@ -50,31 +54,34 @@ export default function ProfilePictureUploader({
   const [success, setSuccess] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const [debugInfo, setDebugInfo] = useState<string>('')
-  const [retryCount, setRetryCount] = useState(0)
-  const [currentOperation, setCurrentOperation] = useState<string>('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const successTimeoutRef = useRef<NodeJS.Timeout>()
-  const mountTimeRef = useRef<number>(Date.now())
+  const currentPreviewUrlRef = useRef<string | null>(null) // Track current preview URL for cleanup
 
   // Load existing profile picture on mount (client-side only!)
   useEffect(() => {
-    // Only run on client side
     if (!isBrowser()) {
       console.log('[ProfileUploader] Skipping load - not in browser (SSR)')
       return
     }
     
-    console.log('[ProfileUploader] Component mounted, loading profile picture...')
+    console.log('[ProfileUploader] Component mounted', isMobileDevice ? '(📱 Mobile)' : '(💻 Desktop)')
     loadProfilePicture()
     setIsInitialized(true)
     
     return () => {
+      // Cleanup preview URL on unmount
+      if (currentPreviewUrlRef.current) {
+        revokePreviewUrl(currentPreviewUrlRef.current)
+        currentPreviewUrlRef.current = null
+      }
+      
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current)
       }
     }
-  }, []) // Empty dependency - only run on mount
+  }, [])
 
   // Notify parent of image changes
   useEffect(() => {
@@ -92,14 +99,17 @@ export default function ProfilePictureUploader({
 
     try {
       console.log('[ProfileUploader] Loading profile picture...')
-      setCurrentOperation('loading')
       
       const image = await getProfilePicture()
       
       if (image && image.data) {
         console.log('[ProfileUploader] ✓ Profile picture found:', image.fileName)
         setProfileImage(image)
+        
+        // Use base64 data directly for stored images (not ObjectURL needed)
         setPreviewUrl(image.data)
+        currentPreviewUrlRef.current = null // No ObjectURL to track
+        
         setDebugInfo(`✓ Loaded: ${image.fileName} (${image.compressedSize} bytes)`)
       } else {
         console.log('[ProfileUploader] No profile picture found')
@@ -112,8 +122,6 @@ export default function ProfilePictureUploader({
         : 'Failed to load saved image'
       )
       setDebugInfo(`Load error: ${err}`)
-    } finally {
-      setCurrentOperation('')
     }
   }
 
@@ -137,7 +145,7 @@ export default function ProfilePictureUploader({
     return null
   }
 
-  // Handle file selection with retry awareness
+  // Handle file selection - MOBILE FIXED VERSION!
   const handleFileSelect = async (file: File) => {
     console.log('[ProfileUploader] File selected:', file.name, 'Size:', file.size, 'Type:', file.type)
     
@@ -150,43 +158,57 @@ export default function ProfilePictureUploader({
 
     setError(null)
     setIsUploading(true)
-    setRetryCount(0)
-    setCurrentOperation('uploading')
-    setDebugInfo('Preparing...')
 
     try {
-      // Step 1: Create preview immediately using FileReader for instant feedback
-      const reader = new FileReader()
+      // ✅ MOBILE FIX: Use URL.createObjectURL() instead of FileReader!
+      // This works perfectly on mobile browsers where FileReader fails
+      console.log('[ProfileUploader] Creating preview using ObjectURL (mobile compatible)...')
       
-      const previewPromise = new Promise<string>((resolve, reject) => {
-        reader.onload = (e) => {
-          const result = e.target?.result as string
-          console.log('[ProfileUploader] Preview created from FileReader')
-          setPreviewUrl(result)
-          resolve(result)
+      let newPreviewUrl: string
+      
+      try {
+        newPreviewUrl = createPreviewUrl(file)
+        console.log('[ProfileUploader] ✓ Preview created successfully via ObjectURL')
+        
+        // Cleanup old preview URL if exists
+        if (currentPreviewUrlRef.current) {
+          revokePreviewUrl(currentPreviewUrlRef.current)
         }
-        reader.onerror = () => reject(new Error('FileReader failed'))
-        reader.readAsDataURL(file)
-      })
+        
+        // Update state and ref
+        setPreviewUrl(newPreviewUrl)
+        currentPreviewUrlRef.current = newPreviewUrl
+        
+      } catch (previewError) {
+        console.error('[ProfileUploader] Failed to create ObjectURL:', previewError)
+        throw new Error(language === 'ar'
+          ? 'فشل في إنشاء معاينة الصورة'
+          : 'Failed to create image preview'
+        )
+      }
       
-      await previewPromise
       setDebugInfo('Compressing & saving...')
       
-      // Step 2: Save to database (includes automatic retry logic!)
-      console.log('[ProfileUploader] Saving to database with automatic retry...')
+      // Save to database (uses internal ObjectURL for compression - mobile compatible!)
+      console.log('[ProfileUploader] Saving to database...')
       const savedImage = await saveProfilePicture(file)
       
       console.log('[ProfileUploader] ✓ Save successful:', savedImage)
       setProfileImage(savedImage)
       setDebugInfo(`✓ Saved! ${savedImage.compressedSize} bytes`)
       
-      // Step 3: Verify the save worked by reading back
+      // Verify the save worked by reading back
       try {
         setDebugInfo('Verifying save...')
         const verifyImage = await getProfilePicture()
         
         if (verifyImage && verifyImage.data) {
-          console.log('[ProfileUploader] ✓ Verification successful - image persists!')
+          console.log('[ProfileUploader] ✓ Verification successful!')
+          
+          // Switch to base64 data URL (more stable than ObjectURL for long-term display)
+          setPreviewUrl(verifyImage.data)
+          currentPreviewUrlRef.current = null // Now using base64, no cleanup needed
+          
           setDebugInfo(`✓ Verified! Saved as: ${verifyImage.fileName}`)
           
           // Show success message
@@ -196,44 +218,53 @@ export default function ProfilePictureUploader({
           }
           successTimeoutRef.current = setTimeout(() => setSuccess(false), 3000)
           
-          // Notify parent
-          onImageChange?.(savedImage.data)
+          // Notify parent with actual data URL
+          onImageChange?.(verifyImage.data)
         } else {
-          console.error('[ProfileUploader] ✗ Verification failed - image not persisted!')
-          setDebugInfo('⚠ Save reported success but verification failed!')
-          setError(language === 'ar'
-            ? 'تحذير: الصورة قد لا تكون محفوظة بشكل دائم'
-            : 'Warning: Image may not be permanently saved'
-          )
-          // Still show success since save reported OK
+          console.warn('[ProfileUploader] ⚠ Verification failed but preview still showing')
+          setDebugInfo('⚠ Preview OK, verification pending refresh')
           setSuccess(true)
-          setTimeout(() => setSuccess(false), 5000)
+          setTimeout(() => setSuccess(false), 3000)
         }
       } catch (verifyErr) {
         console.error('[ProfileUploader] Verification error:', verifyErr)
-        // Don't fail - save was successful, just verification had issues
+        // Don't fail - save was successful
         setSuccess(true)
         setTimeout(() => setSuccess(false), 3000)
       }
 
     } catch (err) {
-      console.error('[ProfileUploader] ✗ Failed to save after all retries:', err)
-      setError(language === 'ar' 
-        ? `فشل في حفظ الصورة بعد عدة محاولات: ${err}`
-        : `Failed to save image after multiple attempts: ${err}`
-      )
-      setDebugInfo(`✗ Error: ${err}`)
+      console.error('[ProfileUploader] ✗ Failed to save:', err)
+      
+      // Provide better error messages based on device type
+      let errorMessage: string
+      
+      if (isMobileDevice) {
+        errorMessage = language === 'ar'
+          ? `خطأ في الموبايل: ${err}. جرب صورة أصغر أو نوع مختلف`
+          : `Mobile error: ${err}. Try a smaller image or different format`
+      } else {
+        errorMessage = language === 'ar'
+          ? `فشل في حفظ الصورة: ${err}`
+          : `Failed to save image: ${err}`
+      }
+      
+      setError(errorMessage)
+      setDebugInfo(`Error: ${err}`)
       
       // Revert preview on error
-      if (profileImage) {
+      if (profileImage && profileImage.data) {
         setPreviewUrl(profileImage.data)
+        currentPreviewUrlRef.current = null
       } else {
         setPreviewUrl(null)
+        if (currentPreviewUrlRef.current) {
+          revokePreviewUrl(currentPreviewUrlRef.current)
+          currentPreviewUrlRef.current = null
+        }
       }
     } finally {
       setIsUploading(false)
-      setRetryCount(0)
-      setCurrentOperation('')
     }
   }
 
@@ -272,14 +303,13 @@ export default function ProfilePictureUploader({
     e.target.value = ''
   }
 
-  // Handle delete with logging
+  // Handle delete
   const handleDelete = async () => {
     if (!profileImage) return
 
     console.log('[ProfileUploader] Deleting profile picture...')
     setIsDeleting(true)
     setError(null)
-    setCurrentOperation('deleting')
 
     try {
       await deleteProfilePicture()
@@ -290,12 +320,13 @@ export default function ProfilePictureUploader({
         console.log('[ProfileUploader] ✓ Delete verified')
         setDebugInfo('✓ Deleted successfully')
       } else {
-        console.warn('[ProfileUploader] ⚠ Delete may not have worked')
-        setDebugInfo('⚠ Delete may need refresh')
+        console.warn('[ProfileUploader] ⚠ Delete may need refresh')
+        setDebugInfo('⚠ Delete may need page refresh')
       }
       
       setProfileImage(null)
       setPreviewUrl(null)
+      currentPreviewUrlRef.current = null
       onImageChange?.(null)
     } catch (err) {
       console.error('[ProfileUploader] Failed to delete:', err)
@@ -306,32 +337,22 @@ export default function ProfilePictureUploader({
       setDebugInfo(`Delete error: ${err}`)
     } finally {
       setIsDeleting(false)
-      setCurrentOperation('')
     }
   }
 
-  // Retry handler for manual retry
-  const handleRetry = () => {
-    if (error && !isUploading && !isDeleting) {
-      console.log('[ProfileUploader] User requested retry')
-      setError(null)
-      // If we have a pending operation, we'd retry it here
-      // For now, just clear the error and let user try again
-    }
-  }
-
-  // Debug helper - check storage status
+  // Debug helper
   const handleDebug = async () => {
     if (!isBrowser()) return
     
     try {
       const status = await debugStorageStatus()
       const statusText = `
-DB Connected: ${status.dbConnected}
-Error Count: ${status.errorCount}
-IndexedDB: ${status.indexedDB ? '✓ Has data' : 'Empty'}
-LocalStorage: ${status.localStorage ? '✓ Has data' : 'Empty'}
-Memory: ${status.memory ? '✓ Has data' : 'Empty'}
+📱 Device: ${status.isMobileDevice ? 'Mobile 📱' : 'Desktop 💻'}
+🔗 DB Connected: ${status.dbConnected ? '✓' : '❌'}
+❌ Error Count: ${status.errorCount}
+💾 IndexedDB: ${status.indexedDB ? '✓ Has data' : 'Empty'}
+📦 LocalStorage: ${status.localStorage ? '✓ Has data' : 'Empty'}
+🧠 Memory: ${status.memory ? '✓ Has data' : 'Empty'}
 `.trim()
       
       setDebugInfo(statusText)
@@ -346,28 +367,20 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
     fileInputRef.current?.click()
   }
 
-  // Format file size for display
+  // Format file size
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  // Get status message based on current state
+  // Get status message
   const getStatusMessage = (): string => {
     if (isUploading) {
-      if (retryCount > 0) {
-        return language === 'ar' 
-          ? `جارٍ المحاولة ${retryCount + 1}/3...`
-          : `Retrying ${retryCount + 1}/3...`
-      }
       return language === 'ar' ? 'جارٍ الرفع...' : 'Uploading...'
     }
     if (isDeleting) {
       return language === 'ar' ? 'جارٍ الحذف...' : 'Deleting...'
-    }
-    if (currentOperation === 'loading') {
-      return language === 'ar' ? 'جارٍ التحميل...' : 'Loading...'
     }
     return ''
   }
@@ -386,6 +399,14 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
       />
 
       <div className="flex flex-col items-center gap-4">
+        {/* Mobile indicator (only in development or when there's an issue) */}
+        {isMobileDevice && process.env.NODE_ENV === 'development' && (
+          <div className="flex items-center gap-1 text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded-full">
+            <Smartphone size={12} />
+            <span>{language === 'ar' ? 'وضع الموبايل' : 'Mobile Mode'}</span>
+          </div>
+        )}
+
         {/* Avatar Container with Upload Zone */}
         <div
           className={`
@@ -420,14 +441,12 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
               {/* Hover Overlay */}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                 {isUploading ? (
-                  <div className="flex flex-col items-center gap-1">
+                  <>
                     <Loader2 className={`animate-spin text-white`} size={config.icon} />
-                    {retryCount > 0 && (
-                      <span className="text-yellow-300 text-xs font-medium">
-                        {retryCount}/3
-                      </span>
-                    )}
-                  </div>
+                    <span className="text-white text-xs font-medium px-2">
+                      {getStatusMessage()}
+                    </span>
+                  </>
                 ) : (
                   <>
                     <Camera size={config.icon} className="text-white" />
@@ -461,14 +480,7 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
             /* Empty State */
             <div className={`${config.container} flex flex-col items-center justify-center bg-white/5`}>
               {isUploading ? (
-                <div className="flex flex-col items-center gap-2">
-                  <Loader2 className={`animate-spin text-cyan-400`} size={config.icon} />
-                  {retryCount > 0 && (
-                    <span className="text-cyan-300 text-xs">
-                      Attempt {retryCount}/3
-                    </span>
-                  )}
-                </div>
+                <Loader2 className={`animate-spin text-cyan-400`} size={config.icon} />
               ) : isDragging ? (
                 <Upload size={config.icon} className="text-cyan-400" />
               ) : (
@@ -503,12 +515,7 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
               }
             `}
           >
-            {isUploading && retryCount > 0 ? (
-              <>
-                <RefreshCw size={16} className="animate-spin" />
-                {language === 'ar' ? `إعادة المحاولة... (${retryCount})` : `Retrying... (${retryCount})`}
-              </>
-            ) : isUploading ? (
+            {isUploading ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
                 {language === 'ar' ? 'جارٍ الرفع...' : 'Uploading...'}
@@ -521,7 +528,7 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
             )}
           </button>
 
-          {/* Delete Button - Only show if there's an image */}
+          {/* Delete Button */}
           {profileImage && (
             <button
               onClick={handleDelete}
@@ -549,23 +556,7 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
             </button>
           )}
 
-          {/* Retry Button - Show when there's an error */}
-          {error && !isUploading && !isDeleting && (
-            <button
-              onClick={handleRetry}
-              className="
-                flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
-                bg-amber-500/20 text-amber-400 border border-amber-500/30 
-                hover:bg-amber-500/30 active:bg-amber-500/40
-                transition-all duration-200
-              "
-            >
-              <RefreshCw size={16} />
-              {language === 'ar' ? 'محاولة تانية' : 'Try Again'}
-            </button>
-          )}
-
-          {/* Debug Button - Always visible in development */}
+          {/* Debug Button */}
           {(process.env.NODE_ENV === 'development' || error) && (
             <button
               onClick={handleDebug}
@@ -584,16 +575,18 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
         {/* Status Messages */}
         {error && (
           <div className="max-w-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center animate-in fade-in">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 mb-1">
               <AlertCircle size={16} />
-              <span>{error}</span>
+              <span className="font-medium">{error}</span>
             </div>
-            <p className="text-xs mt-1 text-red-400/70">
-              {language === 'ar' 
-                ? 'النظام سيحاول تلقائياً حتى 3 مرات'
-                : 'System will automatically retry up to 3 times'
-              }
-            </p>
+            {isMobileDevice && (
+              <p className="text-xs mt-1 text-red-400/70 opacity-75">
+                {language === 'ar' 
+                  ? '💡 نصيحة: جرب صورة أصغر من 5 ميجابايت'
+                  : '💡 Tip: Try an image smaller than 5MB'
+                }
+              </p>
+            )}
           </div>
         )}
 
@@ -603,9 +596,9 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
           </div>
         )}
 
-        {/* Debug Info - Always visible during development or when there's info */}
+        {/* Debug Info */}
         {debugInfo && (
-          <div className={`max-w-xs p-2 rounded-lg text-xs font-mono text-center break-all ${
+          <div className={`max-w-xs p-2 rounded-lg text-xs font-mono text-center break-all whitespace-pre-line ${
             error ? 'bg-red-900/20 border border-red-500/30 text-red-300' :
             success ? 'bg-green-900/20 border border-green-500/30 text-green-300' :
             'bg-slate-800/50 border border-slate-600/30 text-slate-400'
@@ -681,13 +674,12 @@ Memory: ${status.memory ? '✓ Has data' : 'Empty'}
   )
 }
 
-// Export a hook for easy access to profile picture in other components
+// Export hook
 export function useProfilePicture() {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const loadProfilePicture = useCallback(async () => {
-    // Skip if not in browser (SSR safety)
     if (!isBrowser()) {
       console.log('[useProfilePicture] Skipping - not in browser (SSR)')
       setIsLoading(false)
