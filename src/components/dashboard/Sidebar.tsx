@@ -26,17 +26,16 @@ type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analy
 const navItems = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', page: 'dashboard' as PageType },
   
-  // HRIS Section Header (visual only)
-  // HRIS Pages
-  { icon: Users, labelKey: 'nav.hrisDashboard', page: 'hris-dashboard' as PageType },
+  // HRIS Section
+  { icon: Users, labelKey: 'nav.hrisDashboard', page: 'hris-dashboard' as PageType, isSectionHeader: true, sectionLabel: 'الموارد البشرية' },
   { icon: Users, labelKey: 'nav.employees', page: 'employees' as PageType },
   { icon: Clock, labelKey: 'nav.attendance', page: 'attendance' as PageType },
   { icon: DollarSign, labelKey: 'nav.payroll', page: 'payroll' as PageType },
   { icon: Award, labelKey: 'nav.performance', page: 'performance' as PageType },
   { icon: Calendar, labelKey: 'nav.leaves', page: 'leaves' as PageType },
   
-  // Divider (other sections)
-  { icon: Cog, labelKey: 'nav.operations', page: 'operations' as PageType },
+  // Operations Section
+  { icon: Cog, labelKey: 'nav.operations', page: 'operations' as PageType, isSectionHeader: true, sectionLabel: 'العمليات' },
   { icon: Package, labelKey: 'nav.inventory', page: 'inventory' as PageType },
   { icon: CreditCard, labelKey: 'nav.financials', page: 'financials' as PageType },
   { icon: BarChart3, labelKey: 'nav.analytics', page: 'analytics' as PageType },
@@ -91,10 +90,11 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
          
         ${isRTL ? 'border-l' : 'border-r'} border-white/40 
         shadow-xl shadow-indigo-500/10 
-        z-50 flex-col h-full p-6 space-y-4
+        z-50 flex flex-col h-full p-6 space-y-4
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}
         md:translate-x-0 md:z-40 md:bg-white/70 md:dark:bg-[#000000]
+        overflow-hidden
       `}>
         {/* Close Button (Mobile Only) */}
         <div className={`md:hidden flex ${isRTL ? 'justify-start' : 'justify-end'} mb-4`}>
@@ -117,11 +117,23 @@ export default function Sidebar({ isOpen, onClose, currentPage, onNavigate }: Si
           </div>
         </div>
 
-        {/* Main Navigation */}
-        <nav className="flex-1 space-y-2 w-full">
-          {navItems.map((item) => {
+        {/* Main Navigation - Scrollable */}
+        <nav className="flex-1 space-y-2 w-full overflow-y-auto pr-1">
+          {navItems.map((item, index) => {
             const Icon = item.icon
             const isActive = currentPage === item.page
+            
+            // Render section header
+            if ((item as any).isSectionHeader && index > 0) {
+              return (
+                <div key={item.labelKey} className="pt-4 pb-2 first:pt-0">
+                  <div className="px-4 py-1 text-xs font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 rounded-lg mb-2">
+                    {(item as any).sectionLabel || t(item.labelKey)}
+                  </div>
+                </div>
+              )
+            }
+            
             return (
               <a
                 key={item.labelKey}
