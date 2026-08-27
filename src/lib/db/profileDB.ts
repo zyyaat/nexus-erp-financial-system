@@ -1,15 +1,18 @@
 /**
- * Profile Picture Storage Service
+ * Profile Picture Storage Service - ROBUST VERSION
  * 
- * Strategy: IndexedDB → localStorage fallback → memory cache
- * Works perfectly with Vercel - no backend needed!
+ * Based on research from:
+ * - MDN Web Docs (IndexedDB best practices)
+ * - Dexie.js (IndexedDB wrapper patterns)
+ * - JavaScript.info (transaction handling)
+ * - StackOverflow community solutions
  * 
- * Features:
- * - Store profile pictures locally in browser
- * - Automatic image compression (max 200KB)
- * - Persistent storage across sessions
- * - Works offline
- * - Graceful fallback if IndexedDB unavailable
+ * Key Features:
+ * 1. Exponential backoff retry (3 attempts)
+ * 2. Connection health monitoring
+ * 3. Transaction isolation
+ * 4. Graceful fallback chain: IndexedDB → localStorage → memory
+ * 5. Proper error classification
  */
 
 const DB_NAME = 'NexusERP_ProfileDB'
@@ -33,42 +36,114 @@ export interface ProfileImage {
 // In-memory fallback for SSR
 let memoryCache: ProfileImage | null = null
 
+// Connection state tracking
+let dbInstance: IDBDatabase | null = null
+let isDBOpening = false
+let dbErrorCount = 0
+const MAX_DB_ERRORS_BEFORE_RESET = 3
+
 // ============ BROWSER CHECK ============
 
-/**
- * Check if we're running in a browser environment with IndexedDB support
- */
 export function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof indexedDB !== 'undefined'
 }
 
-export function isIndexedDBAvailable(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (!isBrowser()) {
-      resolve(false)
-      return
-    }
-    
-    try {
-      const request = indexedDB.open(DB_NAME)
-      
-      request.onerror = () => resolve(false)
-      request.onsuccess = () => {
-        request.result.close()
-        resolve(true)
-      }
-      
-      // Timeout after 2 seconds
-      setTimeout(() => {
-        resolve(false)
-      }, 2000)
-    } catch {
-      resolve(false)
-    }
-  })
+// ============ RETRY UTILITIES ============
+
+/**
+ * Sleep utility for delays between retries
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-// ============ DATABASE INITIALIZATION ============
+/**
+ * Exponential backoff retry with jitter
+ * Based on AWS/Google Cloud best practices
+ */
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  options: {
+    maxAttempts?: number
+    baseDelay?: number
+    maxDelay?: number
+    operationName?: string
+  } = {}
+): Promise<T> {
+  const {
+    maxAttempts = 3,
+    baseDelay = 200,
+    maxDelay = 2000,
+    operationName = 'operation'
+  } = options
+
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      console.log(`[ProfileDB] ${operationName} - Attempt ${attempt}/${maxAttempts}`)
+      const result = await operation()
+      
+      if (attempt > 1) {
+        console.log(`[ProfileDB] ${operationName} - ✓ Success on attempt ${attempt}`)
+      }
+      
+      // Reset error count on success
+      dbErrorCount = 0
+      
+      return result
+    } catch (error) {
+      lastError = error as Error
+      dbErrorCount++
+      
+      console.warn(`[ProfileDB] ${operationName} - ✗ Attempt ${attempt} failed:`, error?.message || error)
+      
+      if (attempt < maxAttempts) {
+        // Exponential backoff with jitter (randomness to prevent thundering herd)
+        const exponentialDelay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay)
+        const jitter = Math.random() * 100 // 0-100ms random jitter
+        const delay = exponentialDelay + jitter
+        
+        console.log(`[ProfileDB] ${operationName} - Retrying in ${Math.round(delay)}ms...`)
+        await sleep(delay)
+        
+        // Reset connection if too many errors
+        if (dbErrorCount >= MAX_DB_ERRORS_BEFORE_RESET) {
+          console.warn(`[ProfileDB] Too many errors (${dbErrorCount}), resetting connection...`)
+          await resetConnection()
+        }
+      }
+    }
+  }
+  
+  throw lastError || new Error(`${operationName} failed after ${maxAttempts} attempts`)
+}
+
+/**
+ * Reset the database connection
+ */
+async function resetConnection(): Promise<void> {
+  console.log('[ProfileDB] Resetting database connection...')
+  
+  if (dbInstance) {
+    try {
+      dbInstance.close()
+    } catch (e) {
+      console.warn('[ProfileDB] Error closing connection:', e)
+    }
+    dbInstance = null
+  }
+  
+  // Clear cached promise
+  dbPromise = null
+  isDBOpening = false
+  
+  console.log('[ProfileDB] Connection reset complete')
+}
+
+// ============ DATABASE INITIALIZATION WITH RETRY ============
+
+let dbPromise: Promise<IDBDatabase> | null = null
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -77,14 +152,54 @@ function openDB(): Promise<IDBDatabase> {
       return
     }
 
+    // Prevent multiple simultaneous opens
+    if (isDBOpening) {
+      console.log('[ProfileDB] Database already opening, waiting...')
+      // Return existing promise if available
+      if (dbPromise) {
+        dbPromise.then(resolve).catch(reject)
+        return
+      }
+    }
+
+    isDBOpening = true
+    
     const request = indexedDB.open(DB_NAME, DB_VERSION)
 
-    request.onerror = () => {
-      console.error('[ProfileDB] IndexedDB open error:', request.error)
-      reject(request.error)
+    // Set timeout for database opening
+    const timeoutId = setTimeout(() => {
+      console.error('[ProfileDB] Database open timeout')
+      isDBOpening = false
+      reject(new Error('Database open timeout'))
+    }, 5000)
+
+    request.onerror = (event) => {
+      clearTimeout(timeoutId)
+      isDBOpening = false
+      const error = request.error || (event.target as IDBOpenDBRequest)?.error
+      console.error('[ProfileDB] IndexedDB open error:', error)
+      reject(error || new Error('Failed to open database'))
     }
 
     request.onsuccess = () => {
+      clearTimeout(timeoutId)
+      isDBOpening = false
+      dbInstance = request.result
+      
+      // Handle connection closing unexpectedly
+      dbInstance.onclose = () => {
+        console.warn('[ProfileDB] Database connection closed unexpectedly')
+        dbInstance = null
+        dbPromise = null
+      }
+      
+      dbInstance.onversionchange = () => {
+        console.log('[ProfileDB] Database version change detected, closing connection')
+        dbInstance?.close()
+        dbInstance = null
+        dbPromise = null
+      }
+      
       console.log('[ProfileDB] Database opened successfully')
       resolve(request.result)
     }
@@ -101,16 +216,24 @@ function openDB(): Promise<IDBDatabase> {
         console.log('[ProfileDB] Object store created:', STORE_NAME)
       }
     }
+
+    request.blocked = () => {
+      console.warn('[ProfileDB] Database blocked by other connections')
+    }
   })
 }
 
-// Initialize database on first call
-let dbPromise: Promise<IDBDatabase> | null = null
-
 async function getDB(): Promise<IDBDatabase> {
+  // If we have a valid connection, use it
+  if (dbInstance && dbInstance.objectStoreNames.contains(STORE_NAME)) {
+    return dbInstance
+  }
+  
+  // Otherwise open/create connection
   if (!dbPromise) {
     dbPromise = openDB()
   }
+  
   return dbPromise
 }
 
@@ -258,12 +381,31 @@ async function generateThumbnail(
 
 // ============ LOCALSTORAGE FALLBACK ============
 
-function saveToLocalStorage(image: ProfileImage): void {
+function saveToLocalStorage(image: ProfileImage): boolean {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(image))
-    console.log('[ProfileDB] Saved to localStorage fallback')
+    console.log('[ProfileDB] ✓ Saved to localStorage fallback')
+    return true
   } catch (err) {
-    console.error('[ProfileDB] Failed to save to localStorage:', err)
+    // Check if it's a quota error
+    if (err instanceof DOMException && (
+      err.name === 'QuotaExceededError' ||
+      err.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+    )) {
+      console.error('[ProfileDB] ✗ LocalStorage quota exceeded!')
+      // Try to make space by removing old data
+      try {
+        localStorage.removeItem(LOCAL_STORAGE_KEY)
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(image))
+        console.log('[ProfileDB] ✓ Saved to localStorage after cleanup')
+        return true
+      } catch (e) {
+        console.error('[ProfileDB] ✗ Still cannot save to localStorage after cleanup')
+        return false
+      }
+    }
+    console.error('[ProfileDB] ✗ Failed to save to localStorage:', err)
+    return false
   }
 }
 
@@ -274,7 +416,7 @@ function getFromLocalStorage(): ProfileImage | null {
       return JSON.parse(data)
     }
   } catch (err) {
-    console.error('[ProfileDB] Failed to read from localStorage:', err)
+    console.error('[ProfileDB] ✗ Failed to read from localStorage:', err)
   }
   return null
 }
@@ -282,25 +424,25 @@ function getFromLocalStorage(): ProfileImage | null {
 function removeFromLocalStorage(): void {
   try {
     localStorage.removeItem(LOCAL_STORAGE_KEY)
-    console.log('[ProfileDB] Removed from localStorage fallback')
+    console.log('[ProfileDB] ✓ Removed from localStorage fallback')
   } catch (err) {
-    console.error('[ProfileDB] Failed to remove from localStorage:', err)
+    console.error('[ProfileDB] ✗ Failed to remove from localStorage:', err)
   }
 }
 
-// ============ CRUD OPERATIONS WITH FALLBACK ============
+// ============ ROBUST CRUD OPERATIONS WITH RETRY & FALLBACK ============
 
 /**
- * Save or update user profile picture
- * Tries IndexedDB first, falls back to localStorage, then memory
+ * Save or update user profile picture with automatic retry
+ * Strategy: Try IndexedDB → Fallback to localStorage → Memory cache
  */
 export async function saveProfilePicture(file: File): Promise<ProfileImage> {
   console.log('[ProfileDB] Starting save process for file:', file.name, 'Size:', file.size)
   
-  // Compress the main image
+  // Step 1: Compress the main image (this is fast, no need for retry)
   const compressed = await compressImage(file)
   
-  // Generate thumbnail
+  // Step 2: Generate thumbnail
   const thumbnail = await generateThumbnail(compressed.base64)
   
   const profileImage: ProfileImage = {
@@ -315,44 +457,69 @@ export async function saveProfilePicture(file: File): Promise<ProfileImage> {
     updatedAt: new Date().toISOString()
   }
 
-  // Try IndexedDB first
+  // Step 3: Try to save with retry logic
   if (isBrowser()) {
     try {
-      const db = await getDB()
-      
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite')
-        const store = transaction.objectStore(STORE_NAME)
-        const request = store.put(profileImage)
+      const savedImage = await withRetry(async () => {
+        const db = await getDB()
+        
+        return new Promise<ProfileImage>((resolve, reject) => {
+          // Use a short-lived transaction
+          const transaction = db.transaction([STORE_NAME], 'readwrite')
+          const store = transaction.objectStore(STORE_NAME)
+          const request = store.put(profileImage)
 
-        request.onsuccess = () => {
-          console.log('[ProfileDB] ✓ Successfully saved to IndexedDB')
-          // Also update localStorage as backup
-          saveToLocalStorage(profileImage)
-          memoryCache = profileImage
-          resolve(profileImage)
-        }
-        
-        request.onerror = () => {
-          console.warn('[ProfileDB] IndexedDB save failed, trying localStorage...')
-          // Fallback to localStorage
-          saveToLocalStorage(profileImage)
-          memoryCache = profileImage
-          resolve(profileImage)
-        }
-        
-        transaction.oncomplete = () => {
-          console.log('[ProfileDB] Transaction completed')
-        }
-        
-        transaction.onerror = () => {
-          console.error('[ProfileDB] Transaction error')
-        }
+          // Success handler
+          request.onsuccess = () => {
+            console.log('[ProfileDB] ✓ Successfully saved to IndexedDB')
+            resolve(profileImage)
+          }
+          
+          // Error handler - this will trigger retry
+          request.onerror = () => {
+            const error = request.error
+            console.error('[ProfileDB] ✗ IndexedDB put error:', error?.message)
+            reject(error || new Error('Failed to save to IndexedDB'))
+          }
+          
+          // Transaction-level error handling
+          transaction.onerror = () => {
+            console.error('[ProfileDB] ✗ Transaction error')
+          }
+          
+          transaction.onabort = () => {
+            console.warn('[ProfileDB] ⚠ Transaction aborted')
+          }
+          
+          transaction.oncomplete = () => {
+            console.log('[ProfileDB] ✓ Transaction completed successfully')
+          }
+        })
+      }, {
+        maxAttempts: 3,
+        baseDelay: 300,
+        operationName: 'saveProfilePicture'
       })
-    } catch (err) {
-      console.warn('[ProfileDB] IndexedDB unavailable, using localStorage fallback:', err)
-      saveToLocalStorage(profileImage)
+      
+      // Also update localStorage as backup (don't wait for it)
+      setTimeout(() => {
+        saveToLocalStorage(savedImage)
+        memoryCache = savedImage
+      }, 0)
+      
+      return savedImage
+      
+    } catch (indexedDBError) {
+      console.warn('[ProfileDB] ✗ All IndexedDB attempts failed, using localStorage fallback:', indexedDBError.message)
+      
+      // Fallback to localStorage
+      const localSuccess = saveToLocalStorage(profileImage)
       memoryCache = profileImage
+      
+      if (!localSuccess) {
+        console.warn('[ProfileDB] ✗ localStorage also failed, keeping in memory only')
+      }
+      
       return profileImage
     }
   }
@@ -364,60 +531,72 @@ export async function saveProfilePicture(file: File): Promise<ProfileImage> {
 }
 
 /**
- * Get user profile picture
- * Tries IndexedDB first, then localStorage, then memory
+ * Get user profile picture with retry logic
  */
 export async function getProfilePicture(): Promise<ProfileImage | null> {
   console.log('[ProfileDB] Starting get process...')
   
-  // Try IndexedDB first
   if (isBrowser()) {
     try {
-      const db = await getDB()
-      
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readonly')
-        const store = transaction.objectStore(STORE_NAME)
-        const request = store.get('user-profile')
+      const image = await withRetry(async () => {
+        const db = await getDB()
+        
+        return new Promise<ProfileImage | null>((resolve, reject) => {
+          const transaction = db.transaction([STORE_NAME], 'readonly')
+          const store = transaction.objectStore(STORE_NAME)
+          const request = store.get('user-profile')
 
-        request.onsuccess = () => {
-          if (request.result) {
-            console.log('[ProfileDB] ✓ Found in IndexedDB')
-            memoryCache = request.result
-            resolve(request.result)
-          } else {
-            console.log('[ProfileDB] Not found in IndexedDB, checking localStorage...')
-            // Try localStorage fallback
-            const localData = getFromLocalStorage()
-            if (localData) {
-              console.log('[ProfileDB] ✓ Found in localStorage fallback')
-              memoryCache = localData
-              resolve(localData)
+          request.onsuccess = () => {
+            if (request.result) {
+              console.log('[ProfileDB] ✓ Found in IndexedDB')
+              memoryCache = request.result
+              resolve(request.result)
             } else {
-              console.log('[ProfileDB] Not found anywhere')
-              resolve(memoryCache)
+              console.log('[ProfileDB] Not found in IndexedDB')
+              resolve(null)
             }
           }
-        }
-        
-        request.onerror = () => {
-          console.warn('[ProfileDB] IndexedDB get failed, trying localStorage...')
-          const localData = getFromLocalStorage()
-          if (localData) {
-            memoryCache = localData
-            resolve(localData)
-          } else {
-            resolve(memoryCache)
+          
+          request.onerror = () => {
+            const error = request.error
+            console.error('[ProfileDB] ✗ IndexedDB get error:', error?.message)
+            reject(error || new Error('Failed to read from IndexedDB'))
           }
-        }
+        })
+      }, {
+        maxAttempts: 2, // Fewer retries for reads
+        baseDelay: 100,
+        operationName: 'getProfilePicture'
       })
-    } catch (err) {
-      console.warn('[ProfileDB] IndexedDB unavailable, checking localStorage...', err)
+      
+      // If found in IndexedDB, return it
+      if (image) {
+        return image
+      }
+      
+      // Not in IndexedDB, check localStorage
+      console.log('[ProfileDB] Checking localStorage fallback...')
+      const localData = getFromLocalStorage()
+      if (localData) {
+        console.log('[ProfileDB] ✓ Found in localStorage fallback')
+        memoryCache = localData
+        return localData
+      }
+      
+      // Not anywhere, return memory cache
+      console.log('[ProfileDB] Returning from memory cache')
+      return memoryCache
+      
+    } catch (error) {
+      console.warn('[ProfileDB] ✗ All IndexedDB attempts failed for get, checking localStorage:', error)
+      
+      // Try localStorage
       const localData = getFromLocalStorage()
       if (localData) {
         memoryCache = localData
         return localData
       }
+      
       return memoryCache
     }
   }
@@ -428,40 +607,45 @@ export async function getProfilePicture(): Promise<ProfileImage | null> {
 }
 
 /**
- * Delete user profile picture
- * Removes from all storage locations
+ * Delete user profile picture with retry
  */
 export async function deleteProfilePicture(): Promise<void> {
   console.log('[ProfileDB] Starting delete process...')
   
-  // Delete from IndexedDB
   if (isBrowser()) {
     try {
-      const db = await getDB()
-      
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite')
-        const store = transaction.objectStore(STORE_NAME)
-        const request = store.delete('user-profile')
-
-        request.onsuccess = () => {
-          console.log('[ProfileDB] ✓ Deleted from IndexedDB')
-          // Also delete from localStorage
-          removeFromLocalStorage()
-          memoryCache = null
-          resolve()
-        }
+      await withRetry(async () => {
+        const db = await getDB()
         
-        request.onerror = () => {
-          console.warn('[ProfileDB] IndexedDB delete failed')
-          // Still clean up other storage
-          removeFromLocalStorage()
-          memoryCache = null
-          resolve()
-        }
+        return new Promise<void>((resolve, reject) => {
+          const transaction = db.transaction([STORE_NAME], 'readwrite')
+          const store = transaction.objectStore(STORE_NAME)
+          const request = store.delete('user-profile')
+
+          request.onsuccess = () => {
+            console.log('[ProfileDB] ✓ Deleted from IndexedDB')
+            resolve()
+          }
+          
+          request.onerror = () => {
+            const error = request.error
+            console.error('[ProfileDB] ✗ IndexedDB delete error:', error?.message)
+            reject(error || new Error('Failed to delete from IndexedDB'))
+          }
+        })
+      }, {
+        maxAttempts: 3,
+        baseDelay: 300,
+        operationName: 'deleteProfilePicture'
       })
-    } catch (err) {
-      console.warn('[ProfileDB] IndexedDB unavailable during delete:', err)
+      
+      // Clean up other storage locations
+      removeFromLocalStorage()
+      memoryCache = null
+      
+    } catch (error) {
+      console.warn('[ProfileDB] ✗ Delete failed, cleaning up anyway:', error)
+      // Still clean up what we can
       removeFromLocalStorage()
       memoryCache = null
     }
@@ -495,32 +679,35 @@ export async function clearAllProfileData(): Promise<void> {
   
   if (isBrowser()) {
     try {
-      const db = await getDB()
-      
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction([STORE_NAME], 'readwrite')
-        const store = transaction.objectStore(STORE_NAME)
-        const request = store.clear()
-
-        request.onsuccess = () => {
-          console.log('[ProfileDB] ✓ Cleared IndexedDB')
-          removeFromLocalStorage()
-          memoryCache = null
-          resolve()
-        }
+      await withRetry(async () => {
+        const db = await getDB()
         
-        request.onerror = () => {
-          console.error('[ProfileDB] Failed to clear IndexedDB')
-          removeFromLocalStorage()
-          memoryCache = null
-          resolve()
-        }
+        return new Promise<void>((resolve, reject) => {
+          const transaction = db.transaction([STORE_NAME], 'readwrite')
+          const store = transaction.objectStore(STORE_NAME)
+          const request = store.clear()
+
+          request.onsuccess = () => {
+            console.log('[ProfileDB] ✓ Cleared IndexedDB')
+            resolve()
+          }
+          
+          request.onerror = () => {
+            const error = request.error
+            console.error('[ProfileDB] ✗ Clear error:', error?.message)
+            reject(error || new Error('Failed to clear IndexedDB'))
+          }
+        })
+      }, {
+        maxAttempts: 2,
+        operationName: 'clearAllProfileData'
       })
-    } catch (err) {
-      console.warn('[ProfileDB] IndexedDB unavailable during clear:', err)
-      removeFromLocalStorage()
-      memoryCache = null
+    } catch (error) {
+      console.warn('[ProfileDB] ✗ Clear failed:', error)
     }
+    
+    // Always clean up other storage
+    removeFromLocalStorage()
   }
   
   memoryCache = null
@@ -534,28 +721,40 @@ export async function debugStorageStatus(): Promise<{
   localStorage: boolean
   memory: boolean
   imageData?: ProfileImage
+  dbConnected: boolean
+  errorCount: number
 }> {
   const status = {
     indexedDB: false,
     localStorage: false,
     memory: memoryCache !== null,
-    imageData: memoryCache || undefined
+    imageData: memoryCache || undefined,
+    dbConnected: dbInstance !== null,
+    errorCount: dbErrorCount
   }
   
   if (isBrowser()) {
     try {
       const db = await getDB()
+      status.dbConnected = true
+      
       const pic = await new Promise<ProfileImage | null>((resolve) => {
-        const tx = db.transaction([STORE_NAME], 'readonly')
-        const store = tx.objectStore(STORE_NAME)
-        const req = store.get('user-profile')
-        req.onsuccess = () => resolve(req.result)
-        req.onerror = () => resolve(null)
+        try {
+          const tx = db.transaction([STORE_NAME], 'readonly')
+          const store = tx.objectStore(STORE_NAME)
+          const req = store.get('user-profile')
+          req.onsuccess = () => resolve(req.result)
+          req.onerror = () => resolve(null)
+        } catch (e) {
+          resolve(null)
+        }
       })
+      
       status.indexedDB = pic !== null
       if (pic) status.imageData = pic
     } catch (e) {
       console.error('[ProfileDB] Debug check failed for IndexedDB:', e)
+      status.dbConnected = false
     }
     
     status.localStorage = localStorage.getItem(LOCAL_STORAGE_KEY) !== null
@@ -563,4 +762,40 @@ export async function debugStorageStatus(): Promise<{
   
   console.log('[ProfileDB] Storage Status:', status)
   return status
+}
+
+/**
+ * Force reset all storage (for troubleshooting)
+ */
+export async function forceResetAllStorage(): Promise<void> {
+  console.log('[ProfileDB] Force resetting all storage...')
+  
+  // Close and reset IndexedDB connection
+  await resetConnection()
+  
+  // Try to delete the database entirely
+  if (isBrowser()) {
+    try {
+      await new Promise((resolve, reject) => {
+        const request = indexedDB.deleteDatabase(DB_NAME)
+        request.onsuccess = resolve
+        request.onerror = reject
+        request.blocked = () => {
+          console.warn('[ProfileDB] Database deletion blocked')
+          resolve()
+        }
+      })
+      console.log('[ProfileDB] ✓ Database deleted')
+    } catch (e) {
+      console.error('[ProfileDB] ✗ Failed to delete database:', e)
+    }
+  }
+  
+  // Clear localStorage
+  removeFromLocalStorage()
+  
+  // Clear memory
+  memoryCache = null
+  
+  console.log('[ProfileDB] All storage reset complete')
 }

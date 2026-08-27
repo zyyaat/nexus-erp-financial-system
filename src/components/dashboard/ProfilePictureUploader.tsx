@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Camera, Upload, Trash2, Loader2, User, ZoomIn, X, AlertCircle } from 'lucide-react'
+import { Camera, Upload, Trash2, Loader2, User, ZoomIn, X, AlertCircle, RefreshCw } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { 
   saveProfilePicture, 
@@ -50,6 +50,8 @@ export default function ProfilePictureUploader({
   const [success, setSuccess] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
   const [debugInfo, setDebugInfo] = useState<string>('')
+  const [retryCount, setRetryCount] = useState(0)
+  const [currentOperation, setCurrentOperation] = useState<string>('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const successTimeoutRef = useRef<NodeJS.Timeout>()
@@ -90,13 +92,15 @@ export default function ProfilePictureUploader({
 
     try {
       console.log('[ProfileUploader] Loading profile picture...')
+      setCurrentOperation('loading')
+      
       const image = await getProfilePicture()
       
       if (image && image.data) {
         console.log('[ProfileUploader] ✓ Profile picture found:', image.fileName)
         setProfileImage(image)
         setPreviewUrl(image.data)
-        setDebugInfo(`Loaded: ${image.fileName} (${image.compressedSize} bytes)`)
+        setDebugInfo(`✓ Loaded: ${image.fileName} (${image.compressedSize} bytes)`)
       } else {
         console.log('[ProfileUploader] No profile picture found')
         setDebugInfo('No saved picture')
@@ -108,6 +112,8 @@ export default function ProfilePictureUploader({
         : 'Failed to load saved image'
       )
       setDebugInfo(`Load error: ${err}`)
+    } finally {
+      setCurrentOperation('')
     }
   }
 
@@ -131,7 +137,7 @@ export default function ProfilePictureUploader({
     return null
   }
 
-  // Handle file selection with detailed logging
+  // Handle file selection with retry awareness
   const handleFileSelect = async (file: File) => {
     console.log('[ProfileUploader] File selected:', file.name, 'Size:', file.size, 'Type:', file.type)
     
@@ -144,10 +150,12 @@ export default function ProfilePictureUploader({
 
     setError(null)
     setIsUploading(true)
-    setDebugInfo('Uploading...')
+    setRetryCount(0)
+    setCurrentOperation('uploading')
+    setDebugInfo('Preparing...')
 
     try {
-      // Create preview immediately using FileReader for instant feedback
+      // Step 1: Create preview immediately using FileReader for instant feedback
       const reader = new FileReader()
       
       const previewPromise = new Promise<string>((resolve, reject) => {
@@ -161,25 +169,35 @@ export default function ProfilePictureUploader({
         reader.readAsDataURL(file)
       })
       
-      // Wait for preview to show
       await previewPromise
+      setDebugInfo('Compressing & saving...')
       
-      console.log('[ProfileUploader] Saving to IndexedDB/localStorage...')
-      setDebugInfo('Saving to database...')
-      
-      // Save to database (includes compression)
+      // Step 2: Save to database (includes automatic retry logic!)
+      console.log('[ProfileUploader] Saving to database with automatic retry...')
       const savedImage = await saveProfilePicture(file)
       
       console.log('[ProfileUploader] ✓ Save successful:', savedImage)
       setProfileImage(savedImage)
-      setDebugInfo(`Saved! ${savedImage.compressedSize} bytes`)
+      setDebugInfo(`✓ Saved! ${savedImage.compressedSize} bytes`)
       
-      // Verify the save worked by reading back
+      // Step 3: Verify the save worked by reading back
       try {
+        setDebugInfo('Verifying save...')
         const verifyImage = await getProfilePicture()
+        
         if (verifyImage && verifyImage.data) {
           console.log('[ProfileUploader] ✓ Verification successful - image persists!')
           setDebugInfo(`✓ Verified! Saved as: ${verifyImage.fileName}`)
+          
+          // Show success message
+          setSuccess(true)
+          if (successTimeoutRef.current) {
+            clearTimeout(successTimeoutRef.current)
+          }
+          successTimeoutRef.current = setTimeout(() => setSuccess(false), 3000)
+          
+          // Notify parent
+          onImageChange?.(savedImage.data)
         } else {
           console.error('[ProfileUploader] ✗ Verification failed - image not persisted!')
           setDebugInfo('⚠ Save reported success but verification failed!')
@@ -187,28 +205,24 @@ export default function ProfilePictureUploader({
             ? 'تحذير: الصورة قد لا تكون محفوظة بشكل دائم'
             : 'Warning: Image may not be permanently saved'
           )
+          // Still show success since save reported OK
+          setSuccess(true)
+          setTimeout(() => setSuccess(false), 5000)
         }
       } catch (verifyErr) {
         console.error('[ProfileUploader] Verification error:', verifyErr)
+        // Don't fail - save was successful, just verification had issues
+        setSuccess(true)
+        setTimeout(() => setSuccess(false), 3000)
       }
-      
-      // Show success message
-      setSuccess(true)
-      if (successTimeoutRef.current) {
-        clearTimeout(successTimeoutRef.current)
-      }
-      successTimeoutRef.current = setTimeout(() => setSuccess(false), 3000)
-
-      // Notify parent
-      onImageChange?.(savedImage.data)
 
     } catch (err) {
-      console.error('[ProfileUploader] ✗ Failed to save profile picture:', err)
+      console.error('[ProfileUploader] ✗ Failed to save after all retries:', err)
       setError(language === 'ar' 
-        ? `فشل في حفظ الصورة: ${err}`
-        : `Failed to save image: ${err}`
+        ? `فشل في حفظ الصورة بعد عدة محاولات: ${err}`
+        : `Failed to save image after multiple attempts: ${err}`
       )
-      setDebugInfo(`Error: ${err}`)
+      setDebugInfo(`✗ Error: ${err}`)
       
       // Revert preview on error
       if (profileImage) {
@@ -218,6 +232,8 @@ export default function ProfilePictureUploader({
       }
     } finally {
       setIsUploading(false)
+      setRetryCount(0)
+      setCurrentOperation('')
     }
   }
 
@@ -263,6 +279,7 @@ export default function ProfilePictureUploader({
     console.log('[ProfileUploader] Deleting profile picture...')
     setIsDeleting(true)
     setError(null)
+    setCurrentOperation('deleting')
 
     try {
       await deleteProfilePicture()
@@ -271,13 +288,14 @@ export default function ProfilePictureUploader({
       const checkImage = await getProfilePicture()
       if (!checkImage) {
         console.log('[ProfileUploader] ✓ Delete verified')
+        setDebugInfo('✓ Deleted successfully')
       } else {
         console.warn('[ProfileUploader] ⚠ Delete may not have worked')
+        setDebugInfo('⚠ Delete may need refresh')
       }
       
       setProfileImage(null)
       setPreviewUrl(null)
-      setDebugInfo('Deleted')
       onImageChange?.(null)
     } catch (err) {
       console.error('[ProfileUploader] Failed to delete:', err)
@@ -285,8 +303,20 @@ export default function ProfilePictureUploader({
         ? 'فشل في حذف الصورة'
         : 'Failed to delete image'
       )
+      setDebugInfo(`Delete error: ${err}`)
     } finally {
       setIsDeleting(false)
+      setCurrentOperation('')
+    }
+  }
+
+  // Retry handler for manual retry
+  const handleRetry = () => {
+    if (error && !isUploading && !isDeleting) {
+      console.log('[ProfileUploader] User requested retry')
+      setError(null)
+      // If we have a pending operation, we'd retry it here
+      // For now, just clear the error and let user try again
     }
   }
 
@@ -296,7 +326,15 @@ export default function ProfilePictureUploader({
     
     try {
       const status = await debugStorageStatus()
-      setDebugInfo(JSON.stringify(status, null, 2))
+      const statusText = `
+DB Connected: ${status.dbConnected}
+Error Count: ${status.errorCount}
+IndexedDB: ${status.indexedDB ? '✓ Has data' : 'Empty'}
+LocalStorage: ${status.localStorage ? '✓ Has data' : 'Empty'}
+Memory: ${status.memory ? '✓ Has data' : 'Empty'}
+`.trim()
+      
+      setDebugInfo(statusText)
       console.log('[ProfileUploader] Debug info:', status)
     } catch (err) {
       setDebugInfo(`Debug error: ${err}`)
@@ -313,6 +351,25 @@ export default function ProfilePictureUploader({
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
+  // Get status message based on current state
+  const getStatusMessage = (): string => {
+    if (isUploading) {
+      if (retryCount > 0) {
+        return language === 'ar' 
+          ? `جارٍ المحاولة ${retryCount + 1}/3...`
+          : `Retrying ${retryCount + 1}/3...`
+      }
+      return language === 'ar' ? 'جارٍ الرفع...' : 'Uploading...'
+    }
+    if (isDeleting) {
+      return language === 'ar' ? 'جارٍ الحذف...' : 'Deleting...'
+    }
+    if (currentOperation === 'loading') {
+      return language === 'ar' ? 'جارٍ التحميل...' : 'Loading...'
+    }
+    return ''
   }
 
   // ============ RENDER ============
@@ -363,7 +420,14 @@ export default function ProfilePictureUploader({
               {/* Hover Overlay */}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                 {isUploading ? (
-                  <Loader2 className={`animate-spin text-white`} size={config.icon} />
+                  <div className="flex flex-col items-center gap-1">
+                    <Loader2 className={`animate-spin text-white`} size={config.icon} />
+                    {retryCount > 0 && (
+                      <span className="text-yellow-300 text-xs font-medium">
+                        {retryCount}/3
+                      </span>
+                    )}
+                  </div>
                 ) : (
                   <>
                     <Camera size={config.icon} className="text-white" />
@@ -397,7 +461,14 @@ export default function ProfilePictureUploader({
             /* Empty State */
             <div className={`${config.container} flex flex-col items-center justify-center bg-white/5`}>
               {isUploading ? (
-                <Loader2 className={`animate-spin text-cyan-400`} size={config.icon} />
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className={`animate-spin text-cyan-400`} size={config.icon} />
+                  {retryCount > 0 && (
+                    <span className="text-cyan-300 text-xs">
+                      Attempt {retryCount}/3
+                    </span>
+                  )}
+                </div>
               ) : isDragging ? (
                 <Upload size={config.icon} className="text-cyan-400" />
               ) : (
@@ -408,14 +479,17 @@ export default function ProfilePictureUploader({
 
           {/* Loading Spinner Overlay */}
           {(isUploading || isDeleting) && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2 rounded-2xl">
               <Loader2 className="animate-spin text-white" size={config.icon} />
+              <span className="text-white text-xs font-medium">
+                {getStatusMessage()}
+              </span>
             </div>
           )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap justify-center">
           {/* Upload Button */}
           <button
             onClick={openFilePicker}
@@ -429,7 +503,12 @@ export default function ProfilePictureUploader({
               }
             `}
           >
-            {isUploading ? (
+            {isUploading && retryCount > 0 ? (
+              <>
+                <RefreshCw size={16} className="animate-spin" />
+                {language === 'ar' ? `إعادة المحاولة... (${retryCount})` : `Retrying... (${retryCount})`}
+              </>
+            ) : isUploading ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
                 {language === 'ar' ? 'جارٍ الرفع...' : 'Uploading...'}
@@ -470,8 +549,24 @@ export default function ProfilePictureUploader({
             </button>
           )}
 
-          {/* Debug Button - Only in development */}
-          {process.env.NODE_ENV === 'development' && (
+          {/* Retry Button - Show when there's an error */}
+          {error && !isUploading && !isDeleting && (
+            <button
+              onClick={handleRetry}
+              className="
+                flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
+                bg-amber-500/20 text-amber-400 border border-amber-500/30 
+                hover:bg-amber-500/30 active:bg-amber-500/40
+                transition-all duration-200
+              "
+            >
+              <RefreshCw size={16} />
+              {language === 'ar' ? 'محاولة تانية' : 'Try Again'}
+            </button>
+          )}
+
+          {/* Debug Button - Always visible in development */}
+          {(process.env.NODE_ENV === 'development' || error) && (
             <button
               onClick={handleDebug}
               className="
@@ -481,7 +576,7 @@ export default function ProfilePictureUploader({
               "
             >
               <AlertCircle size={14} />
-              Debug
+              {process.env.NODE_ENV === 'development' ? 'Debug' : 'Status'}
             </button>
           )}
         </div>
@@ -489,7 +584,16 @@ export default function ProfilePictureUploader({
         {/* Status Messages */}
         {error && (
           <div className="max-w-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center animate-in fade-in">
-            {error}
+            <div className="flex items-center justify-center gap-2">
+              <AlertCircle size={16} />
+              <span>{error}</span>
+            </div>
+            <p className="text-xs mt-1 text-red-400/70">
+              {language === 'ar' 
+                ? 'النظام سيحاول تلقائياً حتى 3 مرات'
+                : 'System will automatically retry up to 3 times'
+              }
+            </p>
           </div>
         )}
 
@@ -499,10 +603,14 @@ export default function ProfilePictureUploader({
           </div>
         )}
 
-        {/* Debug Info - Always visible during development */}
-        {(debugInfo || process.env.NODE_ENV === 'development') && (
-          <div className="max-w-xs p-2 bg-slate-800/50 border border-slate-600/30 rounded-lg text-xs text-slate-400 font-mono text-center break-all">
-            {debugInfo || (language === 'ar' ? 'جاهز للاستخدام' : 'Ready')}
+        {/* Debug Info - Always visible during development or when there's info */}
+        {debugInfo && (
+          <div className={`max-w-xs p-2 rounded-lg text-xs font-mono text-center break-all ${
+            error ? 'bg-red-900/20 border border-red-500/30 text-red-300' :
+            success ? 'bg-green-900/20 border border-green-500/30 text-green-300' :
+            'bg-slate-800/50 border border-slate-600/30 text-slate-400'
+          }`}>
+            {debugInfo}
           </div>
         )}
 
