@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Camera, Upload, Trash2, Loader2, User, ZoomIn, X } from 'lucide-react'
+import { Camera, Upload, Trash2, Loader2, User, ZoomIn, X, AlertCircle } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 import { 
   saveProfilePicture, 
   getProfilePicture, 
   deleteProfilePicture,
+  isBrowser,
+  debugStorageStatus,
   type ProfileImage 
 } from '@/lib/db/profileDB'
 
@@ -46,35 +48,66 @@ export default function ProfilePictureUploader({
   const [showFullPreview, setShowFullPreview] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<string>('')
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const successTimeoutRef = useRef<NodeJS.Timeout>()
+  const mountTimeRef = useRef<number>(Date.now())
 
-  // Load existing profile picture on mount
+  // Load existing profile picture on mount (client-side only!)
   useEffect(() => {
+    // Only run on client side
+    if (!isBrowser()) {
+      console.log('[ProfileUploader] Skipping load - not in browser (SSR)')
+      return
+    }
+    
+    console.log('[ProfileUploader] Component mounted, loading profile picture...')
     loadProfilePicture()
+    setIsInitialized(true)
+    
     return () => {
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current)
       }
     }
-  }, [])
+  }, []) // Empty dependency - only run on mount
 
   // Notify parent of image changes
   useEffect(() => {
-    onImageChange?.(previewUrl || profileImage?.data || null)
-  }, [previewUrl, profileImage])
+    if (isInitialized) {
+      onImageChange?.(previewUrl || profileImage?.data || null)
+    }
+  }, [previewUrl, profileImage, isInitialized])
 
-  // Load profile picture from IndexedDB
+  // Load profile picture from storage
   const loadProfilePicture = async () => {
+    if (!isBrowser()) {
+      console.log('[ProfileUploader] Cannot load - not in browser')
+      return
+    }
+
     try {
+      console.log('[ProfileUploader] Loading profile picture...')
       const image = await getProfilePicture()
-      if (image) {
+      
+      if (image && image.data) {
+        console.log('[ProfileUploader] ✓ Profile picture found:', image.fileName)
         setProfileImage(image)
         setPreviewUrl(image.data)
+        setDebugInfo(`Loaded: ${image.fileName} (${image.compressedSize} bytes)`)
+      } else {
+        console.log('[ProfileUploader] No profile picture found')
+        setDebugInfo('No saved picture')
       }
     } catch (err) {
-      console.error('Failed to load profile picture:', err)
+      console.error('[ProfileUploader] Failed to load profile picture:', err)
+      setError(language === 'ar' 
+        ? 'فشل في تحميل الصورة المحفوظة'
+        : 'Failed to load saved image'
+      )
+      setDebugInfo(`Load error: ${err}`)
     }
   }
 
@@ -98,28 +131,66 @@ export default function ProfilePictureUploader({
     return null
   }
 
-  // Handle file selection
+  // Handle file selection with detailed logging
   const handleFileSelect = async (file: File) => {
+    console.log('[ProfileUploader] File selected:', file.name, 'Size:', file.size, 'Type:', file.type)
+    
     const validationError = validateFile(file)
     if (validationError) {
       setError(validationError)
+      setDebugInfo(`Validation failed: ${validationError}`)
       return
     }
 
     setError(null)
     setIsUploading(true)
+    setDebugInfo('Uploading...')
 
     try {
-      // Create preview immediately
+      // Create preview immediately using FileReader for instant feedback
       const reader = new FileReader()
-      reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-
-      // Save to IndexedDB (includes compression)
+      
+      const previewPromise = new Promise<string>((resolve, reject) => {
+        reader.onload = (e) => {
+          const result = e.target?.result as string
+          console.log('[ProfileUploader] Preview created from FileReader')
+          setPreviewUrl(result)
+          resolve(result)
+        }
+        reader.onerror = () => reject(new Error('FileReader failed'))
+        reader.readAsDataURL(file)
+      })
+      
+      // Wait for preview to show
+      await previewPromise
+      
+      console.log('[ProfileUploader] Saving to IndexedDB/localStorage...')
+      setDebugInfo('Saving to database...')
+      
+      // Save to database (includes compression)
       const savedImage = await saveProfilePicture(file)
+      
+      console.log('[ProfileUploader] ✓ Save successful:', savedImage)
       setProfileImage(savedImage)
+      setDebugInfo(`Saved! ${savedImage.compressedSize} bytes`)
+      
+      // Verify the save worked by reading back
+      try {
+        const verifyImage = await getProfilePicture()
+        if (verifyImage && verifyImage.data) {
+          console.log('[ProfileUploader] ✓ Verification successful - image persists!')
+          setDebugInfo(`✓ Verified! Saved as: ${verifyImage.fileName}`)
+        } else {
+          console.error('[ProfileUploader] ✗ Verification failed - image not persisted!')
+          setDebugInfo('⚠ Save reported success but verification failed!')
+          setError(language === 'ar'
+            ? 'تحذير: الصورة قد لا تكون محفوظة بشكل دائم'
+            : 'Warning: Image may not be permanently saved'
+          )
+        }
+      } catch (verifyErr) {
+        console.error('[ProfileUploader] Verification error:', verifyErr)
+      }
       
       // Show success message
       setSuccess(true)
@@ -128,12 +199,17 @@ export default function ProfilePictureUploader({
       }
       successTimeoutRef.current = setTimeout(() => setSuccess(false), 3000)
 
+      // Notify parent
+      onImageChange?.(savedImage.data)
+
     } catch (err) {
-      console.error('Failed to save profile picture:', err)
+      console.error('[ProfileUploader] ✗ Failed to save profile picture:', err)
       setError(language === 'ar' 
-        ? 'فشل في حفظ الصورة. يرجى المحاولة مرة أخرى.'
-        : 'Failed to save image. Please try again.'
+        ? `فشل في حفظ الصورة: ${err}`
+        : `Failed to save image: ${err}`
       )
+      setDebugInfo(`Error: ${err}`)
+      
       // Revert preview on error
       if (profileImage) {
         setPreviewUrl(profileImage.data)
@@ -164,6 +240,7 @@ export default function ProfilePictureUploader({
     setIsDragging(false)
 
     const files = e.dataTransfer.files
+    console.log('[ProfileUploader] Files dropped:', files.length)
     if (files.length > 0) {
       handleFileSelect(files[0])
     }
@@ -179,26 +256,50 @@ export default function ProfilePictureUploader({
     e.target.value = ''
   }
 
-  // Handle delete
+  // Handle delete with logging
   const handleDelete = async () => {
     if (!profileImage) return
 
+    console.log('[ProfileUploader] Deleting profile picture...')
     setIsDeleting(true)
     setError(null)
 
     try {
       await deleteProfilePicture()
+      
+      // Verify deletion
+      const checkImage = await getProfilePicture()
+      if (!checkImage) {
+        console.log('[ProfileUploader] ✓ Delete verified')
+      } else {
+        console.warn('[ProfileUploader] ⚠ Delete may not have worked')
+      }
+      
       setProfileImage(null)
       setPreviewUrl(null)
+      setDebugInfo('Deleted')
       onImageChange?.(null)
     } catch (err) {
-      console.error('Failed to delete profile picture:', err)
+      console.error('[ProfileUploader] Failed to delete:', err)
       setError(language === 'ar' 
         ? 'فشل في حذف الصورة'
         : 'Failed to delete image'
       )
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  // Debug helper - check storage status
+  const handleDebug = async () => {
+    if (!isBrowser()) return
+    
+    try {
+      const status = await debugStorageStatus()
+      setDebugInfo(JSON.stringify(status, null, 2))
+      console.log('[ProfileUploader] Debug info:', status)
+    } catch (err) {
+      setDebugInfo(`Debug error: ${err}`)
     }
   }
 
@@ -368,11 +469,26 @@ export default function ProfilePictureUploader({
               )}
             </button>
           )}
+
+          {/* Debug Button - Only in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              onClick={handleDebug}
+              className="
+                flex items-center gap-2 px-3 py-2 rounded-xl font-medium text-xs
+                bg-purple-500/20 text-purple-400 border border-purple-500/30 
+                hover:bg-purple-500/30 transition-all duration-200
+              "
+            >
+              <AlertCircle size={14} />
+              Debug
+            </button>
+          )}
         </div>
 
         {/* Status Messages */}
         {error && (
-          <div className="max-w-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center">
+          <div className="max-w-sm p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center animate-in fade-in">
             {error}
           </div>
         )}
@@ -380,6 +496,13 @@ export default function ProfilePictureUploader({
         {success && (
           <div className="max-w-sm p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm text-center animate-in fade-in slide-in-from-bottom-2">
             ✓ {language === 'ar' ? 'تم حفظ الصورة بنجاح!' : 'Image saved successfully!'}
+          </div>
+        )}
+
+        {/* Debug Info - Always visible during development */}
+        {(debugInfo || process.env.NODE_ENV === 'development') && (
+          <div className="max-w-xs p-2 bg-slate-800/50 border border-slate-600/30 rounded-lg text-xs text-slate-400 font-mono text-center break-all">
+            {debugInfo || (language === 'ar' ? 'جاهز للاستخدام' : 'Ready')}
           </div>
         )}
 
@@ -456,11 +579,27 @@ export function useProfilePicture() {
   const [isLoading, setIsLoading] = useState(true)
 
   const loadProfilePicture = useCallback(async () => {
+    // Skip if not in browser (SSR safety)
+    if (!isBrowser()) {
+      console.log('[useProfilePicture] Skipping - not in browser (SSR)')
+      setIsLoading(false)
+      return
+    }
+
     try {
+      console.log('[useProfilePicture] Loading profile picture...')
       const pic = await getProfilePicture()
-      setImageUrl(pic?.data || pic?.thumbnail || null)
+      
+      if (pic && pic.data) {
+        console.log('[useProfilePicture] ✓ Found profile picture')
+        setImageUrl(pic.data)
+      } else {
+        console.log('[useProfilePicture] No profile picture found')
+        setImageUrl(null)
+      }
     } catch (err) {
-      console.error('Failed to load profile picture:', err)
+      console.error('[useProfilePicture] Failed to load:', err)
+      setImageUrl(null)
     } finally {
       setIsLoading(false)
     }
