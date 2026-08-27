@@ -10,15 +10,32 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  X
+  X,
+  Users,
+  Clock,
+  DollarSign,
+  Award,
+  Calendar
 } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
-// Page type
-type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings'
+// Page type - Extended with HRIS pages
+type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings' |
+  'hris-dashboard' | 'employees' | 'attendance' | 'payroll' | 'performance' | 'leaves'
 
 const navItems = [
   { icon: LayoutDashboard, labelKey: 'nav.dashboard', page: 'dashboard' as PageType },
+  
+  // HRIS Section Header (visual only)
+  // HRIS Pages
+  { icon: Users, labelKey: 'nav.hrisDashboard', page: 'hris-dashboard' as PageType },
+  { icon: Users, labelKey: 'nav.employees', page: 'employees' as PageType },
+  { icon: Clock, labelKey: 'nav.attendance', page: 'attendance' as PageType },
+  { icon: DollarSign, labelKey: 'nav.payroll', page: 'payroll' as PageType },
+  { icon: Award, labelKey: 'nav.performance', page: 'performance' as PageType },
+  { icon: Calendar, labelKey: 'nav.leaves', page: 'leaves' as PageType },
+  
+  // Divider (other sections)
   { icon: Cog, labelKey: 'nav.operations', page: 'operations' as PageType },
   { icon: Package, labelKey: 'nav.inventory', page: 'inventory' as PageType },
   { icon: CreditCard, labelKey: 'nav.financials', page: 'financials' as PageType },

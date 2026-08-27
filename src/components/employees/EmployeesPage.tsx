@@ -293,7 +293,7 @@ export default function EmployeesPage({ className = '' }: EmployeesPageProps) {
           <p className="text-gray-400 mt-1">
             {language === 'ar' 
               ? `${stats.total} موظف في النظام` 
-              : `${stats.total} employees in the system`}
+              : `${stats.total} employees in the system`
             }
           </p>
         </div>

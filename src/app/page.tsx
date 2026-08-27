@@ -11,11 +11,19 @@ import SettingsPage from '@/components/dashboard/SettingsPage'
 import KPICard from '@/components/dashboard/KPICard'
 import RevenueChart from '@/components/dashboard/RevenueChart'
 import SystemHealth from '@/components/dashboard/SystemHealth'
+// HRIS Pages
+import HRISDashboard from '@/components/hris/HRISDashboard'
+import EmployeesPage from '@/components/employees/EmployeesPage'
+import AttendancePage from '@/components/hris/AttendancePage'
+import PayrollPage from '@/components/hris/PayrollPage'
+import PerformancePage from '@/components/hris/PerformancePage'
+import LeavePage from '@/components/hris/LeavePage'
 import { Download, Plus } from 'lucide-react'
 import { useI18n } from '@/lib/i18n'
 
-// Page types
-type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings'
+// Page types - Extended with HRIS pages
+type PageType = 'dashboard' | 'operations' | 'inventory' | 'financials' | 'analytics' | 'settings' |
+  'hris-dashboard' | 'employees' | 'attendance' | 'payroll' | 'performance' | 'leaves'
 
 // Dashboard Component (Original Content)
 function DashboardPage() {
@@ -107,6 +115,20 @@ export default function Home() {
     switch (currentPage) {
       case 'dashboard':
         return <DashboardPage />
+      // HRIS Pages
+      case 'hris-dashboard':
+        return <HRISDashboard />
+      case 'employees':
+        return <EmployeesPage />
+      case 'attendance':
+        return <AttendancePage />
+      case 'payroll':
+        return <PayrollPage />
+      case 'performance':
+        return <PerformancePage />
+      case 'leaves':
+        return <LeavePage />
+      // Original Pages
       case 'operations':
         return <OperationsPage />
       case 'inventory':

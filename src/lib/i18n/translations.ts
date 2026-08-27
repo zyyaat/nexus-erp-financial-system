@@ -45,6 +45,44 @@ export const translations: Translations = {
     es: 'Configuración'
   },
 
+  // HRIS Navigation
+  'nav.hrisDashboard': {
+    ar: 'لوحة الموارد البشرية',
+    en: 'HR Dashboard',
+    fr: 'Tableau de bord RH',
+    es: 'Panel de RRHH'
+  },
+  'nav.employees': {
+    ar: 'الموظفون',
+    en: 'Employees',
+    fr: 'Employés',
+    es: 'Empleados'
+  },
+  'nav.attendance': {
+    ar: 'الحضور والغياب',
+    en: 'Attendance',
+    fr: 'Présence',
+    es: 'Asistencia'
+  },
+  'nav.payroll': {
+    ar: 'المرتبات والرواتب',
+    en: 'Payroll',
+    fr: 'Paie',
+    es: 'Nómina'
+  },
+  'nav.performance': {
+    ar: 'تقييم الأداء والترقيات',
+    en: 'Performance & Promotions',
+    fr: 'Performance et Promotions',
+    es: 'Rendimiento y Promociones'
+  },
+  'nav.leaves': {
+    ar: 'إدارة الإجازات',
+    en: 'Leave Management',
+    fr: 'Gestion des Congés',
+    es: 'Gestión de Permisos'
+  },
+
   // Sidebar Bottom
   'nav.systemStatus': {
     ar: 'حالة النظام',
