@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { I18nProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/ThemeProvider";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
+import HtmlSetup from "@/components/HtmlSetup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
@@ -79,6 +80,7 @@ export default function RootLayout({
         </ThemeProvider>
         <Toaster />
         <ServiceWorkerRegistration />
+        <HtmlSetup />
       </body>
     </html>
   );
