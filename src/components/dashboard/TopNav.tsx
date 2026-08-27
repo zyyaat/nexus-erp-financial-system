@@ -34,12 +34,13 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
       `}
       id="top-nav"
     >
-      <div className="flex items-center justify-between h-16 px-4 md:px-6">
-        {/* Left Section: Hamburger + Search */}
-        <div className={`flex items-center flex-1 min-w-0 gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          {/* Hamburger Menu (Mobile Only) */}
+      <div className={`flex items-center justify-between h-16 px-4 md:px-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        {/* First Section: Hamburger + Search (Left in LTR / Right in RTL) */}
+        <div className={`flex items-center flex-1 min-w-0 gap-3`}>
+          {/* Hamburger Menu (Mobile Only) - Always first in flow */}
           <button
             onClick={onMenuClick}
+            dir={isRTL ? 'rtl' : 'ltr'}
             className="
               flex-shrink-0 p-2 
               rounded-xl text-slate-600 dark:text-slate-300 
@@ -47,6 +48,7 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
               active:bg-slate-200 dark:active:bg-white/[0.08]
               transition-colors duration-200
               focus:outline-none focus:ring-2 focus:ring-blue-500/30
+              order-first
             "
             aria-label="Open menu"
           >
@@ -87,8 +89,8 @@ export default function TopNav({ onMenuClick }: TopNavProps) {
           </div>
         </div>
 
-        {/* Right Section: Actions + Profile */}
-        <div className={`flex items-center flex-shrink-0 gap-1 sm:gap-2 ${isRTL ? 'mr-3' : 'ml-3'}`}>
+        {/* Second Section: Actions + Profile (Right in LTR / Left in RTL) */}
+        <div className={`flex items-center flex-shrink-0 gap-1 sm:gap-2 ${isRTL ? 'ml-3' : 'mr-3'} order-last`}>
           {/* Notifications Button */}
           <button 
             className="
