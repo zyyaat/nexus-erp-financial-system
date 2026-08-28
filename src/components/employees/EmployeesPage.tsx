@@ -182,113 +182,135 @@ function DepartmentBadge({ department }: { department: DepartmentId }) {
   )
 }
 
-// ============ PDF EXPORT ============
+// ============ PDF EXPORT (with proper Arabic support) ============
 
 async function exportToPDF(employees: Employee[], title: string = 'تقرير الموظفين') {
-  // Dynamic import for smaller bundle size
-  const { default: jsPDF } = await import('jspdf')
+  // Use html2pdf.js for proper Arabic/RTL support
+  const html2pdf = (await import('html2pdf.js')).default
   
-  const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4',
-  })
+  // Create a styled HTML element for the report
+  const element = document.createElement('div')
+  element.dir = 'rtl'
+  element.style.fontFamily = "'Segoe UI', Tahoma, Arial, sans-serif"
+  element.style.padding = '40px'
+  element.style.backgroundColor = '#ffffff'
+  element.style.width = '297mm' // A4 width
   
-  // RTL support
-  doc.setR2L(true)
-  
-  // Colors
-  const primaryColor = [41, 98, 255] // Blue
-  const headerBgColor = [248, 250, 252] // Light gray
-  
-  // Title
-  doc.setFontSize(20)
-  doc.setTextColor(...primaryColor)
-  doc.text(title, 148, 20, { align: 'center' })
-  
-  // Date
-  doc.setFontSize(10)
-  doc.setTextColor(100, 100, 100)
-  doc.text(`تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA')}`, 148, 28, { align: 'center' })
-  
-  // Stats summary
-  doc.setFontSize(12)
-  doc.setTextColor(50, 50, 50)
-  doc.text(`إجمالي الموظفين: ${employees.length}`, 20, 40)
-  
+  // Calculate stats
   const activeCount = employees.filter(e => e.status === 'active').length
-  doc.text(`الموظفون النشطون: ${activeCount}`, 120, 40)
+  const onLeaveCount = employees.filter(e => e.status === 'on-leave').length
+  const totalSalary = employees.reduce((sum, e) => sum + (e.salary || 0), 0)
   
-  // Table headers
-  const startY = 50
-  const colWidths = [25, 35, 45, 30, 30, 30, 25, 30]
-  const headers = ['الرقم', 'الاسم', 'البريد الإلكتروني', 'القسم', 'المسمى الوظيفي', 'الحالة', 'نوع التوظيف', 'الراتب']
-  let x = 20
-  
-  // Header row
-  doc.setFillColor(...headerBgColor)
-  doc.rect(20, startY - 5, 267, 10, 'F')
-  doc.setFontSize(9)
-  doc.setFont(undefined, 'bold')
-  doc.setTextColor(50, 50, 50)
-  
-  headers.forEach((header, i) => {
-    doc.text(header, x + colWidths[i] / 2, startY, { align: 'center' })
-    x += colWidths[i]
-  })
-  
-  // Data rows
-  doc.setFontSize(8)
-  doc.setFont(undefined, 'normal')
-  
-  employees.forEach((emp, rowIndex) => {
-    const y = startY + 8 + (rowIndex * 12)
+  // Build HTML content
+  element.innerHTML = `
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #2563eb;">
+      <h1 style="color: #2563eb; font-size: 28px; margin: 0 0 10px 0;">${title}</h1>
+      <p style="color: #6b7280; font-size: 14px; margin: 0;">تاريخ التصدير: ${new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">نظام إدارة الموارد البشرية - Nexus ERP</p>
+    </div>
     
-    // Alternate row colors
-    if (rowIndex % 2 === 0) {
-      doc.setFillColor(255, 255, 255)
-    } else {
-      doc.setFillColor(252, 252, 252)
+    <!-- Stats Cards -->
+    <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 24px; font-weight: bold;">${employees.length}</div>
+        <div style="font-size: 12px; opacity: 0.9;">إجمالي الموظفين</div>
+      </div>
+      <div style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 24px; font-weight: bold;">${activeCount}</div>
+        <div style="font-size: 12px; opacity: 0.9;">موظفون نشطون</div>
+      </div>
+      <div style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #d97706, #f59e0b); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 24px; font-weight: bold;">${onLeaveCount}</div>
+        <div style="font-size: 12px; opacity: 0.9;">في إجازة</div>
+      </div>
+      <div style="flex: 1; min-width: 140px; background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+        <div style="font-size: 24px; font-weight: bold;">${totalSalary.toLocaleString()}</div>
+        <div style="font-size: 12px; opacity: 0.9;">إجمالي الرواتب (ر.س)</div>
+      </div>
+    </div>
+    
+    <!-- Table -->
+    <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+      <thead>
+        <tr style="background: #f1f5f9;">
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">#</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">اسم الموظف</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">الرقم الوظيفي</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">البريد الإلكتروني</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">القسم</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">المسمى الوظيفي</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">الحالة</th>
+          <th style="padding: 12px 8px; text-align: right; border: 1px solid #e2e8f0; font-weight: bold; color: #475569;">الراتب</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${employees.map((emp, index) => `
+          <tr style="${index % 2 === 0 ? 'background: #ffffff;' : 'background: #f8fafc;'}">
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0; text-align: center; color: #64748b;">${index + 1}</td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0; font-weight: 500; color: #1e293b;">${emp.fullName}</td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0; color: #475569; direction: ltr; text-align: right;">${emp.employeeId}</td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0; color: #475569; direction: ltr; text-align: right; font-size: 10px;">${emp.email}</td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0;">
+              <span style="display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; background: ${DEPARTMENTS[emp.department]?.color}20; color: ${DEPARTMENTS[emp.department]?.color};">
+                ${DEPARTMENTS[emp.department]?.nameAr}
+              </span>
+            </td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0; color: #475569;">${emp.jobTitle}</td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0;">
+              <span style="display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 10px; background: ${EMPLOYEE_STATUSES[emp.status]?.bgColor}; color: ${EMPLOYEE_STATUSES[emp.status]?.color};">
+                ${EMPLOYEE_STATUSES[emp.status]?.labelAr}
+              </span>
+            </td>
+            <td style="padding: 10px 8px; border: 1px solid #e2e8f0; color: #1e293b; font-weight: 500; direction: ltr; text-align: right;">${(emp.salary || 0).toLocaleString()} ر.س</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    
+    ${employees.length === 0 ? `
+      <div style="text-align: center; padding: 40px; color: #9ca3af;">
+        <p style="font-size: 16px; margin: 0;">لا يوجد موظفون لعرضهم</p>
+      </div>
+    ` : ''}
+    
+    <!-- Footer -->
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #9ca3af; font-size: 11px;">
+      <p>تم إنشاء هذا التقرير تلقائياً من نظام إدارة الموارد البشرية</p>
+      <p style="margin-top: 5px;">Nexus ERP © ${new Date().getFullYear()}</p>
+    </div>
+  `
+  
+  // Add element to DOM temporarily
+  element.style.position = 'fixed'
+  element.style.left = '-9999px'
+  element.style.top = '0'
+  document.body.appendChild(element)
+  
+  try {
+    // Configure PDF options
+    const opt = {
+      margin: 10,
+      filename: `employees-report-${new Date().toISOString().split('T')[0]}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'landscape' 
+      },
     }
-    doc.rect(20, y - 5, 267, 10, 'F')
     
-    const rowData = [
-      emp.employeeId,
-      emp.fullName,
-      emp.email,
-      DEPARTMENTS[emp.department]?.nameAr || emp.department,
-      emp.jobTitle,
-      EMPLOYEE_STATUSES[emp.status]?.labelAr || emp.status,
-      EMPLOYMENT_TYPES[emp.employmentType]?.labelAr || emp.employmentType,
-      `${emp.salary || 0} ر.س`,
-    ]
-    
-    x = 20
-    doc.setTextColor(60, 60, 60)
-    rowData.forEach((cell, i) => {
-      // Truncate long text
-      const text = cell.length > 20 ? cell.substring(0, 18) + '...' : cell
-      doc.text(text, x + colWidths[i] / 2, y, { align: 'center' })
-      x += colWidths[i]
-    })
-    
-    // New page if needed
-    if (y > 180) {
-      doc.addPage()
-    }
-  })
-  
-  // Footer
-  const pageCount = doc.getNumberOfPages()
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i)
-    doc.setFontSize(8)
-    doc.setTextColor(150, 150, 150)
-    doc.text(`صفحة ${i} من ${pageCount}`, 148, 200, { align: 'center' })
+    // Generate and download PDF
+    await html2pdf().set(opt).from(element).save()
+  } finally {
+    // Clean up
+    document.body.removeChild(element)
   }
-  
-  // Save
-  doc.save(`employees-report-${new Date().toISOString().split('T')[0]}.pdf`)
 }
 
 // ============ MODAL COMPONENTS ============
